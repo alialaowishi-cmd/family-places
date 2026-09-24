@@ -34,7 +34,8 @@
         select option { background: #1e293b; color: #fff; }
         textarea { resize: vertical; min-height: 90px; }
         
-        /* ⭐ 5 نجوم للتقييم */
+        .optional-note { font-size: 12px; color: #64748b; margin-left: 6px; font-weight: normal; }
+        
         .rating-label { margin-bottom: 10px; }
         .stars-input { display: flex; gap: 6px; margin-bottom: 15px; font-size: 32px; flex-direction: row-reverse; justify-content: flex-end; }
         .star { cursor: pointer; color: #475569; transition: all 0.2s; }
@@ -60,7 +61,6 @@
         }
         button:hover { transform: translateY(-2px); }
         .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
-        .btn-green-outline { background: transparent; border: 1px solid #4ade80; color: #4ade80; }
         .btn-disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-disabled:hover { transform: none; }
         
@@ -69,7 +69,6 @@
         .error { background: rgba(239,68,68,0.1); color: #f87171; display: block; }
         .loading { text-align: center; padding: 15px; color: #4ade80; display: none; }
         
-        /* قسم إضافة مدينة جديد محسّن */
         .add-city-section { background: rgba(74,222,128,0.03); border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px dashed rgba(74,222,128,0.2); }
         .add-city-row { display: flex; gap: 8px; }
         .add-city-row input { margin-bottom: 0; flex: 1; }
@@ -90,25 +89,23 @@
         </div>
 
         <form id="placeForm">
-            <!-- المعلومات الأساسية -->
             <div class="card">
                 <h2>📋 معلومات المكان</h2>
                 
                 <label for="placeName">اسم المكان *</label>
                 <input type="text" id="placeName" placeholder="مثال: منتزه الهدا" required>
 
-                <label for="citySelect">المدينة *</label>
-                <select id="citySelect" required>
-                    <option value="">اختر المدينة...</option>
+                <label for="citySelect">المدينة <span class="optional-note">(اختياري)</span></label>
+                <select id="citySelect">
+                    <option value="">-- اختر المدينة (اختياري) --</option>
                 </select>
                 
-                <div class="divider">أو</div>
+                <div class="divider">أو أضف مدينة جديدة</div>
                 
-                <!-- ✅ قسم إضافة مدينة جديدة - تم إصلاحه -->
                 <div class="add-city-section">
                     <label>إضافة مدينة جديدة:</label>
                     <div class="add-city-row">
-                        <input type="text" id="newCityInput" placeholder="اكتب اسم المدينة الجديدة هنا">
+                        <input type="text" id="newCityInput" placeholder="اكتب اسم المدينة هنا">
                         <button type="button" class="btn-sm" onclick="addNewCity()">➕ إضافة</button>
                     </div>
                 </div>
@@ -133,7 +130,6 @@
                 <input type="tel" id="phone" placeholder="05xxxxxxxx">
             </div>
 
-            <!-- ⭐ التقييم: 5 نجوم -->
             <div class="card">
                 <h2>⭐ تقييمك للمكان</h2>
                 <label class="rating-label">من 5 نجوم:</label>
@@ -147,36 +143,32 @@
                 <input type="hidden" id="ratingValue" value="0">
             </div>
 
-            <!-- الصور -->
             <div class="card">
                 <h2>📸 صور المكان</h2>
-                <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageUpload').click()">
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                     <div class="upload-icon">📤</div>
-                    <div class="upload-text">اضغط لرفع الصور أو اسحبها هنا<br>يسمح بعدة صور دفعة واحدة</div>
+                    <div class="upload-text">اضغط أو اسحب الصور هنا لرفعها</div>
                 </div>
-                <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+                <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
                 <div class="preview-container" id="previewContainer"></div>
             </div>
 
-            <!-- ملاحظات إضافية -->
             <div class="card">
                 <h2>📝 ملاحظات إضافية</h2>
-                <textarea id="notes" placeholder="أي معلومات أخرى تحب ذكرها..."></textarea>
+                <textarea id="notes" placeholder="أي معلومات إضافية تريد ذكرها..."></textarea>
             </div>
 
-            <button type="submit" class="btn-green" id="submitBtn">✅ نشر المكان</button>
-            <div class="loading" id="submitLoading">⏳ جاري الحفظ...</div>
-            <div class="message" id="formMessage"></div>
+            <div class="loading" id="loading">⏳ جاري الحفظ...</div>
+            <div class="message" id="message"></div>
+            
+            <button type="submit" class="btn btn-green" id="submitBtn">✅ حفظ ونشر المكان</button>
         </form>
     </div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        import { 
-            getFirestore, collection, addDoc, getDocs, query, orderBy, 
-            doc, getDoc, setDoc 
-        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 
         const firebaseConfig = {
@@ -194,224 +186,166 @@
         const storage = getStorage(app);
 
         let currentUser = null;
-        let editId = null;
         let selectedRating = 0;
-        let selectedFiles = [];
-        let uploadedURLs = [];
+        let uploadedImages = [];
+        let editMode = false;
+        let editPlaceId = null;
         let allCities = [];
 
-        onAuthStateChanged( (user) => {
+        onAuthStateChanged((user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             currentUser = user;
             loadCities();
             checkEditMode();
         });
 
-        // --- تحميل قائمة المدن ---
+        // ===== النجوم =====
+        const stars = document.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.value);
+                document.getElementById('ratingValue').value = selectedRating;
+                updateStarsDisplay();
+            });
+            star.addEventListener('mouseover', () => {
+                const hoverValue = parseInt(star.dataset.value);
+                stars.forEach(s => {
+                    const val = parseInt(s.dataset.value);
+                    s.classList.toggle('hover', val <= hoverValue);
+                });
+            });
+        });
+        document.getElementById('starsInput').addEventListener('mouseleave', updateStarsDisplay);
+
+        function updateStarsDisplay() {
+            stars.forEach(s => {
+                const val = parseInt(s.dataset.value);
+                s.classList.toggle('selected', val <= selectedRating);
+                s.classList.remove('hover');
+            });
+        }
+
+        // ===== تحميل المدن =====
         async function loadCities() {
             const select = document.getElementById('citySelect');
-            const currentValue = select.value; // حفظ القيمة المختارة حالياً
-            select.innerHTML = '<option value="">اختر المدينة...</option>';
+            select.innerHTML = '<option value="">-- اختر المدينة (اختياري) --</option>';
             allCities = [];
             try {
-                const q = query(collection(db, 'cities'), orderBy('name'));
+                const q = query(collection(db, 'cities'), orderBy('sortOrder', 'asc', 'name', 'asc'));
                 const snap = await getDocs(q);
-                if (!snap.empty) {
-                    snap.forEach(doc => {
-                        const city = doc.data();
-                        allCities.push({ id: doc.id, name: city.name });
-                        select.innerHTML += `<option value="${city.name}">${city.name}</option>`;
-                    });
-                }
-                // إعادة تعيين القيمة إذا كانت محددة
-                if (currentValue) select.value = currentValue;
+                snap.forEach(doc => {
+                    const city = doc.data();
+                    allCities.push({ id: doc.id, name: city.name });
+                    select.innerHTML += `<option value="${city.name}">${city.name}</option>`;
+                });
             } catch (err) {
-                showMessage('❌ خطأ في تحميل المدن: ' + err.message, 'error');
+                console.error('خطأ في تحميل المدن:', err);
             }
         }
-        window.loadCities = loadCities;
 
-        // --- ✅ إضافة مدينة جديدة - تم الإصلاح ---
+        // ===== إضافة مدينة جديدة =====
         window.addNewCity = async function() {
             const input = document.getElementById('newCityInput');
             const name = input.value.trim();
+            if (!name) { showMessage('⚠️ أدخل اسم المدينة أولاً', 'error'); return; }
             
-            if (!name) { 
-                showMessage('⚠️ أدخل اسم المدينة أولاً', 'error'); 
-                return; 
-            }
+            const exists = allCities.some(c => c.name === name);
+            if (exists) { showMessage('⚠️ هذه المدينة موجودة مسبقاً', 'error'); return; }
             
-            // تحقق من عدم تكرار الاسم
-            const exists = allCities.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
-            if (exists) {
-                showMessage('ℹ️ المدينة موجودة بالفعل! تم تحديدها من القائمة أدناه', 'success');
-                document.getElementById('citySelect').value = allCities.find(c => c.name.trim().toLowerCase() === name.toLowerCase()).name;
-                input.value = '';
-                return;
-            }
-
             try {
-                // إضافة المدينة لقاعدة البيانات
-                await addDoc(collection(db, 'cities'), { 
-                    name: name, 
-                    createdAt: new Date(),
-                    addedBy: currentUser.email
+                await addDoc(collection(db, 'cities'), {
+                    name: name,
+                    sortOrder: allCities.length,
+                    createdAt: new Date()
                 });
-                
-                showMessage(`✅ تم إضافة "${name}" بنجاح واختيارها تلقائياً!`, 'success');
+                showMessage(`✅ تمت إضافة "${name}" بنجاح!`, 'success');
                 input.value = '';
-                
-                // تحديث القائمة واختيار المدينة الجديدة تلقائياً
                 await loadCities();
                 document.getElementById('citySelect').value = name;
-                
             } catch (err) {
                 showMessage('❌ خطأ: ' + err.message, 'error');
             }
         };
 
-        // --- ⭐ منطق التقييم بالنجوم ---
-        const stars = document.querySelectorAll('.star');
-        stars.forEach(star => {
-            star.addEventListener('mouseover', () => {
-                const val = parseInt(star.dataset.value);
-                highlightStars(val);
-            });
-            star.addEventListener('mouseout', () => {
-                highlightStars(selectedRating);
-            });
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.dataset.value);
-                document.getElementById('ratingValue').value = selectedRating;
-                highlightStars(selectedRating);
-            });
-        });
+        // ===== رفع الصور =====
+        const fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('change', handleFiles);
 
-        function highlightStars(count) {
-            stars.forEach(star => {
-                const val = parseInt(star.dataset.value);
-                star.classList.toggle('selected', val <= count);
-            });
-        }
-
-        // --- معالجة رفع الصور ---
-        const uploadArea = document.getElementById('uploadArea');
-        const imageUpload = document.getElementById('imageUpload');
-        const previewContainer = document.getElementById('previewContainer');
-
-        imageUpload.addEventListener('change', handleFilesSelect);
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#4ade80';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = 'rgba(74,222,128,0.3)';
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = 'rgba(74,222,128,0.3)';
-            handleFiles(e.dataTransfer.files);
-        });
-
-        function handleFilesSelect(e) {
-            handleFiles(e.target.files);
-        }
-
-        function handleFiles(files) {
-            Array.from(files).forEach(file => {
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
                 if (!file.type.startsWith('image/')) return;
-                if (selectedFiles.length >= 5) {
-                    showMessage('❗ الحد الأقصى 5 صور فقط', 'error');
-                    return;
-                }
-                selectedFiles.push(file);
-                
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    const idx = selectedFiles.length - 1;
-                    const preview = document.createElement('div');
-                    preview.className = 'preview-item';
-                    preview.innerHTML = `
-                        <img src="${e.target.result}" alt="معاينة">
-                        <button type="button" class="preview-remove" data-index="${idx}">×</button>
-                    `;
-                    previewContainer.appendChild(preview);
+                reader.onload = (event) => {
+                    uploadedImages.push({ file: file, preview: event.target.result, url: null });
+                    renderPreviews();
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        // حذف صورة من المعاينة
-        previewContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('preview-remove')) {
-                const idx = parseInt(e.target.dataset.index);
-                selectedFiles.splice(idx, 1);
-                rebuildPreview();
-            }
-        });
-
-        function rebuildPreview() {
-            previewContainer.innerHTML = '';
-            selectedFiles.forEach((file, idx) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const preview = document.createElement('div');
-                    preview.className = 'preview-item';
-                    preview.innerHTML = `
-                        <img src="${e.target.result}" alt="معاينة">
-                        <button type="button" class="preview-remove" data-index="${idx}">×</button>
-                    `;
-                    previewContainer.appendChild(preview);
-                };
-                reader.readAsDataURL(file);
+        function renderPreviews() {
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+            uploadedImages.forEach((img, index) => {
+                container.innerHTML += `
+                    <div class="preview-item">
+                        <img src="${img.preview}" alt="preview">
+                        <button type="button" class="preview-remove" onclick="removeImage(${index})">×</button>
+                    </div>
+                `;
             });
         }
 
-        // --- وضع التعديل ---
-        async function checkEditMode() {
+        window.removeImage = function(index) {
+            uploadedImages.splice(index, 1);
+            renderPreviews();
+        };
+
+        // ===== التحقق من وضع التعديل =====
+        function checkEditMode() {
             const params = new URLSearchParams(window.location.search);
-            editId = params.get('edit');
-            
-            if (editId) {
+            editPlaceId = params.get('edit');
+            if (editPlaceId) {
+                editMode = true;
                 document.getElementById('formHeading').textContent = '✏️ تعديل المكان';
                 document.getElementById('formSubtitle').textContent = 'قم بتحديث بيانات المكان';
-                document.getElementById('submitBtn').textContent = '✅ تحديث البيانات';
-                
-                try {
-                    const docSnap = await getDoc(doc(db, 'places', editId));
-                    if (!docSnap.exists()) {
-                        showMessage('❌ المكان غير موجود', 'error');
-                        return;
-                    }
-                    
-                    const data = docSnap.data();
-                    document.getElementById('placeName').value = data.name || '';
-                    document.getElementById('citySelect').value = data.city || '';
-                    document.getElementById('category').value = data.category || '';
-                    document.getElementById('location').value = data.location || '';
-                    document.getElementById('price').value = data.price || '';
-                    document.getElementById('phone').value = data.phone || '';
-                    document.getElementById('notes').value = data.notes || '';
-                    
-                    selectedRating = data.rating || 0;
-                    document.getElementById('ratingValue').value = selectedRating;
-                    highlightStars(selectedRating);
-                    
-                    // عرض الصور الموجودة
-                    uploadedURLs = data.images || [];
-                    uploadedURLs.forEach(url => {
-                        const preview = document.createElement('div');
-                        preview.className = 'preview-item';
-                        preview.innerHTML = `<img src="${url}" alt="معاينة">`;
-                        previewContainer.appendChild(preview);
-                    });
-                } catch (err) {
-                    showMessage('❌ خطأ في تحميل البيانات: ' + err.message, 'error');
-                }
+                document.getElementById('submitBtn').textContent = '✅ تحديث المكان';
+                loadPlaceData();
             }
         }
 
-        // --- إرسال النموذج ---
+        async function loadPlaceData() {
+            try {
+                const docSnap = await getDoc(doc(db, 'places', editPlaceId));
+                if (!docSnap.exists()) {
+                    showMessage('❌ المكان غير موجود', 'error');
+                    return;
+                }
+                const data = docSnap.data();
+                document.getElementById('placeName').value = data.name || '';
+                document.getElementById('citySelect').value = data.city || '';
+                document.getElementById('category').value = data.category || '';
+                document.getElementById('location').value = data.location || '';
+                document.getElementById('price').value = data.price || '';
+                document.getElementById('phone').value = data.phone || '';
+                document.getElementById('notes').value = data.notes || '';
+                selectedRating = data.rating || 0;
+                document.getElementById('ratingValue').value = selectedRating;
+                updateStarsDisplay();
+                
+                if (data.images && Array.isArray(data.images)) {
+                    data.images.forEach(url => {
+                        uploadedImages.push({ file: null, preview: url, url: url });
+                    });
+                    renderPreviews();
+                }
+            } catch (err) {
+                showMessage('❌ خطأ في تحميل البيانات: ' + err.message, 'error');
+            }
+        }
+
+        // ===== حفظ/تعديل المكان =====
         document.getElementById('placeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -422,63 +356,66 @@
             const price = document.getElementById('price').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const notes = document.getElementById('notes').value.trim();
-            
-            if (!name || !city || !category) {
-                showMessage('❗ يرجى ملء الحقول المطلوبة (اسم المكان، المدينة، التصنيف)', 'error');
+
+            if (!name || !category) {
+                showMessage('⚠️ يرجى ملء الاسم والتصنيف', 'error');
                 return;
             }
-            
+
             const submitBtn = document.getElementById('submitBtn');
-            const loading = document.getElementById('submitLoading');
+            const loading = document.getElementById('loading');
             submitBtn.disabled = true;
             submitBtn.classList.add('btn-disabled');
             loading.style.display = 'block';
-            document.getElementById('formMessage').style.display = 'none';
+            document.getElementById('message').style.display = 'none';
 
             try {
-                // رفع الصور الجديدة إلى Storage
-                const newURLs = [];
-                for (const file of selectedFiles) {
-                    const fileName = `places/${Date.now()}_${file.name}`;
-                    const storageRef = ref(storage, fileName);
-                    const snapshot = await uploadBytes(storageRef, file);
-                    const url = await getDownloadURL(snapshot.ref);
-                    newURLs.push(url);
+                // رفع الصور الجديدة فقط
+                const finalImageUrls = [];
+                for (const img of uploadedImages) {
+                    if (img.url) {
+                        finalImageUrls.push(img.url);
+                    } else if (img.file) {
+                        const storageRef = ref(storage, `places/${Date.now()}_${img.file.name}`);
+                        const snapshot = await uploadBytes(storageRef, img.file);
+                        const downloadURL = await getDownloadURL(snapshot.ref);
+                        finalImageUrls.push(downloadURL);
+                    }
                 }
 
-            // دمج الصور القديمة والجديدة في وضع التعديل
-                let finalImages = editId ? [...uploadedURLs, ...newURLs] : newURLs;
-
                 const placeData = {
-                    name, city, category, location, price, phone, notes,
+                    name,
+                    city: city || null,
+                    category,
+                    location,
+                    price,
+                    phone,
+                    notes,
                     rating: selectedRating,
-                    images: finalImages,
+                    images: finalImageUrls,
+                    updatedAt: new Date(),
                     addedBy: currentUser.email,
-                    addedByUid: currentUser.uid,
-                    updatedAt: new Date()
+                    addedByUid: currentUser.uid
                 };
 
-                if (editId) {
-                    // تحديث مكان موجود
-                    await setDoc(doc(db, 'places', editId), placeData, { merge: true });
+                if (editMode) {
+                    await setDoc(doc(db, 'places', editPlaceId), placeData, { merge: true });
                     showMessage('✅ تم تحديث المكان بنجاح!', 'success');
                 } else {
-                    // إضافة مكان جديد
                     placeData.createdAt = new Date();
+                    placeData.sortOrder = 0;
                     await addDoc(collection(db, 'places'), placeData);
-                    showMessage('✅ تم نشر المكان بنجاح! 🎉', 'success');
-                    // إعادة تعيين النموذج
-                    e.target.reset();
+                    showMessage('✅ تم إضافة المكان بنجاح!', 'success');
+                    document.getElementById('placeForm').reset();
                     selectedRating = 0;
-                    highlightStars(0);
-                    selectedFiles = [];
-                    uploadedURLs = [];
-                    previewContainer.innerHTML = '';
+                    updateStarsDisplay();
+                    uploadedImages = [];
+                    renderPreviews();
                 }
 
                 setTimeout(() => {
                     window.location.href = 'home.html';
-                }, 1500);
+                }, 1200);
 
             } catch (err) {
                 showMessage('❌ خطأ: ' + err.message, 'error');
@@ -490,11 +427,13 @@
         });
 
         function showMessage(text, type) {
-            const msg = document.getElementById('formMessage');
+            const msg = document.getElementById('message');
             msg.textContent = text;
             msg.className = `message ${type}`;
             msg.style.display = 'block';
-            setTimeout(() => { msg.style.display = 'none'; }, 5000);
+            if (type === 'success') {
+                setTimeout(() => msg.style.display = 'none', 5000);
+            }
         }
     </script>
 </body>
