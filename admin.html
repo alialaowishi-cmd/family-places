@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | كشتات عائلة حسين العويشي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff; padding: 20px; padding-bottom: 60px;
+        }
+        .container { max-width: 750px; margin: 0 auto; }
+        .back-btn { color: #4ade80; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 25px; }
+        .admin-badge {
+            background: linear-gradient(135deg, #facc15, #eab308); color: #000; padding: 8px 20px; border-radius: 30px;
+            font-weight: 700; display: inline-block; margin-bottom: 25px;
+        }
+        .card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 25px; margin-bottom: 25px;
+        }
+        .card h2 { font-size: 18px; color: #4ade80; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        input, textarea {
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05); color: #fff; font-size: 15px; margin-bottom: 15px; outline: none;
+        }
+        input:focus, textarea:focus { border-color: #4ade80; }
+        button {
+            padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: transform 0.2s; font-size: 15px;
+        }
+        button:hover { transform: translateY(-2px); }
+        .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+        .btn-red { background: rgba(239,68,68,0.2); color: #fca5a5; }
+        .btn-yellow { background: linear-gradient(135deg, #facc15, #eab308); color: #000; }
+        .city-item, .user-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;
+        }
+        .delete-btn {
+            background: rgba(239,68,68,0.2); color: #fca5a5; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
+        }
+        .message { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; font-size: 14px; }
+        .success { background: rgba(74,222,128,0.1); color: #4ade80; display: block; }
+        .error { background: rgba(239,68,68,0.1); color: #f87171; display: block; }
+        .user-email { font-size: 13px; color: #94a3b8; }
+        .user-date { font-size: 12px; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="home.html" class="back-btn">← العودة للرئيسية</a>
+        <div class="admin-badge">🔧 لوحة تحكم المشرف</div>
+
+        <!-- إدارة المدن -->
+        <div class="card">
+            <h2>🏙️ إدارة المدن</h2>
+            <input type="text" id="cityName" placeholder="اسم المدينة الجديدة">
+            <button class="btn-green" onclick="addCity()">✅ إضافة المدينة</button>
+            <div id="cityMsg" class="message"></div>
+            <div style="margin-top: 20px;">
+                <h3 style="color:#cbd5e1; font-size:15px; margin-bottom:10px;">المدن الحالية:</h3>
+                <div id="citiesList"></div>
+            </div>
+        </div>
+
+        <!-- إعداد الصفحة الرئيسية -->
+        <div class="card">
+            <h2>✏️ إعدادات الصفحة الرئيسية</h2>
+            <label style="color:#cbd5e1; font-size:14px; font-weight:600; margin-bottom:8px; display:block;">نص الشريط المتحرك:</label>
+            <textarea id="marqueeText" rows="3" placeholder="أدخل النص الذي يظهر في الأعلى متحركاً..."></textarea>
+            <button class="btn-yellow" onclick="saveMarquee()">💾 حفظ النص</button>
+            <div id="marqueeMsg" class="message"></div>
+        </div>
+
+        <!-- المشتركين -->
+        <div class="card">
+            <h2>👥 المشتركين المسجلين</h2>
+            <div id="usersList">
+                <p style="color:#94a3b8">⏳ جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { 
+            getFirestore, collection, addDoc, getDocs, deleteDoc, doc, 
+            query, orderBy, setDoc, getDoc 
+        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.appspot.com",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "Alihossin28@gmail.com";
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            if (user.email !== ADMIN_EMAIL) {
+                alert('⛔ غير مصرح لك بالدخول!');
+                window.location.href = 'home.html';
+                return;
+            }
+            loadCities();
+            loadMarquee();
+            loadUsers();
+        });
+
+        // --- إدارة المدن ---
+        async function loadCities() {
+            const list = document.getElementById('citiesList');
+            list.innerHTML = '<p style="color:#94a3b8">⏳ جاري التحميل...</p>';
+            try {
+                const q = query(collection(db, 'cities'), orderBy('name'));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    list.innerHTML = '<p style="color:#94a3b8">لا توجد مدن مضافة بعد</p>';
+                    return;
+                }
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const city = doc.data();
+                    list.innerHTML += `
+                        <div class="city-item">
+                            <span>🏙️ ${city.name}</span>
+                            <button class="delete-btn" onclick="deleteCity('${doc.id}')">🗑️ حذف</button>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                list.innerHTML = `<p style="color:#f87171">خطأ: ${err.message}</p>`;
+            }
+        }
+
+        window.addCity = async function() {
+            const name = document.getElementById('cityName').value.trim();
+            const msg = document.getElementById('cityMsg');
+            if (!name) { msg.textContent = 'أدخل اسم المدينة'; msg.className = 'message error'; return; }
+            try {
+                await addDoc(collection(db, 'cities'), { name, createdAt: new Date() });
+                msg.textContent = `✅ تم إضافة "${name}" بنجاح!`; msg.className = 'message success';
+                document.getElementById('cityName').value = '';
+                loadCities();
+                setTimeout(() => msg.style.display = 'none', 3000);
+            } catch (err) {
+                msg.textContent = `❌ ${err.message}`; msg.className = 'message error';
+            }
+        }
+
+        window.deleteCity = async function(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه المدينة؟')) return;
+            try {
+                await deleteDoc(doc(db, 'cities', id));
+                loadCities();
+            } catch (err) { alert(err.message); }
+        }
+
+        // --- الشريط المتحرك ---
+        async function loadMarquee() {
+            try {
+                const docSnap = await getDoc(doc(db, 'settings', 'marquee'));
+                if (docSnap.exists()) {
+                    document.getElementById('marqueeText').value = docSnap.data().text || '';
+                }
+            } catch (err) { console.log(err); }
+        }
+
+        window.saveMarquee = async function() {
+            const text = document.getElementById('marqueeText').value.trim();
+            const msg = document.getElementById('marqueeMsg');
+            if (!text) { msg.textContent = 'أدخل النص أولاً'; msg.className = 'message error'; return; }
+            try {
+                await setDoc(doc(db, 'settings', 'marquee'), { text, updatedAt: new Date() });
+                msg.textContent = '✅ تم حفظ النص بنجاح!'; msg.className = 'message success';
+                setTimeout(() => msg.style.display = 'none', 3000);
+            } catch (err) {
+                msg.textContent = '❌ ' + err.message; msg.className = 'message error';
+            }
+        }
+
+        // --- تحميل المشتركين ---
+        async function loadUsers() {
+            const list = document.getElementById('usersList');
+            list.innerHTML = '<p style="color:#94a3b8">⏳ جاري تحميل البيانات...</p>';
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                if (snap.empty) {
+                    list.innerHTML = '<p style="color:#94a3b8">لا يوجد مشتركين مسجلين حتى الآن</p>';
+                    return;
+                }
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const user = doc.data();
+                    const date = user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString('ar-SA') : 'غير معروف';
+                    list.innerHTML += `
+                        <div class="user-item">
+                            <div>
+                                <div><strong>${user.name || 'بدون اسم'}</strong></div>
+                                <div class="user-email">📧 ${user.email || ''}</div>
+                                <div class="user-date">📅 تاريخ التسجيل: ${date}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                list.innerHTML = `<p style="color:#f87171">❌ خطأ: ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

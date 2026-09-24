@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معلومات المشرف | كشتات عائلة حسين العويشي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff; padding: 20px; display: flex; align-items: center; justify-content: center;
+        }
+        .container { max-width: 480px; width: 100%; }
+        .back-btn { color: #4ade80; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 25px; }
+        .info-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(74,222,128,0.2);
+            border-radius: 24px; padding: 35px; text-align: center;
+        }
+        .admin-avatar {
+            width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #facc15, #eab308);
+            display: flex; align-items: center; justify-content: center; font-size: 40px; color: #000; margin: 0 auto 20px;
+        }
+        .info-card h2 { font-size: 22px; color: #4ade80; margin-bottom: 5px; }
+        .admin-role { color: #facc15; font-size: 14px; margin-bottom: 25px; }
+        .info-row {
+            display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 14px;
+        }
+        .info-row span:first-child { color: #94a3b8; }
+        .permissions {
+            margin-top: 25px; text-align: right;
+        }
+        .permissions h3 { font-size: 15px; color: #cbd5e1; margin-bottom: 12px; }
+        .permissions ul { list-style: none; }
+        .permissions li { padding: 6px 0; font-size: 13px; color: #94a3b8; }
+        .permissions li::before { content: '✅ '; margin-left: 6px; color: #4ade80; }
+        .btn { margin-top: 25px; padding: 12px 30px; border-radius: 10px; border: none; background: linear-gradient(135deg, #facc15, #eab308); color: #000; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { transform: translateY(-2px); }
+        .error-access { text-align: center; padding: 60px 20px; display: none; }
+        .error-access h2 { color: #f87171; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="adminContent">
+        <a href="home.html" class="back-btn">← العودة للرئيسية</a>
+        <div class="info-card">
+            <div class="admin-avatar">👨‍💼</div>
+            <h2>مدير النظام</h2>
+            <p class="admin-role">الصلاحية الكاملة للنظام</p>
+            
+            <div class="info-row">
+                <span>البريد الإلكتروني:</span>
+                <span>Alihossin28@gmail.com</span>
+            </div>
+            <div class="info-row">
+                <span>الحالة:</span>
+                <span style="color:#4ade80">نشط ✅</span>
+            </div>
+            <div class="info-row">
+                <span>مستوى الوصول:</span>
+                <span>مدير كامل</span>
+            </div>
+
+            <div class="permissions">
+                <h3>📋 صلاحيات المشرف:</h3>
+                <ul>
+                    <li>إضافة وتعديل وحذف المدن</li>
+                    <li>تعديل نص الشريط المتحرك</li>
+                    <li>حذف وتعديل أي مكان في النظام</li>
+                    <li>عرض قائمة المشتركين المسجلين</li>
+                    <li>تعديل إعدادات الصفحة الرئيسية</li>
+                </ul>
+            </div>
+
+            <a href="admin.html" class="btn">🔧 الذهاب للوحة التحكم</a>
+        </div>
+    </div>
+
+    <div class="error-access" id="errorAccess">
+        <h2>⛔ غير مصرح لك بالدخول</h2>
+        <p>هذه الصفحة خاصة بالمشرف فقط</p>
+        <a href="home.html" class="btn" style="background: rgba(74,222,128,0.2); color:#4ade80; margin-top:15px;">العودة للرئيسية</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.appspot.com",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const ADMIN_EMAIL = "Alihossin28@gmail.com";
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            if (user.email !== ADMIN_EMAIL) {
+                document.getElementById('adminContent').style.display = 'none';
+                document.getElementById('errorAccess').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
