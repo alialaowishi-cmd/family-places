@@ -94,9 +94,7 @@
         </div>
     </nav>
 
-    <!-- ====================================== -->
     <!-- نافذة الإشعارات -->
-    <!-- ====================================== -->
     <div id="notificationsModal" class="modal fixed inset-0 bg-black/50 z-50 items-end justify-center">
         <div class="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
@@ -112,7 +110,6 @@
                     </button>
                 </div>
             </div>
-
             <div id="notificationsList" class="space-y-2">
                 <div class="text-center py-10 text-gray-400">
                     <i class="fa fa-bell-o text-4xl mb-3"></i>
@@ -136,54 +133,17 @@
     </div>
 
     <script>
-        // ======================================
-        // دوال الإشعارات
-        // ======================================
         function initNotifications() {
-            // إنشاء مصفوفة الإشعارات إذا لم تكن موجودة
             if (!localStorage.getItem('notifications')) {
                 localStorage.setItem('notifications', JSON.stringify([]));
             }
         }
 
-        // إضافة إشعار جديد
-        window.addNotification = function(place, type = 'new') {
-            initNotifications();
-            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-            
-            let title, message;
-            if (type === 'new') {
-                title = '📍 مكان جديد مضاف';
-                message = `أُضيف "${place.name}" في ${place.city || 'مدينة غير محددة'}`;
-            } else if (type === 'updated') {
-                title = '✏️ تم تحديث مكان';
-                message = `تم تحديث "${place.name}" في ${place.city || 'مدينة غير محددة'}`;
-            }
-
-            const newNotification = {
-                id: Date.now(),
-                title: title,
-                message: message,
-                placeId: place.id,
-                placeName: place.name,
-                city: place.city,
-                type: type,
-                read: false,
-                createdAt: new Date().toISOString()
-            };
-
-            notifications.unshift(newNotification);
-            localStorage.setItem('notifications', JSON.stringify(notifications));
-            updateNotificationsBadge();
-        };
-
-        // تحديث شارة الإشعارات
         function updateNotificationsBadge() {
             initNotifications();
             const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
             const unreadCount = notifications.filter(n => !n.read).length;
             const badge = document.getElementById('notificationsBadge');
-            
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
                 badge.classList.remove('hidden');
@@ -192,28 +152,20 @@
             }
         }
 
-        // عرض قائمة الإشعارات
         function renderNotifications() {
             initNotifications();
             const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
             const container = document.getElementById('notificationsList');
-            
             if (notifications.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 text-gray-400">
-                        <i class="fa fa-bell-o text-4xl mb-3"></i>
-                        <p>لا توجد إشعارات حتى الآن</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-10 text-gray-400"><i class="fa fa-bell-o text-4xl mb-3"></i><p>لا توجد إشعارات حتى الآن</p></div>`;
                 return;
             }
-
             container.innerHTML = '';
             notifications.forEach(notification => {
                 const timeAgo = getTimeAgo(notification.createdAt);
                 container.innerHTML += `
                     <div class="notification-item p-3 rounded-xl ${notification.read ? 'bg-gray-50' : 'bg-green-50 border-l-4 border-primary'}"
-                         onclick="goToNotificationPlace('${notification.id}', '${notification.placeId || ''}', '${encodeURIComponent(notification.city || '')}')">
+                         onclick="goToNotificationPlace('${notification.id}', '${encodeURIComponent(notification.city || '')}')">
                         <div class="flex items-start gap-3">
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-bold text-sm ${notification.read ? 'text-gray-600' : 'text-gray-800'}">${notification.title}</h4>
@@ -227,20 +179,15 @@
             });
         }
 
-        // الانتقال إلى المكان من الإشعار
-        window.goToNotificationPlace = function(notificationId, placeId, cityName) {
-            // تحديث الإشعار إلى مقروء
+        window.goToNotificationPlace = function(notificationId, cityName) {
             markAsRead(notificationId);
-            
             if (cityName) {
                 localStorage.setItem('currentCity', decodeURIComponent(cityName));
-                window.location.href = `city.html?city=${cityName}#place-${placeId}`;
-            } else {
-                window.location.href = 'home.html';
+                // ✅ تم تصحيح الرابط ليصبح city-view.html
+                window.location.href = `city-view.html?city=${cityName}`;
             }
         };
 
-        // تحديد إشعار كمقروء
         window.markAsRead = function(notificationId) {
             initNotifications();
             const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
@@ -253,7 +200,6 @@
             }
         };
 
-        // تحديد الكل كمقروء
         window.markAllAsRead = function() {
             initNotifications();
             const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
@@ -263,7 +209,6 @@
             renderNotifications();
         };
 
-        // مسح جميع الإشعارات
         window.clearAllNotifications = function() {
             if (!confirm('⚠️ مسح جميع الإشعارات؟ لا يمكن التراجع!')) return;
             localStorage.setItem('notifications', JSON.stringify([]));
@@ -271,7 +216,6 @@
             renderNotifications();
         };
 
-        // فتح وإغلاق نافذة الإشعارات
         window.openNotificationsModal = function() {
             renderNotifications();
             document.getElementById('notificationsModal').classList.add('active', 'flex');
@@ -283,7 +227,6 @@
             document.body.style.overflow = 'auto';
         };
 
-        // حساب الوقت المنقضي
         function getTimeAgo(dateString) {
             const now = new Date();
             const created = new Date(dateString);
@@ -291,7 +234,6 @@
             const diffMins = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
-
             if (diffMins < 1) return 'الآن';
             if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
             if (diffHours < 24) return `منذ ${diffHours} ساعة`;
@@ -299,25 +241,18 @@
             return created.toLocaleDateString('ar-SA');
         }
 
-        // ======================================
-        // دوال الصفحة
-        // ======================================
         function loadRecentPlaces() {
             const places = JSON.parse(localStorage.getItem('places') || '[]');
             const container = document.getElementById('recentPlaces');
-            
             if (places.length === 0) {
                 container.innerHTML = `<div class="text-center py-6 text-gray-400 text-sm">لا توجد أماكن مضافة حتى الآن</div>`;
                 return;
             }
-
             const sorted = places.sort((a, b) => new Date(b.addedAt || 0) - new Date(a.addedAt || 0)).slice(0, 5);
-            
             container.innerHTML = '';
             sorted.forEach(place => {
                 const stars = '★'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0));
                 const mainImage = place.images && place.images.length > 0 ? place.images[0] : null;
-                
                 container.innerHTML += `
                     <div class="place-card bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex items-center gap-3"
                          onclick="openCity('${place.city || ''}')">
@@ -339,20 +274,11 @@
             let cities = JSON.parse(localStorage.getItem('cities') || '[]');
             const places = JSON.parse(localStorage.getItem('places') || '[]');
             const container = document.getElementById('citiesList');
-            
             cities = cities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-            
             if (cities.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-gray-400 col-span-full">
-                        <i class="fa fa-folder-open text-5xl mb-4"></i>
-                        <p>لا توجد مدن مضافة حتى الآن</p>
-                        <p class="text-sm mt-1">أضف مدناً أولاً من الأسفل 👇</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-center py-12 text-gray-400 col-span-full"><i class="fa fa-folder-open text-5xl mb-4"></i><p>لا توجد مدن مضافة حتى الآن</p><p class="text-sm mt-1">أضف مدناً أولاً من الأسفل 👇</p></div>`;
                 return;
             }
-
             container.innerHTML = '';
             cities.forEach(city => {
                 const count = places.filter(p => p.city === city.name).length;
@@ -371,7 +297,8 @@
 
         window.openCity = function(cityName) {
             localStorage.setItem('currentCity', cityName);
-            window.location.href = `city.html?city=${encodeURIComponent(cityName)}`;
+            // ✅ تم تصحيح الرابط ليصبح city-view.html
+            window.location.href = `city-view.html?city=${encodeURIComponent(cityName)}`;
         };
 
         window.openAddCityModal = function() {
@@ -388,11 +315,9 @@
         window.saveNewCity = function() {
             const name = document.getElementById('newCityName').value.trim();
             if (!name) return alert('⚠️ أدخل اسم المدينة');
-            
             let cities = JSON.parse(localStorage.getItem('cities') || '[]');
             const exists = cities.find(c => c.name.trim() === name.trim());
             if (exists) return alert('⚠️ هذه المدينة موجودة مسبقاً!');
-            
             cities.push({ name: name, createdAt: new Date().toISOString() });
             localStorage.setItem('cities', JSON.stringify(cities));
             alert(`✅ تمت إضافة مدينة "${name}" بنجاح`);
@@ -400,12 +325,10 @@
             loadCities();
         };
 
-        // إغلاق النافذة عند النقر خارجها
         document.getElementById('notificationsModal').addEventListener('click', (e) => {
             if (e.target.id === 'notificationsModal') closeNotificationsModal();
         });
 
-        // تحميل أولي
         initNotifications();
         updateNotificationsBadge();
         loadRecentPlaces();
