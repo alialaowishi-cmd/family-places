@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المشرف — كشكات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#22c55e', secondary: '#15803d', danger: '#ef4444' }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="home.html" class="text-white"><i class="fa fa-arrow-left text-xl"></i></a>
+                <h1 class="text-xl font-bold">لوحة تحكم المشرف</h1>
+            </div>
+            <p class="text-sm hidden sm:block">بريد المشرف: <span id="adminEmailDisplay" class="font-medium">Alihossin28@gmail.com</span></p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div id="notAdmin" class="text-center py-16 hidden">
+            <i class="fa fa-lock text-5xl text-gray-300 mb-4"></i>
+            <h2 class="text-xl font-bold text-gray-600 mb-2">غير مصرح لك بالوصول لهذه الصفحة</h2>
+            <p class="text-gray-500 mb-4">فقط المشرف يمكنه الوصول إلى لوحة التحكم</p>
+            <a href="home.html" class="inline-block bg-primary text-white px-6 py-2 rounded-lg">العودة للرئيسية</a>
+        </div>
+
+        <div id="loading" class="text-center py-16">
+            <i class="fa fa-spinner fa-spin text-3xl text-primary mb-4"></i>
+            <p class="text-gray-500">جاري التحميل...</p>
+        </div>
+
+        <div id="adminContent" class="hidden">
+            <!-- إعدادات الموقع -->
+            <section class="bg-white rounded-2xl shadow-sm p-6 mb-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-cog text-amber-500"></i> إعدادات الموقع
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">اسم الموقع</label>
+                        <input type="text" id="siteNameInput" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="كشكات">
+                    </div>
+                    <button id="saveSiteName" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition">
+                        <i class="fa fa-save ml-1"></i> حفظ اسم الموقع
+                    </button>
+                </div>
+                <div id="siteNameSuccess" class="mt-3 text-green-600 text-sm hidden">✅ تم تحديث اسم الموقع بنجاح!</div>
+            </section>
+
+            <!-- إدارة المدن -->
+            <section class="bg-white rounded-2xl shadow-sm p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa fa-map-marker text-primary"></i> إدارة المدن
+                    </h2>
+                    <button id="addNewCityBtn" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition">
+                        <i class="fa fa-plus ml-1"></i> إضافة مدينة
+                    </button>
+                </div>
+                <div id="citiesList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-4">جاري تحميل المدن...</p>
+                </div>
+            </section>
+
+            <!-- إدارة الأماكن -->
+            <section class="bg-white rounded-2xl shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-map-o text-primary"></i> إدارة جميع الأماكن
+                </h2>
+                <div id="placesList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-4">جاري تحميل الأماكن...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- نافذة إضافة/تعديل مدينة -->
+    <div id="cityModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <h3 id="cityModalTitle" class="text-xl font-bold text-gray-800 mb-4">إضافة مدينة جديدة</h3>
+            <input type="hidden" id="editCityId">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-2">اسم المدينة</label>
+                <input type="text" id="newCityName" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="مثال: الطائف">
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2">ترتيب العرض</label>
+                <input type="number" id="newCitySort" class="w-full p-3 border border-gray-300 rounded-lg" value="0">
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelCityBtn" class="flex-1 bg-gray-200 py-3 rounded-lg">إلغاء</button>
+                <button id="saveCityBtn" class="flex-1 bg-primary text-white py-3 rounded-lg">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "Alihossin28@gmail.com";
+        let allCities = [];
+        let allPlaces = [];
+
+        onAuthStateChanged(auth, async (user) => {
+            document.getElementById('loading').classList.add('hidden');
+            if (!user || user.email !== ADMIN_EMAIL) {
+                document.getElementById('notAdmin').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('adminContent').classList.remove('hidden');
+            await loadSiteSettings();
+            await loadCities();
+            await loadAllPlaces();
+        });
+
+        async function loadSiteSettings() {
+            try {
+                const settingsDoc = await getDoc(doc(db, "settings", "general"));
+                if (settingsDoc.exists()) {
+                    const data = settingsDoc.data();
+                    document.getElementById('siteNameInput').value = data.siteName || "كشكات";
+                } else {
+                    document.getElementById('siteNameInput').value = "كشكات";
+                }
+            } catch (e) {
+                document.getElementById('siteNameInput').value = "كشكات";
+            }
+        }
+
+        document.getElementById('saveSiteName').addEventListener('click', async () => {
+            const name = document.getElementById('siteNameInput').value.trim();
+            if (!name) { alert('أدخل اسم الموقع'); return; }
+            try {
+                await setDoc(doc(db, "settings", "general"), { siteName: name });
+                document.getElementById('siteNameSuccess').classList.remove('hidden');
+                setTimeout(() => document.getElementById('siteNameSuccess').classList.add('hidden'), 3000);
+            } catch {
+                alert('حدث خطأ أثناء الحفظ');
+            }
+        });
+
+        async function loadCities() {
+            try {
+                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('sortOrder')));
+                allCities = citiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderCities();
+            } catch {
+                document.getElementById('citiesList').innerHTML = '<p class="text-red-500">خطأ في تحميل المدن</p>';
+            }
+        }
+
+        function renderCities() {
+            if (allCities.length === 0) {
+                document.getElementById('citiesList').innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد مدن مضافة بعد</p>';
+                return;
+            }
+            document.getElementById('citiesList').innerHTML = allCities.map(city => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="font-medium">${city.name}</span>
+                    <div class="flex gap-2">
+                        <button class="edit-city-btn text-blue-500 hover:text-blue-700" data-id="${city.id}" data-name="${city.name}" data-sort="${city.sortOrder || 0}">
+                            <i class="fa fa-pencil"></i> تعديل
+                        </button>
+                        <button class="delete-city-btn text-red-500 hover:text-red-700" data-id="${city.id}">
+                            <i class="fa fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.edit-city-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('cityModalTitle').textContent = 'تعديل المدينة';
+                    document.getElementById('editCityId').value = btn.dataset.id;
+                    document.getElementById('newCityName').value = btn.dataset.name;
+                    document.getElementById('newCitySort').value = btn.dataset.sort;
+                    document.getElementById('cityModal').classList.remove('hidden');
+                });
+            });
+
+            document.querySelectorAll('.delete-city-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('هل أنت متأكد من حذف هذه المدينة؟')) {
+                        try {
+                            await deleteDoc(doc(db, 'cities', btn.dataset.id));
+                            loadCities();
+                        } catch {
+                            alert('خطأ في الحذف');
+                        }
+                    }
+                });
+            });
+        }
+
+        document.getElementById('addNewCityBtn').addEventListener('click', () => {
+            document.getElementById('cityModalTitle').textContent = 'إضافة مدينة جديدة';
+            document.getElementById('editCityId').value = '';
+            document.getElementById('newCityName').value = '';
+            document.getElementById('newCitySort').value = '0';
+            document.getElementById('cityModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelCityBtn').addEventListener('click', () => {
+            document.getElementById('cityModal').classList.add('hidden');
+        });
+
+        document.getElementById('saveCityBtn').addEventListener('click', async () => {
+            const name = document.getElementById('newCityName').value.trim();
+            const sortOrder = parseInt(document.getElementById('newCitySort').value) || 0;
+            const editId = document.getElementById('editCityId').value;
+            if (!name) { alert('أدخل اسم المدينة'); return; }
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, 'cities', editId), { name, sortOrder });
+                } else {
+                    await addDoc(collection(db, 'cities'), { name, sortOrder, createdAt: new Date() });
+                }
+                document.getElementById('cityModal').classList.add('hidden');
+                loadCities();
+            } catch {
+                alert('حدث خطأ');
+            }
+        });
+
+        async function loadAllPlaces() {
+            try {
+                const placesSnap = await getDocs(collection(db, 'places'));
+                allPlaces = placesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPlaces();
+            } catch {
+                document.getElementById('placesList').innerHTML = '<p class="text-red-500">خطأ في تحميل الأماكن</p>';
+            }
+        }
+
+        function renderPlaces() {
+            if (allPlaces.length === 0) {
+                document.getElementById('placesList').innerHTML = '<p class="text-gray-500 text-center py-4">لا توجد أماكن مضافة بعد</p>';
+                return;
+            }
+            document.getElementById('placesList').innerHTML = allPlaces.map(place => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">${place.name || 'بدون اسم'}</p>
+                        <p class="text-sm text-gray-500">${place.city} — ${place.category || 'غير مصنف'}</p>
+                    </div>
+                    <button class="delete-place-btn text-red-500 hover:text-red-700" data-id="${place.id}">
+                        <i class="fa fa-trash"></i> حذف
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.delete-place-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('هل أنت متأكد من حذف هذا المكان؟')) {
+                        try {
+                            await deleteDoc(doc(db, 'places', btn.dataset.id));
+                            loadAllPlaces();
+                        } catch {
+                            alert('خطأ في الحذف');
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
