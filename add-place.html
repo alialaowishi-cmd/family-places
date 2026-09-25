@@ -10,10 +10,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#22c55e',
-                        secondary: '#15803d',
-                    },
+                    colors: { primary: '#22c55e', secondary: '#15803d' }
                 }
             }
         }
@@ -21,16 +18,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Tajawal', sans-serif; }
-    </style>
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
         <div class="container mx-auto px-4 py-4 flex items-center">
-            <a href="home.html" class="text-white mr-3">
-                <i class="fa fa-arrow-left text-xl"></i>
-            </a>
+            <a href="home.html" class="text-white mr-3"><i class="fa fa-arrow-left text-xl"></i></a>
             <h1 class="text-xl font-bold">إضافة مكان جديد</h1>
         </div>
     </header>
@@ -39,23 +32,18 @@
         <div class="bg-white rounded-2xl shadow-sm p-6">
             <form id="addPlaceForm" class="space-y-5">
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">اسم المكان</label>
-                    <input type="text" id="placeName" required 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <label class="block text-gray-700 font-medium mb-2">اسم المكان *</label>
+                    <input type="text" id="placeName" required class="w-full p-3 border border-gray-300 rounded-lg">
                 </div>
-
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">المدينة</label>
-                    <select id="placeCity" required 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <label class="block text-gray-700 font-medium mb-2">المدينة *</label>
+                    <select id="placeCity" required class="w-full p-3 border border-gray-300 rounded-lg">
                         <option value="">اختر المدينة</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">التصنيف</label>
-                    <select id="placeCategory" required 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <label class="block text-gray-700 font-medium mb-2">التصنيف *</label>
+                    <select id="placeCategory" required class="w-full p-3 border border-gray-300 rounded-lg">
                         <option value="">اختر التصنيف</option>
                         <option value="مطاعم">مطاعم</option>
                         <option value="مقاهي">مقاهي</option>
@@ -64,32 +52,39 @@
                         <option value="معالم سياحية">معالم سياحية</option>
                     </select>
                 </div>
-
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">رقم الجوال</label>
+                    <input type="tel" id="placePhone" placeholder="05xxxxxxxx" class="w-full p-3 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">التقييم (من 5)</label>
+                    <select id="placeRating" class="w-full p-3 border border-gray-300 rounded-lg">
+                        <option value="5">⭐⭐⭐⭐⭐ 5 من 5</option>
+                        <option value="4">⭐⭐⭐⭐ 4 من 5</option>
+                        <option value="3" selected>⭐⭐⭐ 3 من 5</option>
+                        <option value="2">⭐⭐ 2 من 5</option>
+                        <option value="1">⭐ 1 من 5</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">رابط الموقع على الخريطة</label>
+                    <input type="url" id="placeMapLink" placeholder="من Google Maps" class="w-full p-3 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">رابط صورة المكان</label>
+                    <input type="url" id="placeImageUrl" placeholder="الصق رابط الصورة" class="w-full p-3 border border-gray-300 rounded-lg">
+                </div>
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">الوصف</label>
-                    <textarea id="placeDescription" rows="4" 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"></textarea>
+                    <textarea id="placeDescription" rows="4" class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
                 </div>
-
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">الموقع الإلكتروني (اختياري)</label>
-                    <input type="url" id="placeWebsite" 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
-                </div>
-
-                <button type="submit" 
-                    class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium transition">
-                    <i class="fa fa-plus ml-2"></i>
-                    إضافة المكان
+                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium">
+                    <i class="fa fa-plus ml-2"></i> إضافة المكان
                 </button>
             </form>
-
             <div id="successMessage" class="mt-6 p-4 bg-green-50 text-green-700 rounded-lg hidden">
-                <i class="fa fa-check-circle ml-2"></i>
-                تم إضافة المكان بنجاح!
-                <a href="home.html" class="text-primary hover:underline mr-2">العودة للرئيسية</a>
+                <i class="fa fa-check-circle ml-2"></i> تم الإضافة! <a href="home.html" class="text-primary">العودة للرئيسية</a>
             </div>
-
             <div id="errorMessage" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg hidden"></div>
         </div>
     </main>
@@ -99,7 +94,6 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
         import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-        // ✅ إعداد Firebase الصحيح
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
             authDomain: "ali-alaowishi.firebaseapp.com",
@@ -117,15 +111,13 @@
         const addPlaceForm = document.getElementById('addPlaceForm');
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
+        let currentUser = null;
 
-        // التحقق من تسجيل الدخول
         onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = 'home.html';
-            }
+            if (!user) window.location.href = 'home.html';
+            currentUser = user;
         });
 
-        // تحميل قائمة المدن
         async function loadCities() {
             try {
                 const citiesSnap = await getDocs(collection(db, 'cities'));
@@ -136,40 +128,34 @@
                     option.textContent = city.name;
                     placeCity.appendChild(option);
                 });
-            } catch (error) {
-                console.error("خطأ في تحميل المدن:", error);
-                errorMessage.textContent = "حدث خطأ أثناء تحميل قائمة المدن";
+            } catch {
+                errorMessage.textContent = "خطأ في تحميل المدن";
                 errorMessage.classList.remove('hidden');
             }
         }
 
-        // إضافة مكان جديد
         addPlaceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMessage.classList.add('hidden');
             successMessage.classList.add('hidden');
 
-            const name = document.getElementById('placeName').value;
-            const city = document.getElementById('placeCity').value;
-            const category = document.getElementById('placeCategory').value;
-            const description = document.getElementById('placeDescription').value;
-            const website = document.getElementById('placeWebsite').value;
-
             try {
                 await addDoc(collection(db, 'places'), {
-                    name,
-                    city,
-                    category,
-                    description,
-                    website: website || null,
+                    name: document.getElementById('placeName').value,
+                    city: document.getElementById('placeCity').value,
+                    category: document.getElementById('placeCategory').value,
+                    phone: document.getElementById('placePhone').value,
+                    rating: parseInt(document.getElementById('placeRating').value),
+                    mapLink: document.getElementById('placeMapLink').value,
+                    imageUrl: document.getElementById('placeImageUrl').value,
+                    description: document.getElementById('placeDescription').value,
+                    createdBy: currentUser.uid,
                     createdAt: new Date()
                 });
-
                 successMessage.classList.remove('hidden');
                 addPlaceForm.reset();
-            } catch (error) {
-                console.error("خطأ في إضافة المكان:", error);
-                errorMessage.textContent = "حدث خطأ أثناء إضافة المكان، حاول مرة أخرى";
+            } catch {
+                errorMessage.textContent = "حدث خطأ، حاول مرة أخرى";
                 errorMessage.classList.remove('hidden');
             }
         });
