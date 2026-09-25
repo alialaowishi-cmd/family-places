@@ -21,14 +21,12 @@
         body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; }
         .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
         .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
-        .btn-primary:active { transform: scale(0.97); }
         .input-focus:focus { box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
         .logo-circle { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
     </style>
 </head>
 <body class="flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
-        <!-- الشعار -->
         <div class="text-center mb-8">
             <div class="logo-circle w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <i class="fa fa-map-marker text-white text-4xl"></i>
@@ -44,21 +42,23 @@
                 <button class="tab-btn flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="admin">مشرف</button>
             </div>
 
-            <!-- تسجيل بالجوال (الافتراضي) -->
+            <!-- تسجيل بالجوال - بدون كلمة سر فقط تحقق من الموافقة -->
             <div id="phoneTab" class="tab-content space-y-4">
-                <input type="tel" id="phone" placeholder="05xxxxxxxx" 
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
-                <input type="password" id="phonePass" placeholder="كلمة المرور" 
+                <input type="tel" id="phone" placeholder="أدخل رقم الجوال * مثال: 05xxxxxxxx" 
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
                 <button onclick="loginPhone()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
                     <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
                 </button>
                 <p id="pendingNote" class="hidden text-sm text-warning text-center bg-warning/10 p-2 rounded-lg">
-                    <i class="fa fa-clock-o ml-1"></i> حسابك بانتظار موافقة المشرف
+                    <i class="fa fa-clock-o ml-1"></i> رقمك بانتظار موافقة المشرف
                 </p>
+                <p id="rejectedNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
+                    <i class="fa fa-times-circle ml-1"></i> تم رفض هذا الرقم من المشرف
+                </p>
+                <p class="text-xs text-gray-400 text-center">لا تحتاج لكلمة مرور فقط أدخل رقمك الموافق عليه ✅</p>
             </div>
 
-            <!-- تسجيل بالبريد -->
+            <!-- تسجيل بالبريد وكلمة المرور -->
             <div id="emailTab" class="tab-content hidden space-y-4">
                 <input type="email" id="email" placeholder="بريدك الإلكتروني" 
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
@@ -85,7 +85,7 @@
             </div>
 
             <div class="mt-6 pt-4 border-t border-gray-200/50 text-center text-sm space-y-2">
-                <p>ليس لديك حساب؟ <a href="register.html" class="text-primary font-medium">إنشاء حساب جديد</a></p>
+                <p>ليس لديك حساب؟ <a href="register.html" class="text-primary font-medium">طلب تسجيل جديد</a></p>
                 <p><a href="home.html" class="text-gray-500">الدخول كزائر</a></p>
             </div>
         </div>
@@ -96,18 +96,18 @@
         tabs.forEach(btn => {
             btn.addEventListener('click', () => {
                 tabs.forEach(b => {
-                    b.classList.remove('bg-white','shadow-sm','text-primary');
+                    b.classList.remove('bg-white','shadow-sm','text-primary','text-admin');
                     b.classList.add('text-gray-500');
                 });
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
                 if (btn.dataset.tab === 'admin') {
-                    tabs.forEach(b => b.classList.remove('bg-white','shadow-sm','text-admin'));
                     btn.classList.add('bg-white','shadow-sm','text-admin');
                 } else {
                     btn.classList.add('bg-white','shadow-sm','text-primary');
-                    btn.classList.remove('text-gray-500');
                 }
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
                 document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
+                document.getElementById('pendingNote').classList.add('hidden');
+                document.getElementById('rejectedNote').classList.add('hidden');
             });
         });
 
@@ -120,33 +120,36 @@
             location.href = 'home.html';
         }
 
-        async function loginPhone() {
+        function loginPhone() {
             const phone = document.getElementById('phone').value.trim();
-            const pass = document.getElementById('phonePass').value;
-            if (!phone || !pass) return alert('أدخل رقم الجوال وكلمة المرور');
+            if (!phone) return alert('أدخل رقم الجوال');
             
-            // تحقق من حالة الموافقة
             const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const found = users.find(u => u.phone === phone && u.password === pass);
+            const found = users.find(u => u.phone === phone);
             
-            if (!found) return alert('❌ رقم الجوال أو كلمة المرور غير صحيحة');
+            if (!found) return alert('❌ هذا الرقم غير مسجل لدينا. يرجى تقديم طلب تسجيل أولاً');
+            
             if (found.status === 'pending') {
                 document.getElementById('pendingNote').classList.remove('hidden');
                 return;
             }
-            if (found.status === 'rejected') return alert('❌ تم رفض حسابك من قبل المشرف');
-            
-            localStorage.setItem('user', JSON.stringify({
-                id: found.id,
-                name: found.name,
-                phone: found.phone,
-                email: found.email || '',
-                type: 'user',
-                status: 'approved',
-                avatar: found.avatar || ''
-            }));
-            alert('✅ تم الدخول');
-            location.href = 'home.html';
+            if (found.status === 'rejected') {
+                document.getElementById('rejectedNote').classList.remove('hidden');
+                return;
+            }
+            if (found.status === 'approved') {
+                localStorage.setItem('user', JSON.stringify({
+                    id: found.id,
+                    name: found.name,
+                    phone: found.phone,
+                    email: found.email || '',
+                    type: 'user',
+                    status: 'approved',
+                    avatar: found.avatar || ''
+                }));
+                alert('✅ تم الدخول بنجاح، أهلاً بك يا ' + found.name);
+                location.href = 'home.html';
+            }
         }
 
         function loginAdmin() {
