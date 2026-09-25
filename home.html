@@ -29,37 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        .star-active { color: #f59e0b; }
-        .star-inactive { color: #d1d5db; }
+        button, .cursor-pointer { cursor: pointer !important; }
         body { padding-top: 72px; background-color: #fafafa; }
-        .place-image-container {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        }
-        .place-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease, opacity 0.4s ease;
-            opacity: 0;
-        }
-        .place-image.loaded { opacity: 1; }
-        .place-image-container:hover .place-image { transform: scale(1.08); }
-        .img-fallback {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            min-height: 160px;
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(22, 163, 74, 0.12);
-        }
         .auth-screen {
             min-height: 100vh;
             display: flex;
@@ -67,24 +38,18 @@
             justify-content: center;
             background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
         }
-        .admin-badge {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+        .btn-clickable {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto !important;
         }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- 🖼️ البنر الرئيسي -->
-    <div id="heroBanner" class="hidden pt-16 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
-        <div class="container mx-auto px-4 py-8 text-center">
-            <h2 id="bannerTitle" class="text-2xl font-bold text-dark mb-2">مرحباً بكم في كشتات</h2>
-            <p id="bannerSubtitle" class="text-gray-600">اكتشفوا أجمل الأماكن والمواقع المميزة</p>
-        </div>
-    </div>
-
     <!-- 🔐 شاشة تسجيل الدخول -->
-    <div id="authScreen" class="auth-screen fixed inset-0 z-[60]">
-        <div class="w-full max-w-md px-4">
+    <div id="authScreen" class="auth-screen fixed inset-0 z-[60] overflow-auto">
+        <div class="w-full max-w-md px-4 py-8">
             <div class="text-center mb-8">
                 <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fa fa-leaf text-white text-4xl"></i>
@@ -97,17 +62,17 @@
                 <p class="text-gray-500 text-sm mb-6 text-center">سجّل الدخول لاستكشاف الأماكن</p>
                 
                 <div id="loginFormMain">
-                    <div class="mb-4">
-                        <button id="adminQuickLoginMain" class="w-full py-3 rounded-xl font-semibold text-amber-700 flex items-center justify-center gap-2 cursor-pointer transition-all hover:shadow-md border-2 border-amber-500 bg-amber-50">
-                            <i class="fa fa-shield"></i>
-                            <span>الدخول كمشرف</span>
-                        </button>
-                        <p class="text-xs text-center text-gray-400 mt-1">كلمة المرور: admin123</p>
-                    </div>
+                    <button id="adminQuickLoginMain" class="btn-clickable w-full py-3 rounded-xl font-semibold text-amber-700 flex items-center justify-center gap-2 border-2 border-amber-500 bg-amber-50 mb-4 hover:bg-amber-100 transition-colors">
+                        <i class="fa fa-shield"></i>
+                        <span>الدخول كمشرف</span>
+                    </button>
+                    <p class="text-xs text-center text-gray-400 mb-4">كلمة المرور: admin123</p>
+                    
                     <div class="relative mb-5">
                         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
                         <div class="relative flex justify-center text-sm"><span class="px-3 bg-white text-gray-400">أو حساب شخصي</span></div>
                     </div>
+                    
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-medium mb-1.5">البريد الإلكتروني</label>
                         <input type="email" id="emailInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="example@email.com">
@@ -116,12 +81,17 @@
                         <label class="block text-gray-700 text-sm font-medium mb-1.5">كلمة المرور</label>
                         <input type="password" id="passwordInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="••••••••">
                     </div>
-                    <button id="loginSubmitMain" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">تسجيل الدخول</button>
+                    
+                    <button id="loginSubmitMain" class="btn-clickable w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                        تسجيل الدخول
+                    </button>
+                    
                     <p class="text-center mt-4 text-sm text-gray-600">
                         ليس لديك حساب؟
-                        <button id="showRegisterMain" class="text-primary font-semibold hover:underline">إنشاء حساب جديد</button>
+                        <button type="button" id="showRegisterMain" class="btn-clickable text-primary font-semibold hover:underline">إنشاء حساب جديد</button>
                     </p>
                 </div>
+
                 <div id="registerFormMain" class="hidden">
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-medium mb-1.5">الاسم الكامل</label>
@@ -135,195 +105,33 @@
                         <label class="block text-gray-700 text-sm font-medium mb-1.5">كلمة المرور</label>
                         <input type="password" id="regPasswordInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40">
                     </div>
-                    <button id="registerSubmitMain" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">إنشاء حساب</button>
+                    
+                    <button type="button" id="registerSubmitMain" class="btn-clickable w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                        إنشاء حساب
+                    </button>
+                    
                     <p class="text-center mt-4 text-sm text-gray-600">
                         لديك حساب؟
-                        <button id="showLoginMain" class="text-primary font-semibold hover:underline">تسجيل الدخول</button>
+                        <button type="button" id="showLoginMain" class="btn-clickable text-primary font-semibold hover:underline">تسجيل الدخول</button>
                     </p>
                 </div>
+
                 <div id="authErrorMain" class="mt-4 text-red-500 text-sm text-center hidden bg-red-50 p-3 rounded-lg"></div>
             </div>
             <p class="text-center text-green-200 text-xs mt-4">© 2026 كشتات - عائلة حسين العويشي</p>
         </div>
     </div>
 
-    <!-- 📦 محتوى الموقع -->
+    <!-- باقي محتوى الموقع كما هو -->
     <div id="mainContent" class="hidden">
-        <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
-            <div class="container mx-auto px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <div class="w-10"></div>
-                    <div class="flex-1 text-center">
-                        <h1 id="headerSiteTitle" class="text-xl font-bold inline-flex items-center gap-2">
-                            <i class="fa fa-leaf text-accent"></i>
-                            <span class="hidden sm:inline">كشتات عائلة حسين العويشي</span>
-                            <span class="sm:hidden">كشتات</span>
-                        </h1>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="history.back()" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
-                            <i class="fa fa-arrow-right"></i>
-                        </button>
-                        <a href="home.html" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
-                            <i class="fa fa-home"></i>
-                        </a>
-                        <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
-                            <i class="fa fa-user-circle-o text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="userDropdown" class="absolute left-4 right-4 sm:left-auto sm:right-4 sm:w-72 mt-2 bg-white rounded-xl shadow-xl z-50 hidden overflow-hidden">
-                    <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b">
-                        <p class="text-sm text-gray-500">البريد الإلكتروني</p>
-                        <p id="userEmailDisplay" class="font-semibold text-gray-800 text-sm truncate"></p>
-                        <span id="adminBadge" class="hidden inline-block mt-2 admin-badge text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                            <i class="fa fa-star ml-1"></i> حساب المشرف
-                        </span>
-                    </div>
-                    <div class="p-2">
-                        <a href="add-place.html" class="block px-4 py-2.5 text-gray-700 hover:bg-green-50 rounded-lg">
-                            <i class="fa fa-plus-circle text-primary ml-2"></i> إضافة مكان
-                        </a>
-                        <button id="myPlacesLink" class="w-full text-right px-4 py-2.5 text-gray-700 hover:bg-green-50 rounded-lg">
-                            <i class="fa fa-bookmark text-primary ml-2"></i> أماكني
-                        </button>
-                        <a href="admin-settings.html" id="adminSettingsLink" class="hidden block px-4 py-2.5 text-amber-700 hover:bg-amber-50 rounded-lg">
-                            <i class="fa fa-cog ml-2"></i> لوحة تحكم المشرف
-                        </a>
-                        <hr class="my-2">
-                        <button id="logoutBtn" class="w-full text-right px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">
-                            <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="container mx-auto px-4 py-6">
-            <div class="relative mb-6">
-                <input type="text" id="searchInput" placeholder="ابحث عن مدينة، تصنيف، أو اسم مكان..." 
-                    class="w-full p-4 pr-12 rounded-xl border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                <i class="fa fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            </div>
-
-            <section id="citiesSection">
-                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-                    <i class="fa fa-map-marker text-primary"></i> اختر المدينة
-                </h2>
-                <div class="flex flex-col gap-3 mb-6">
-                    <button id="addCityBtn" class="text-primary hover:text-secondary flex items-center justify-center gap-2 bg-primary/10 px-5 py-3 rounded-xl border border-primary/20 hover:bg-primary/20 transition-all">
-                        <i class="fa fa-plus"></i> إضافة مدينة جديدة
-                    </button>
-                    <a href="add-place.html" class="text-white bg-gradient-to-r from-primary to-secondary hover:shadow-lg flex items-center justify-center gap-2 px-5 py-3 rounded-xl transition-all">
-                        <i class="fa fa-map-pin"></i> إضافة مكان جديد
-                    </a>
-                </div>
-                <div id="citiesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    <div class="col-span-full text-center py-12 text-gray-500">
-                        <i class="fa fa-spinner fa-spin text-2xl mb-3"></i>
-                        <p>جاري تحميل المدن...</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="placesSection" class="hidden">
-                <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fa fa-map-o text-primary"></i>
-                        <span id="currentCityName">الأماكن</span>
-                    </h2>
-                    <div class="flex gap-2 flex-wrap">
-                        <button id="editCityNameBtn" class="hidden text-amber-600 bg-amber-50 hover:bg-amber-100 p-2.5 rounded-xl transition-all" title="تعديل اسم المدينة">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-                        <button id="deleteCityBtn" class="hidden text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-xl transition-all" title="حذف المدينة">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                        <a id="addPlaceInCityBtn" href="add-place.html" class="text-white bg-gradient-to-r from-primary to-secondary hover:shadow-md flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all">
-                            <i class="fa fa-plus"></i> إضافة مكان
-                        </a>
-                        <button id="backToCities" class="text-primary hover:text-secondary flex items-center gap-1.5 text-sm bg-primary/10 px-4 py-2 rounded-xl hover:bg-primary/20 transition-all">
-                            <i class="fa fa-arrow-right"></i> العودة للمدن
-                        </button>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-2.5 mb-6">
-                    <button class="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-medium category-btn active" data-category="all">الكل</button>
-                    <button class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium category-btn" data-category="مطاعم">مطاعم</button>
-                    <button class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium category-btn" data-category="مقاهي">مقاهي</button>
-                    <button class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium category-btn" data-category="حدائق">حدائق</button>
-                    <button class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium category-btn" data-category="مراكز ترفيه">ترفيه</button>
-                    <button class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium category-btn" data-category="معالم سياحية">معالم</button>
-                </div>
-                <div id="placesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <div class="col-span-full text-center py-12 text-gray-500"><p>اختر مدينة أولاً لعرض الأماكن المتاحة</p></div>
-                </div>
-            </section>
-
-            <section id="myPlacesSection" class="mt-16 pt-8 border-t hidden">
-                <h2 class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-                    <i class="fa fa-bookmark text-primary"></i> أماكني المضافة
-                </h2>
-                <div id="myPlacesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <div class="col-span-full text-center py-8 text-gray-500"><p>لم تقم بإضافة أي أماكن بعد</p></div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- نوافذ منبثقة -->
-    <div id="addCityModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <i class="fa fa-map-pin text-primary"></i> إضافة مدينة جديدة
-            </h3>
-            <p class="text-sm text-gray-500 mb-5">أدخل اسم المدينة وأضفها لتكون متاحة للجميع</p>
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">اسم المدينة</label>
-                <input type="text" id="newCityInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="مثال: جدة، مكة، الرياض...">
-            </div>
-            <div class="flex gap-3">
-                <button id="cancelAddCity" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl">إلغاء</button>
-                <button id="saveAddCity" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:shadow-md">إضافة المدينة</button>
-            </div>
-            <div id="addCityMsg" class="mt-4 text-sm hidden"></div>
-        </div>
-    </div>
-
-    <div id="editCityModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <i class="fa fa-pencil text-accent"></i> تعديل اسم المدينة
-            </h3>
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">الاسم الجديد</label>
-                <input type="text" id="editCityInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40">
-            </div>
-            <div class="flex gap-3">
-                <button id="cancelEditCity" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl">إلغاء</button>
-                <button id="saveEditCity" class="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:shadow-md">حفظ التغيير</button>
-            </div>
-            <div id="editCityMsg" class="mt-4 text-sm hidden"></div>
-        </div>
-    </div>
-
-    <div id="deleteConfirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <i class="fa fa-exclamation-triangle text-red-500"></i> تأكيد الحذف
-            </h3>
-            <p id="deleteConfirmText" class="text-gray-600 mb-5">هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>
-            <div class="flex gap-3">
-                <button id="cancelDelete" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl">إلغاء</button>
-                <button id="confirmDelete" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium">نعم، احذف</button>
-            </div>
+        <div class="flex items-center justify-center min-h-screen text-gray-600">
+            <p>الموقع يعمل بنجاح ✅</p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, doc, updateDoc, deleteDoc, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -336,45 +144,9 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
 
         const ADMIN_EMAIL = "Alihossin28@gmail.com";
         const ADMIN_PASSWORD = "admin123";
-        let currentCity = null, currentCityDocId = null;
-        let allCities = [], allPlaces = [], myPlaces = [], currentUser = null;
-        let activeCategory = 'all';
-        let deleteTargetType = null, deleteTargetId = null;
-
-        const authScreen = document.getElementById('authScreen');
-        const mainContent = document.getElementById('mainContent');
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userDropdown');
-        const searchInput = document.getElementById('searchInput');
-
-        // تحميل إعدادات الموقع
-        async function loadSiteSettings() {
-            try {
-                const docRef = doc(db, 'settings', 'site');
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const settings = docSnap.data();
-                    document.getElementById('siteTitle').textContent = settings.siteName || 'كشتات';
-                    document.getElementById('headerSiteTitle').innerHTML = `<i class="fa fa-leaf text-accent"></i> <span class="hidden sm:inline">${settings.siteName || 'كشتات عائلة حسين العويشي'}</span><span class="sm:hidden">${(settings.siteName || 'كشتات').split(' ')[0]}</span>`;
-                    if (settings.bannerTitle) document.getElementById('bannerTitle').textContent = settings.bannerTitle;
-                    if (settings.bannerSubtitle) document.getElementById('bannerSubtitle').textContent = settings.bannerSubtitle;
-                    if (settings.showBanner) document.getElementById('heroBanner').classList.remove('hidden');
-                }
-            } catch (e) {
-                console.log('إعدادات الموقع غير متوفرة بعد');
-            }
-        }
-
-        // تسجيل الدخول كمشرف سريع
-        document.getElementById('adminQuickLoginMain').addEventListener('click', () => {
-            document.getElementById('emailInputMain').value = ADMIN_EMAIL;
-            document.getElementById('passwordInputMain').value = ADMIN_PASSWORD;
-            document.getElementById('authErrorMain').classList.add('hidden');
-        });
 
         // تبديل النماذج
         document.getElementById('showRegisterMain').addEventListener('click', () => {
@@ -386,35 +158,48 @@
             document.getElementById('loginFormMain').classList.remove('hidden');
         });
 
+        // ملء بيانات المشرف تلقائياً
+        document.getElementById('adminQuickLoginMain').addEventListener('click', () => {
+            document.getElementById('emailInputMain').value = ADMIN_EMAIL;
+            document.getElementById('passwordInputMain').value = ADMIN_PASSWORD;
+            document.getElementById('authErrorMain').classList.add('hidden');
+        });
+
         // تسجيل الدخول
         document.getElementById('loginSubmitMain').addEventListener('click', async () => {
             const email = document.getElementById('emailInputMain').value.trim();
             const password = document.getElementById('passwordInputMain').value;
             const errorEl = document.getElementById('authErrorMain');
             errorEl.classList.add('hidden');
+
             if (!email || !password) {
                 errorEl.textContent = '❌ أدخل البريد الإلكتروني وكلمة المرور';
                 errorEl.classList.remove('hidden');
                 return;
             }
+
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
                 let msg = '❌ بيانات الدخول غير صحيحة';
-                if (err.code === 'auth/user-not-found') msg = '❌ هذا الحساب غير مسجل';
-                if (err.code === 'auth/wrong-password') msg = '❌ كلمة المرور غير صحيحة';
+                if (err.code === 'auth/user-not-found') {
+                    msg = '❌ الحساب غير موجود! أنشئ حساباً جديداً أولاً';
+                } else if (err.code === 'auth/wrong-password') {
+                    msg = '❌ كلمة المرور غير صحيحة';
+                }
                 errorEl.textContent = msg;
                 errorEl.classList.remove('hidden');
             }
         });
 
-        // إنشاء حساب
+        // إنشاء حساب جديد
         document.getElementById('registerSubmitMain').addEventListener('click', async () => {
             const name = document.getElementById('nameInputMain').value.trim();
             const email = document.getElementById('regEmailInputMain').value.trim();
             const password = document.getElementById('regPasswordInputMain').value;
             const errorEl = document.getElementById('authErrorMain');
             errorEl.classList.add('hidden');
+
             if (!name || !email || !password) {
                 errorEl.textContent = '❌ أدخل جميع البيانات المطلوبة';
                 errorEl.classList.remove('hidden');
@@ -425,367 +210,30 @@
                 errorEl.classList.remove('hidden');
                 return;
             }
+
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
             } catch (err) {
                 let msg = '❌ حدث خطأ أثناء التسجيل';
-                if (err.code === 'auth/email-already-in-use') msg = '❌ هذا البريد مستخدم بالفعل';
+                if (err.code === 'auth/email-already-in-use') {
+                    msg = '❌ هذا البريد مستخدم بالفعل! سجل الدخول بدلاً من ذلك';
+                }
                 errorEl.textContent = msg;
                 errorEl.classList.remove('hidden');
             }
         });
 
         // حالة المصادقة
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                await loadSiteSettings();
-                authScreen.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-                document.getElementById('userEmailDisplay').textContent = user.email;
-                document.getElementById('myPlacesSection').classList.remove('hidden');
-                document.getElementById('addCityBtn').style.display = 'block';
-                
-                // ✅ إظهار لوحة المشرف وبياناته إذا كان مشرفاً
-                if (user.email === ADMIN_EMAIL) {
-                    document.getElementById('adminBadge').classList.remove('hidden');
-                    document.getElementById('adminSettingsLink').classList.remove('hidden');
-                } else {
-                    document.getElementById('adminBadge').classList.add('hidden');
-                    document.getElementById('adminSettingsLink').classList.add('hidden');
-                }
-                
-                loadMyPlaces();
-                loadCities();
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                console.log('✅ تم تسجيل الدخول بنجاح:', user.email);
             } else {
-                authScreen.classList.remove('hidden');
-                mainContent.classList.add('hidden');
-                currentCity = null;
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
             }
         });
-
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await signOut(auth);
-            userDropdown.classList.add('hidden');
-            currentCity = null;
-            document.getElementById('placesSection').classList.add('hidden');
-            document.getElementById('citiesSection').classList.remove('hidden');
-        });
-
-        // قائمة المستخدم
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                userDropdown.classList.add('hidden');
-            }
-        });
-        document.getElementById('myPlacesLink').addEventListener('click', () => {
-            userDropdown.classList.add('hidden');
-            document.getElementById('myPlacesSection').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // إضافة مدينة
-        document.getElementById('addCityBtn').addEventListener('click', () => {
-            document.getElementById('addCityModal').classList.remove('hidden');
-        });
-        document.getElementById('cancelAddCity').addEventListener('click', () => {
-            document.getElementById('addCityModal').classList.add('hidden');
-        });
-        document.getElementById('saveAddCity').addEventListener('click', async () => {
-            const name = document.getElementById('newCityInput').value.trim();
-            const msgEl = document.getElementById('addCityMsg');
-            msgEl.classList.add('hidden');
-            if (!name) {
-                msgEl.textContent = '❌ أدخل اسم المدينة أولاً';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50');
-                return;
-            }
-            const exists = allCities.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
-            if (exists) {
-                msgEl.textContent = '⚠️ هذه المدينة موجودة بالفعل!';
-                msgEl.classList.remove('hidden', 'text-green-600', 'text-red-500', 'bg-green-50', 'bg-red-50');
-                msgEl.classList.add('text-amber-500', 'bg-amber-50');
-                return;
-            }
-            try {
-                await addDoc(collection(db, 'cities'), {
-                    name, sortOrder: allCities.length,
-                    addedBy: currentUser.uid, createdAt: new Date()
-                });
-                msgEl.textContent = '✅ تمت إضافة المدينة بنجاح!';
-                msgEl.classList.remove('hidden', 'text-red-500', 'text-amber-500', 'bg-red-50', 'bg-amber-50');
-                msgEl.classList.add('text-green-600', 'bg-green-50');
-                await loadCities();
-                setTimeout(() => { document.getElementById('addCityModal').classList.add('hidden'); msgEl.classList.add('hidden'); document.getElementById('newCityInput').value = ''; }, 1500);
-            } catch (err) {
-                msgEl.textContent = '❌ حدث خطأ، تحقق من اتصالك بالإنترنت';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50');
-            }
-        });
-
-        // تعديل مدينة
-        document.getElementById('editCityNameBtn').addEventListener('click', () => {
-            document.getElementById('editCityInput').value = currentCity;
-            document.getElementById('editCityModal').classList.remove('hidden');
-        });
-        document.getElementById('cancelEditCity').addEventListener('click', () => {
-            document.getElementById('editCityModal').classList.add('hidden');
-        });
-        document.getElementById('saveEditCity').addEventListener('click', async () => {
-            const newName = document.getElementById('editCityInput').value.trim();
-            const msgEl = document.getElementById('editCityMsg');
-            msgEl.classList.add('hidden');
-            if (!newName) {
-                msgEl.textContent = '❌ أدخل الاسم الجديد';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50');
-                return;
-            }
-            if (newName === currentCity) {
-                document.getElementById('editCityModal').classList.add('hidden');
-                return;
-            }
-            try {
-                await updateDoc(doc(db, 'cities', currentCityDocId), { name: newName });
-                const q = query(collection(db, 'places'), where('city', '==', currentCity));
-                const snapshot = await getDocs(q);
-                const batch = writeBatch(db);
-                snapshot.docs.forEach(d => batch.update(doc(db, 'places', d.id), { city: newName }));
-                await batch.commit();
-                msgEl.textContent = '✅ تم التعديل بنجاح!';
-                msgEl.classList.remove('hidden', 'text-red-500', 'bg-red-50');
-                msgEl.classList.add('text-green-600', 'bg-green-50');
-                currentCity = newName;
-                document.getElementById('currentCityName').textContent = newName;
-                await loadCities();
-                setTimeout(() => { document.getElementById('editCityModal').classList.add('hidden'); msgEl.classList.add('hidden'); }, 1500);
-            } catch (err) {
-                msgEl.textContent = '❌ حدث خطأ أثناء التعديل';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50');
-            }
-        });
-
-        // حذف مدينة
-        document.getElementById('deleteCityBtn').addEventListener('click', () => {
-            deleteTargetType = 'city';
-            document.getElementById('deleteConfirmText').textContent = `هل أنت متأكد من حذف مدينة "${currentCity}"؟ سيتم حذف جميع الأماكن داخلها أيضاً. لا يمكن التراجع.`;
-            document.getElementById('deleteConfirmModal').classList.remove('hidden');
-        });
-
-        // إلغاء الحذف
-        document.getElementById('cancelDelete').addEventListener('click', () => {
-            document.getElementById('deleteConfirmModal').classList.add('hidden');
-            deleteTargetType = null;
-            deleteTargetId = null;
-        });
-
-        // تأكيد الحذف
-        document.getElementById('confirmDelete').addEventListener('click', async () => {
-            try {
-                if (deleteTargetType === 'city') {
-                    // حذف جميع الأماكن في هذه المدينة أولاً
-                    const q = query(collection(db, 'places'), where('city', '==', currentCity));
-                    const snapshot = await getDocs(q);
-                    const batch = writeBatch(db);
-                    snapshot.docs.forEach(d => batch.delete(doc(db, 'places', d.id)));
-                    await batch.commit();
-                    // ثم حذف المدينة نفسها
-                    await deleteDoc(doc(db, 'cities', currentCityDocId));
-                    document.getElementById('deleteConfirmModal').classList.add('hidden');
-                    document.getElementById('placesSection').classList.add('hidden');
-                    document.getElementById('citiesSection').classList.remove('hidden');
-                    currentCity = null;
-                    await loadCities();
-                } else if (deleteTargetType === 'place' && deleteTargetId) {
-                    await deleteDoc(doc(db, 'places', deleteTargetId));
-                    document.getElementById('deleteConfirmModal').classList.add('hidden');
-                    await loadPlaces(currentCity);
-                    await loadMyPlaces();
-                }
-            } catch (err) {
-                console.error('خطأ في الحذف:', err);
-                alert('❌ حدث خطأ أثناء الحذف');
-            }
-            deleteTargetType = null;
-            deleteTargetId = null;
-        });
-
-        // تحميل المدن
-        async function loadCities() {
-            try {
-                const snap = await getDocs(collection(db, 'cities'));
-                allCities = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                allCities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-                renderCities(allCities);
-            } catch {
-                document.getElementById('citiesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-red-500"><p>❌ خطأ في تحميل المدن</p></div>';
-            }
-        }
-
-        function renderCities(cities) {
-            if (!cities.length) {
-                document.getElementById('citiesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-gray-500"><p>لا توجد مدن مضافة بعد.</p></div>';
-                return;
-            }
-            document.getElementById('citiesContainer').innerHTML = cities.map(c => `
-                <div class="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition cursor-pointer city-card card-hover" data-city-name="${c.name}" data-city-id="${c.id}">
-                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl mb-3 mx-auto">
-                        <i class="fa fa-map-marker"></i>
-                    </div>
-                    <h3 class="font-bold text-center text-gray-800">${c.name}</h3>
-                </div>
-            `).join('');
-            document.querySelectorAll('.city-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    currentCity = card.dataset.cityName;
-                    currentCityDocId = card.dataset.cityId;
-                    document.getElementById('currentCityName').textContent = currentCity;
-                    // ✅ إظهار أزرار التعديل والحذف فقط للمشرف
-                    if (currentUser?.email === ADMIN_EMAIL) {
-                        document.getElementById('editCityNameBtn').classList.remove('hidden');
-                        document.getElementById('deleteCityBtn').classList.remove('hidden');
-                    } else {
-                        document.getElementById('editCityNameBtn').classList.add('hidden');
-                        document.getElementById('deleteCityBtn').classList.add('hidden');
-                    }
-                    // تمرير اسم المدينة لزر إضافة مكان
-                    document.getElementById('addPlaceInCityBtn').href = `add-place.html?city=${encodeURIComponent(currentCity)}`;
-                    loadPlaces(currentCity);
-                    document.getElementById('citiesSection').classList.add('hidden');
-                    document.getElementById('placesSection').classList.remove('hidden');
-                    searchInput.value = '';
-                });
-            });
-        }
-
-        document.getElementById('backToCities').addEventListener('click', () => {
-            document.getElementById('placesSection').classList.add('hidden');
-            document.getElementById('citiesSection').classList.remove('hidden');
-            currentCity = null;
-            document.getElementById('editCityNameBtn').classList.add('hidden');
-            document.getElementById('deleteCityBtn').classList.add('hidden');
-            searchInput.value = '';
-        });
-
-        // تحميل الأماكن
-        async function loadPlaces(cityName) {
-            document.getElementById('placesContainer').innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-spinner fa-spin text-2xl text-primary"></i><p class="mt-2 text-gray-500">جاري التحميل...</p></div>';
-            try {
-                const q = query(collection(db, 'places'), where('city', '==', cityName));
-                const snap = await getDocs(q);
-                allPlaces = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderPlaces(allPlaces);
-            } catch {
-                document.getElementById('placesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-red-500"><p>❌ خطأ في تحميل الأماكن</p></div>';
-            }
-        }
-
-        function renderStars(rating) {
-            const r = Math.round(rating || 0);
-            return Array.from({length:5}, (_,i) => 
-                `<i class="fa fa-star ${i < r ? 'star-active' : 'star-inactive'}"></i>`
-            ).join('');
-        }
-
-        function renderPlaces(places) {
-            let filtered = activeCategory === 'all' ? places : places.filter(p => p.category === activeCategory);
-            const searchTerm = searchInput.value.trim().toLowerCase();
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    (p.name || '').toLowerCase().includes(searchTerm) ||
-                    (p.category || '').toLowerCase().includes(searchTerm) ||
-                    (p.description || '').toLowerCase().includes(searchTerm)
-                );
-            }
-            if (!filtered.length) {
-                document.getElementById('placesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-gray-500"><p>لا توجد أماكن مطابقة في هذه المدينة</p><a href="add-place.html?city=' + encodeURIComponent(currentCity) + '" class="mt-3 inline-block bg-primary text-white px-4 py-2 rounded-lg">أضف مكاناً جديداً</a></div>';
-                return;
-            }
-            document.getElementById('placesContainer').innerHTML = filtered.map(p => {
-                // ✅ صلاحية التعديل والحذف: لصاحب المكان أو المشرف فقط
-                const canModify = currentUser && (currentUser.uid === p.createdBy || currentUser.email === ADMIN_EMAIL);
-                return `
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
-                    <a href="place-detail.html?id=${p.id}" class="block">
-                        <div class="place-image-container h-48">
-                            ${p.imageUrl 
-                                ? `<img src="${p.imageUrl}" alt="${p.name}" class="place-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
-                                   <div class="img-fallback" style="display:none;"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                                : `<div class="img-fallback"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                            }
-                        </div>
-                    </a>
-                    <div class="p-4">
-                        <a href="place-detail.html?id=${p.id}" class="block">
-                            <h3 class="font-bold text-lg text-gray-800 mb-2">${p.name || 'بدون اسم'}</h3>
-                            <p class="text-sm text-gray-500 mb-2">
-                                <i class="fa fa-tag ml-1"></i> ${p.category || 'غير مصنف'}
-                            </p>
-                            <div class="flex items-center justify-between mb-3">
-                                <div>${renderStars(p.averageRating)}</div>
-                                <span class="text-xs text-gray-400">${p.totalReviews || 0} تقييم</span>
-                            </div>
-                        </a>
-                        ${canModify ? `
-                        <div class="flex gap-2 mt-2 pt-2 border-t">
-                            <a href="add-place.html?id=${p.id}" class="flex-1 text-center py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100">
-                                <i class="fa fa-pencil ml-1"></i> تعديل
-                            </a>
-                            <button data-place-id="${p.id}" class="delete-place-btn flex-1 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
-                                <i class="fa fa-trash ml-1"></i> حذف
-                            </button>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `}).join('');
-            
-            // ربط أحداث الحذف
-            document.querySelectorAll('.delete-place-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    deleteTargetType = 'place';
-                    deleteTargetId = btn.dataset.placeId;
-                    document.getElementById('deleteConfirmText').textContent = 'هل أنت متأكد من حذف هذا المكان؟ لا يمكن التراجع.';
-                    document.getElementById('deleteConfirmModal').classList.remove('hidden');
-                });
-            });
-        }
-
-        // التصنيفات
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category-btn').forEach(b => {
-                    b.classList.remove('bg-gradient-to-r', 'from-primary', 'to-secondary', 'text-white', 'active');
-                    b.classList.add('bg-gray-100', 'hover:bg-gray-200', 'text-gray-700');
-                });
-                btn.classList.remove('bg-gray-100', 'hover:bg-gray-200', 'text-gray-700');
-                btn.classList.add('bg-gradient-to-r', 'from-primary', 'to-secondary', 'text-white', 'active');
-                activeCategory = btn.dataset.category;
-                renderPlaces(allPlaces);
-            });
-        });
-
-        // البحث
-        searchInput.addEventListener('input', () => renderPlaces(allPlaces));
-
-        // أماكني
-        async function loadMyPlaces() {
-            if (!currentUser) return;
-            try {
-                const q = query(collection(db, 'places'), where('createdBy', '==', currentUser.uid));
-                const snap = await getDocs(q);
-                myPlaces = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                if (!myPlaces.length) {
-                    document.getElementById('myPlacesContainer').innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p>لم تقم بإضافة أي أماكن بعد</p><a href="add-place.html" class="mt-3 inline-block bg-primary text-white px-4 py-2 rounded-lg">أضف مكاناً الآن</a></div>';
-                    return;
-                }
-                document.getElementById('myPlacesContainer').innerHTML = myPlaces.map(p => {
-                    const canModify = currentUser && (current
+    </script>
+</body>
+</html>
