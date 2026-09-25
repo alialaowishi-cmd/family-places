@@ -22,16 +22,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        body { background: linear-gradient(135deg, #F5F7FA 0%, #E4E8F0 100%); min-height: 100vh; padding-bottom: 40px; }
+        body { background: linear-gradient(135deg, #F5F7FA 0%, #E4E8F0 100%); min-height: 100vh; }
         .glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
         .sidebar-link { transition: all 0.15s ease; }
         .sidebar-link:hover, .sidebar-link.active { background: rgba(99, 102, 241, 0.1); color: #6366F1; }
         .pending-badge { animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .modal { display: none; }
+        .modal.active { display: flex; }
     </style>
 </head>
 <body class="flex">
-    <!-- الشريط الجانبي -->
     <aside class="hidden md:flex flex-col w-64 glass min-h-screen fixed right-0 top-0 shadow-lg z-40">
         <div class="p-5 border-b border-gray-200/50">
             <div class="flex items-center gap-3">
@@ -50,6 +51,10 @@
                 <span>طلبات التسجيل</span>
                 <span id="pendingCount" class="ml-auto bg-warning text-white text-xs px-2 py-0.5 rounded-full pending-badge">0</span>
             </button>
+            <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="users-list">
+                <i class="fa fa-user-circle w-5 text-center"></i>
+                <span>إدارة المشتركين</span>
+            </button>
             <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="cities">
                 <i class="fa fa-building w-5 text-center"></i>
                 <span>إدارة المدن</span>
@@ -57,10 +62,6 @@
             <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="places">
                 <i class="fa fa-map-marker w-5 text-center"></i>
                 <span>إدارة الأماكن</span>
-            </button>
-            <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="settings">
-                <i class="fa fa-cog w-5 text-center"></i>
-                <span>إعدادات الموقع</span>
             </button>
         </nav>
         <div class="p-3 border-t border-gray-200/50">
@@ -75,7 +76,6 @@
         </div>
     </aside>
 
-    <!-- المحتوى الرئيسي -->
     <main class="flex-1 md:mr-64 min-h-screen">
         <header class="glass sticky top-0 z-30 shadow-sm md:hidden px-4 py-3 flex items-center justify-between">
             <button id="openMobileMenu" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin">
@@ -92,4 +92,517 @@
                     <h2 class="text-xl font-bold">
                         <i class="fa fa-user-check ml-2 text-admin"></i> طلبات التسجيل الجديدة
                     </h2>
-                    <span class="text-sm text-gray-500">قم بالموافقة أو الرفض
+                </div>
+                <div id="pendingUsersList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">لا توجد طلبات جديدة</p>
+                </div>
+            </div>
+
+            <!-- صفحة إدارة المشتركين -->
+            <div id="users-listPage" class="admin-page hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">
+                        <i class="fa fa-user-circle ml-2 text-admin"></i> إدارة المشتركين الموافق عليهم
+                    </h2>
+                </div>
+                <div id="approvedUsersList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">لا يوجد مشتركين حتى الآن</p>
+                </div>
+            </div>
+
+            <!-- صفحة إدارة المدن -->
+            <div id="citiesPage" class="admin-page hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">
+                        <i class="fa fa-building ml-2 text-admin"></i> إدارة المدن
+                    </h2>
+                    <button id="addCityBtn" class="bg-primary text-white px-4 py-2 rounded-lg text-sm">
+                        <i class="fa fa-plus ml-1"></i> إضافة مدينة
+                    </button>
+                </div>
+                <div id="citiesList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">لا توجد مدن مضافة</p>
+                </div>
+            </div>
+
+            <!-- صفحة إدارة الأماكن -->
+            <div id="placesPage" class="admin-page hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">
+                        <i class="fa fa-map-marker ml-2 text-admin"></i> إدارة الأماكن
+                    </h2>
+                </div>
+                <div id="placesList" class="space-y-3">
+                    <p class="text-gray-500 text-center py-8">لا توجد أماكن مضافة</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- نافذة تعديل بيانات مشترك -->
+    <div id="editUserModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4">تعديل بيانات المشترك</h3>
+            <input type="hidden" id="editUserId">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium">الاسم</label>
+                    <input type="text" id="editUserName" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">رقم الجوال</label>
+                    <input type="tel" id="editUserPhone" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">البريد الإلكتروني</label>
+                    <input type="email" id="editUserEmail" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-5">
+                <button onclick="closeModal('editUserModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="saveUserEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل مدينة -->
+    <div id="editCityModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4">تعديل اسم المدينة</h3>
+            <input type="hidden" id="editCityId">
+            <input type="text" id="editCityName" placeholder="اسم المدينة الجديد" 
+                class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeModal('editCityModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="saveCityEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل مكان -->
+    <div id="editPlaceModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold mb-4">تعديل بيانات المكان</h3>
+            <input type="hidden" id="editPlaceId">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium">اسم المكان</label>
+                    <input type="text" id="editPlaceName" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">المدينة</label>
+                    <input type="text" id="editPlaceCity" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">التصنيف</label>
+                    <select id="editPlaceCategory" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                        <option value="مطعم">مطعم</option>
+                        <option value="كوفي">كوفي</option>
+                        <option value="منتزه">منتزه</option>
+                        <option value="محل">محل</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm font-medium">السعر</label>
+                    <input type="text" id="editPlacePrice" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">رقم الجوال</label>
+                    <input type="tel" id="editPlacePhone" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">رابط الخريطة</label>
+                    <input type="url" id="editPlaceMap" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm font-medium">ملاحظات</label>
+                    <textarea id="editPlaceNotes" rows="2" class="w-full p-3 rounded-xl bg-gray-50/70 border border-gray-200 mt-1"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-5">
+                <button onclick="closeModal('editPlaceModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="savePlaceEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة مدينة جديدة -->
+    <div id="addCityModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4">إضافة مدينة جديدة</h3>
+            <input type="text" id="newCityNameAdmin" placeholder="اسم المدينة" 
+                class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeModal('addCityModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="addNewCity()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // التحقق من صلاحية المشرف
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!userData || userData.type !== 'admin') {
+            alert('❌ غير مصرح لك بالدخول لهذه الصفحة');
+            location.href = 'login.html';
+        }
+
+        // تبديل الصفحات
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                document.querySelectorAll('.admin-page').forEach(p => p.classList.add('hidden'));
+                document.getElementById(link.dataset.page + 'Page').classList.remove('hidden');
+                if (link.dataset.page === 'users') loadPendingUsers();
+                if (link.dataset.page === 'users-list') loadApprovedUsers();
+                if (link.dataset.page === 'cities') loadCitiesAdmin();
+                if (link.dataset.page === 'places') loadPlacesAdmin();
+            });
+        });
+
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.remove('active');
+            document.getElementById(id).classList.remove('flex');
+        };
+
+        // تسجيل الخروج
+        document.getElementById('logoutAdmin').addEventListener('click', () => {
+            if (confirm('تسجيل الخروج؟')) {
+                localStorage.removeItem('user');
+                location.href = 'login.html';
+            }
+        });
+
+        // ========== إدارة طلبات التسجيل ==========
+        function loadPendingUsers() {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const pending = users.filter(u => u.status === 'pending');
+            const container = document.getElementById('pendingUsersList');
+            document.getElementById('pendingCount').textContent = pending.length;
+            
+            if (pending.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">لا توجد طلبات جديدة 🎉</p>';
+                return;
+            }
+            container.innerHTML = '';
+            pending.forEach(user => {
+                container.innerHTML += `
+                    <div class="glass p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.avatar || 'https://via.placeholder.com/50/6366F1/FFFFFF?text=' + user.name.charAt(0)}" class="w-12 h-12 rounded-full object-cover">
+                            <div>
+                                <h4 class="font-bold">${user.name}</h4>
+                                <p class="text-sm text-gray-500">📱 ${user.phone}</p>
+                                <p class="text-xs text-gray-400">${user.email || 'بدون بريد'}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="approveUser(${user.id})" class="bg-success/10 text-success px-4 py-2 rounded-lg text-sm">
+                                <i class="fa fa-check ml-1"></i> موافقة
+                            </button>
+                            <button onclick="rejectUser(${user.id})" class="bg-danger/10 text-danger px-4 py-2 rounded-lg text-sm">
+                                <i class="fa fa-times ml-1"></i> رفض
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.approveUser = function(id) {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const idx = users.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                users[idx].status = 'approved';
+                localStorage.setItem('pendingUsers', JSON.stringify(users));
+                alert('✅ تمت الموافقة على المشترك: ' + users[idx].name);
+                loadPendingUsers();
+            }
+        };
+
+        window.rejectUser = function(id) {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const idx = users.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                users[idx].status = 'rejected';
+                localStorage.setItem('pendingUsers', JSON.stringify(users));
+                alert('❌ تم رفض طلب المشترك: ' + users[idx].name);
+                loadPendingUsers();
+            }
+        };
+
+        // ========== إدارة المشتركين ==========
+        function loadApprovedUsers() {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]').filter(u => u.status === 'approved');
+            const container = document.getElementById('approvedUsersList');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">لا يوجد مشتركين موافق عليهم بعد</p>';
+                return;
+            }
+            container.innerHTML = '';
+            users.forEach(user => {
+                container.innerHTML += `
+                    <div class="glass p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <img src="${user.avatar || 'https://via.placeholder.com/50/3B82F6/FFFFFF?text=' + user.name.charAt(0)}" class="w-12 h-12 rounded-full object-cover">
+                            <div>
+                                <h4 class="font-bold">${user.name}</h4>
+                                <p class="text-sm text-gray-500">📱 ${user.phone}</p>
+                                <p class="text-xs text-success">✅ نشط</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openEditUser(${user.id})" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm">
+                                <i class="fa fa-pencil"></i> تعديل
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm">
+                                <i class="fa fa-trash"></i> حذف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.openEditUser = function(id) {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const user = users.find(u => u.id === id);
+            if (user) {
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editUserName').value = user.name;
+                document.getElementById('editUserPhone').value = user.phone;
+                document.getElementById('editUserEmail').value = user.email || '';
+                document.getElementById('editUserModal').classList.add('active', 'flex');
+            }
+        };
+
+        window.saveUserEdit = function() {
+            const id = parseInt(document.getElementById('editUserId').value);
+            const name = document.getElementById('editUserName').value.trim();
+            const phone = document.getElementById('editUserPhone').value.trim();
+            const email = document.getElementById('editUserEmail').value.trim();
+            
+            if (!name || !phone) return alert('أدخل الاسم ورقم الجوال');
+            
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const idx = users.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                users[idx].name = name;
+                users[idx].phone = phone;
+                users[idx].email = email;
+                localStorage.setItem('pendingUsers', JSON.stringify(users));
+                alert('✅ تم حفظ التعديلات');
+                closeModal('editUserModal');
+                loadApprovedUsers();
+            }
+        };
+
+        window.deleteUser = function(id) {
+            if (!confirm('حذف هذا المشترك نهائياً؟')) return;
+            let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            users = users.filter(u => u.id !== id);
+            localStorage.setItem('pendingUsers', JSON.stringify(users));
+            alert('✅ تم الحذف');
+            loadApprovedUsers();
+        };
+
+        // ========== إدارة المدن ==========
+        let citiesData = [];
+        async function loadCitiesAdmin() {
+            const container = document.getElementById('citiesList');
+            try {
+                const snap = await getDocs(collection(db, 'cities'));
+                citiesData = [];
+                snap.forEach(d => {
+                    citiesData.push({id: d.id, ...d.data()});
+                });
+                if (citiesData.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-8">لا توجد مدن مضافة</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                citiesData.forEach(city => {
+                    container.innerHTML += `
+                        <div class="glass p-4 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <i class="fa fa-building text-primary"></i>
+                                </div>
+                                <h4 class="font-bold">${city.name}</h4>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openEditCity('${city.id}','${city.name}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm">
+                                    <i class="fa fa-pencil"></i> تعديل
+                                </button>
+                                <button onclick="deleteCity('${city.id}')" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm">
+                                    <i class="fa fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-red-500 text-center">❌ خطأ في تحميل المدن</p>';
+            }
+        }
+
+        document.getElementById('addCityBtn').addEventListener('click', () => {
+            document.getElementById('addCityModal').classList.add('active', 'flex');
+        });
+
+        window.addNewCity = async function() {
+            const name = document.getElementById('newCityNameAdmin').value.trim();
+            if (!name) return alert('أدخل اسم المدينة');
+            try {
+                await addDoc(collection(db, 'cities'), { name, createdAt: new Date() });
+                alert('✅ تمت إضافة المدينة');
+                document.getElementById('newCityNameAdmin').value = '';
+                closeModal('addCityModal');
+                loadCitiesAdmin();
+            } catch (e) {
+                alert('❌ خطأ: ' + e.message);
+            }
+        };
+
+        window.openEditCity = function(id, name) {
+            document.getElementById('editCityId').value = id;
+            document.getElementById('editCityName').value = name;
+            document.getElementById('editCityModal').classList.add('active', 'flex');
+        };
+
+        window.saveCityEdit = async function() {
+            const id = document.getElementById('editCityId').value;
+            const newName = document.getElementById('editCityName').value.trim();
+            if (!newName) return alert('أدخل اسم المدينة');
+            try {
+                await updateDoc(doc(db, 'cities', id), { name: newName });
+                alert('✅ تم تعديل اسم المدينة');
+                closeModal('editCityModal');
+                loadCitiesAdmin();
+            } catch (e) {
+                alert('❌ خطأ: ' + e.message);
+            }
+        };
+
+        window.deleteCity = async function(id) {
+            if (!confirm('حذف هذه المدينة؟ سيتم حذفها فقط ولن يتم حذف الأماكن المرتبطة بها تلقائياً')) return;
+            try {
+                await deleteDoc(doc(db, 'cities', id));
+                alert('✅ تم الحذف');
+                loadCitiesAdmin();
+            } catch (e) {
+                alert('❌ خطأ: ' + e.message);
+            }
+        };
+
+        // ========== إدارة الأماكن ==========
+        let placesData = [];
+        async function loadPlacesAdmin() {
+            const container = document.getElementById('placesList');
+            try {
+                const snap = await getDocs(collection(db, 'places'));
+                placesData = [];
+                snap.forEach(d => {
+                    placesData.push({id: d.id, ...d.data()});
+                });
+                if (placesData.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-8">لا توجد أماكن مضافة</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                placesData.forEach(place => {
+                    container.innerHTML += `
+                        <div class="glass p-4 rounded-xl">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <h4 class="font-bold">${place.name}</h4>
+                                    <p class="text-sm text-gray-500">📍 ${place.city} — ${place.category || 'بدون تصنيف'}</p>
+                                    <p class="text-xs text-gray-400">أضيف بواسطة: ${place.createdBy || 'مجهول'}</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="openEditPlace('${place.id}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm whitespace-nowrap">
+                                        <i class="fa fa-pencil"></i> تعديل
+                                    </button>
+                                    <button onclick="deletePlace('${place.id}')" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm whitespace-nowrap">
+                                        <i class="fa fa-trash"></i> حذف
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                container.innerHTML = '<p class="text-red-500 text-center">❌ خطأ في تحميل الأماكن</p>';
+            }
+        }
+
+        window.openEditPlace = function(id) {
+            const place = placesData.find(p => p.id === id);
+            if (place) {
+                document.getElementById('editPlaceId').value = id;
+                document.getElementById('editPlaceName').value = place.name || '';
+                document.getElementById('editPlaceCity').value = place.city || '';
+                document.getElementById('editPlaceCategory').value = place.category || 'أخرى';
+                document.getElementById('editPlacePrice').value = place.price || '';
+                document.getElementById('editPlacePhone').value = place.phone || '';
+                document.getElementById('editPlaceMap').value = place.mapUrl || '';
+                document.getElementById('editPlaceNotes').value = place.notes || '';
+                document.getElementById('editPlaceModal').classList.add('active', 'flex');
+            }
+        };
+
+        window.savePlaceEdit = async function() {
+            const id = document.getElementById('editPlaceId').value;
+            const data = {
+                name: document.getElementById('editPlaceName').value.trim(),
+                city: document.getElementById('editPlaceCity').value.trim(),
+                category: document.getElementById('editPlaceCategory').value,
+                price: document.getElementById('editPlacePrice').value.trim(),
+                phone: document.getElementById('editPlacePhone').value.trim(),
+                mapUrl: document.getElementById('editPlaceMap').value.trim(),
+                notes: document.getElementById('editPlaceNotes').value.trim()
+            };
+            if (!data.name || !data.city) return alert('اسم المكان والمدينة مطلوبان');
+            try {
+                await updateDoc(doc(db, 'places', id), data);
+                alert('✅ تم تعديل بيانات المكان');
+                closeModal('editPlaceModal');
+                loadPlacesAdmin();
+            } catch (e) {
+                alert('❌ خطأ: ' + e.message);
+            }
+        };
+
+        window.deletePlace = async function(id) {
+            if (!confirm('حذف هذا المكان نهائياً؟')) return;
+            try {
+                await deleteDoc(doc(db, 'places', id));
+                alert('✅ تم الحذف');
+                loadPlacesAdmin();
+            } catch (e) {
+                alert('❌ خطأ: ' + e.message);
+            }
+        };
+
+        // تحميل عند فتح الصفحة
+        loadPendingUsers();
+    </script>
+</body>
+</html>
