@@ -23,16 +23,22 @@
         .city-card { background: rgba(255,255,255,0.85); border-radius: 16px; transition: all 0.25s ease; cursor: pointer; }
         .city-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
         .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
+        .user-avatar { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
     </style>
 </head>
 <body>
     <header class="glass sticky top-0 z-30 shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button id="userBtn" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-0">
+            <button id="userBtn" class="w-10 h-10 rounded-full user-avatar flex items-center justify-center overflow-hidden border-0 shadow-sm">
                 <img id="headerAvatar" src="https://via.placeholder.com/40" class="w-full h-full object-cover">
             </button>
-            <h1 class="text-lg font-bold">كشتات عائلة حسين العويشي</h1>
-            <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin border-0" title="دخول المشرف">
+            <div class="flex items-center gap-2">
+                <div class="logo-circle w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="fa fa-map-marker text-primary"></i>
+                </div>
+                <h1 class="text-base font-bold">كشتات العويشي</h1>
+            </div>
+            <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin border-0" title="لوحة التحكم">
                 <i class="fa fa-shield"></i>
             </button>
         </div>
@@ -49,6 +55,9 @@
             <a href="home.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100/70">
                 <i class="fa fa-home text-primary"></i> الصفحة الرئيسية
             </a>
+            <a href="profile.html" id="profileLink" class="hidden flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/10 text-secondary">
+                <i class="fa fa-user-circle"></i> ملفي الشخصي
+            </a>
             <a href="#" id="logoutLink" class="hidden flex items-center gap-3 p-3 rounded-xl hover:bg-red-50/60 text-red-500">
                 <i class="fa fa-sign-out"></i> تسجيل الخروج
             </a>
@@ -60,7 +69,6 @@
     <div id="overlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
 
     <main class="container mx-auto px-4 py-5">
-        <!-- شريط آخر الأماكن -->
         <section class="mb-8">
             <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
                 <i class="fa fa-clock-o text-accent"></i> أحدث الأماكن المضافة
@@ -70,7 +78,6 @@
             </div>
         </section>
         <hr class="my-6 border-gray-200/50">
-        <!-- المدن -->
         <section>
             <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
                 <i class="fa fa-folder-open text-primary"></i> المدن
@@ -85,7 +92,6 @@
         </section>
     </main>
 
-    <!-- أزرار عائمة -->
     <button id="addCityBtn" class="btn-float bg-secondary" style="bottom: 90px;">
         <i class="fa fa-building-o text-lg"></i>
     </button>
@@ -93,7 +99,6 @@
         <i class="fa fa-plus text-lg"></i>
     </button>
 
-    <!-- نافذة إضافة مدينة -->
     <div id="cityModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center p-4">
         <div class="glass w-full max-w-md rounded-2xl p-6">
             <h3 class="text-lg font-bold mb-4">إضافة مدينة جديدة</h3>
@@ -121,7 +126,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // بيانات المستخدم
         const userData = JSON.parse(localStorage.getItem('user') || 'null');
         const isLoggedIn = !!userData;
         const isAdmin = userData?.type === 'admin';
@@ -129,15 +133,19 @@
         if (userData) {
             document.getElementById('menuName').textContent = userData.name;
             document.getElementById('menuPhone').textContent = userData.phone || userData.email || '';
+            document.getElementById('profileLink').classList.remove('hidden');
             if (userData.avatar) {
                 document.getElementById('headerAvatar').src = userData.avatar;
                 document.getElementById('menuAvatar').src = userData.avatar;
+            } else {
+                document.getElementById('headerAvatar').src = 'https://via.placeholder.com/40/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
+                document.getElementById('menuAvatar').src = 'https://via.placeholder.com/60/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
             }
         }
         document.getElementById('logoutLink').classList.toggle('hidden', !isLoggedIn);
         document.getElementById('loginLink').classList.toggle('hidden', isLoggedIn);
+        document.getElementById('adminBtn').classList.toggle('hidden', !isLoggedIn);
 
-        // القائمة الجانبية
         const userMenu = document.getElementById('userMenu');
         const overlay = document.getElementById('overlay');
         const openMenu = () => { userMenu.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
@@ -151,29 +159,17 @@
             }
         });
         document.getElementById('adminBtn').addEventListener('click', () => {
-            if (isAdmin) alert('✅ أنت بالفعل المشرف');
+            if (isAdmin) location.href = 'admin-dashboard.html';
             else location.href = 'login.html';
         });
 
-        // التحقق من تسجيل الدخول للإضافة فقط
         function needLogin() {
-            if (!isLoggedIn) { 
-                alert('يرجى تسجيل الدخول أولاً'); 
-                location.href = 'login.html';
-                return false; 
-            }
+            if (!isLoggedIn) { alert('يرجى تسجيل الدخول أولاً'); location.href = 'login.html'; return false; }
             return true;
         }
-        document.getElementById('addPlaceBtn').addEventListener('click', () => {
-            if (needLogin()) location.href = 'add-place.html';
-        });
-        document.getElementById('addCityBtn').addEventListener('click', () => {
-            if (!needLogin()) return;
-            document.getElementById('cityModal').classList.remove('hidden');
-        });
-        document.getElementById('closeCityModal').addEventListener('click', () => {
-            document.getElementById('cityModal').classList.add('hidden');
-        });
+        document.getElementById('addPlaceBtn').addEventListener('click', () => { if (needLogin()) location.href = 'add-place.html'; });
+        document.getElementById('addCityBtn').addEventListener('click', () => { if (!needLogin()) return; document.getElementById('cityModal').classList.remove('hidden'); });
+        document.getElementById('closeCityModal').addEventListener('click', () => { document.getElementById('cityModal').classList.add('hidden'); });
         document.getElementById('saveCity').addEventListener('click', async () => {
             const name = document.getElementById('newCityName').value.trim();
             if (!name) return alert('أدخل اسم المدينة');
@@ -186,12 +182,8 @@
             } catch (e) { alert('❌ خطأ: ' + e.message); }
         });
 
-        // فتح صفحة المدينة
-        window.openCity = (id, name) => {
-            location.href = `city-view.html?name=${encodeURIComponent(name)}`;
-        };
+        window.openCity = (id, name) => { location.href = `city-view.html?name=${encodeURIComponent(name)}`; };
 
-        // تحميل المدن
         async function loadCities() {
             const grid = document.getElementById('citiesGrid');
             try {
@@ -212,34 +204,23 @@
                     </div>`;
                 });
             } catch (e) {
-                console.error(e);
-                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل — تأكد من اتصال الإنترنت وقواعد Firebase</p>`;
+                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل — تأكد من Firebase</p>`;
             }
         }
 
-        // تحميل أحدث الأماكن
         async function loadRecent() {
             const cont = document.getElementById('recentScroll');
             try {
                 const q = query(collection(db, 'places'), orderBy('createdAt', 'desc'), limit(6));
                 const snap = await getDocs(q);
-                if (snap.empty) {
-                    cont.innerHTML = `<p class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</p>`;
-                    return;
-                }
+                if (snap.empty) { cont.innerHTML = `<p class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</p>`; return; }
                 cont.innerHTML = '';
                 snap.forEach(doc => {
                     const p = doc.data();
                     const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
-                    cont.innerHTML += `<div class="flex-shrink-0 w-44 p-3 glass rounded-xl">
-                        <h4 class="font-bold text-sm truncate">${p.name}</h4>
-                        <p class="text-xs text-gray-500">${p.city}</p>
-                        <p class="text-yellow-500 text-xs mt-1">${stars}</p>
-                    </div>`;
+                    cont.innerHTML += `<div class="flex-shrink-0 w-44 p-3 glass rounded-xl"><h4 class="font-bold text-sm truncate">${p.name}</h4><p class="text-xs text-gray-500">${p.city}</p><p class="text-yellow-500 text-xs mt-1">${stars}</p></div>`;
                 });
-            } catch (e) {
-                cont.innerHTML = `<p class="text-red-500 text-sm">❌ خطأ في التحميل</p>`;
-            }
+            } catch (e) { cont.innerHTML = `<p class="text-red-500 text-sm">❌ خطأ في التحميل</p>`; }
         }
 
         loadCities();
