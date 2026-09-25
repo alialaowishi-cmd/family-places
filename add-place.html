@@ -21,29 +21,29 @@
     <style>body { font-family: 'Tajawal', sans-serif; }</style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex items-center">
-            <a href="home.html" class="text-white mr-3"><i class="fa fa-arrow-left text-xl"></i></a>
-            <h1 class="text-xl font-bold">إضافة مكان جديد</h1>
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-3 py-3 flex items-center">
+            <a href="home.html" class="text-white mr-2"><i class="fa fa-arrow-left text-lg"></i></a>
+            <h1 class="text-lg font-bold">إضافة مكان جديد</h1>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8 max-w-lg">
-        <div class="bg-white rounded-2xl shadow-sm p-6">
-            <form id="addPlaceForm" class="space-y-5">
+    <main class="container mx-auto px-3 py-6 max-w-lg">
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <form id="addPlaceForm" class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">اسم المكان *</label>
-                    <input type="text" id="placeName" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">اسم المكان *</label>
+                    <input type="text" id="placeName" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">المدينة *</label>
-                    <select id="placeCity" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">المدينة *</label>
+                    <select id="placeCity" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                         <option value="">اختر المدينة</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">التصنيف *</label>
-                    <select id="placeCategory" required class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">التصنيف *</label>
+                    <select id="placeCategory" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                         <option value="">اختر التصنيف</option>
                         <option value="مطاعم">مطاعم</option>
                         <option value="مقاهي">مقاهي</option>
@@ -53,12 +53,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">رقم الجوال</label>
-                    <input type="tel" id="placePhone" placeholder="05xxxxxxxx" class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">رقم الجوال</label>
+                    <input type="tel" id="placePhone" placeholder="05xxxxxxxx" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">التقييم (من 5)</label>
-                    <select id="placeRating" class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">التقييم (من 5)</label>
+                    <select id="placeRating" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                         <option value="5">⭐⭐⭐⭐⭐ 5 من 5</option>
                         <option value="4">⭐⭐⭐⭐ 4 من 5</option>
                         <option value="3" selected>⭐⭐⭐ 3 من 5</option>
@@ -67,32 +67,58 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">رابط الموقع على الخريطة</label>
-                    <input type="url" id="placeMapLink" placeholder="من Google Maps" class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-1">رابط الموقع على الخريطة</label>
+                    <input type="url" id="placeMapLink" placeholder="رابط من Google Maps" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
                 </div>
+                
+                <!-- قسم رفع الصور -->
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">رابط صورة المكان</label>
-                    <input type="url" id="placeImageUrl" placeholder="الصق رابط الصورة" class="w-full p-3 border border-gray-300 rounded-lg">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">صورة المكان</label>
+                    
+                    <!-- معاينة الصورة -->
+                    <div id="imagePreviewContainer" class="mb-3 hidden">
+                        <img id="imagePreview" class="w-full h-40 object-cover rounded-lg border">
+                        <button type="button" id="removeImage" class="mt-2 text-red-500 text-sm flex items-center gap-1">
+                            <i class="fa fa-times-circle"></i> إزالة الصورة
+                        </button>
+                    </div>
+                    
+                    <!-- زر رفع الصورة -->
+                    <label class="block w-full cursor-pointer">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary transition bg-gray-50">
+                            <i class="fa fa-cloud-upload text-2xl text-gray-400 mb-2"></i>
+                            <p class="text-sm text-gray-500">اضغط لاختيار صورة من هاتفك</p>
+                            <p class="text-xs text-gray-400 mt-1">أو أدخل رابط الصورة أدناه</p>
+                        </div>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                    </label>
+                    
+                    <div class="mt-3">
+                        <label class="block text-gray-600 text-xs mb-1">أو أدخل رابط الصورة مباشرة:</label>
+                        <input type="url" id="placeImageUrl" placeholder="https://example.com/image.jpg" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">💡 نصيحة: انسخ رابط الصورة من الإنترنت والصقه في المربع أعلاه، أو اختر صورة من هاتفك</p>
                 </div>
+                
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">الوصف</label>
-                    <textarea id="placeDescription" rows="4" class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
+                    <label class="block text-gray-700 text-sm font-medium mb-1">الوصف</label>
+                    <textarea id="placeDescription" rows="3" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium">
-                    <i class="fa fa-plus ml-2"></i> إضافة المكان
+                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium text-sm">
+                    <i class="fa fa-plus ml-1"></i> إضافة المكان
                 </button>
             </form>
-            <div id="successMessage" class="mt-6 p-4 bg-green-50 text-green-700 rounded-lg hidden">
-                <i class="fa fa-check-circle ml-2"></i> تم الإضافة! <a href="home.html" class="text-primary">العودة للرئيسية</a>
+            <div id="successMessage" class="mt-4 p-3 bg-green-50 text-green-700 rounded-lg hidden text-sm">
+                <i class="fa fa-check-circle ml-1"></i> تم الإضافة بنجاح! <a href="home.html" class="text-primary font-medium">العودة للرئيسية</a>
             </div>
-            <div id="errorMessage" class="mt-4 p-3 bg-red-50 text-red-600 rounded-lg hidden"></div>
+            <div id="errorMessage" class="mt-3 p-3 bg-red-50 text-red-600 rounded-lg hidden text-sm"></div>
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -107,60 +133,107 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const placeCity = document.getElementById('placeCity');
-        const addPlaceForm = document.getElementById('addPlaceForm');
-        const successMessage = document.getElementById('successMessage');
-        const errorMessage = document.getElementById('errorMessage');
         let currentUser = null;
+        let imageBase64 = "";
 
         onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = 'home.html';
+            if (!user) {
+                alert('يرجى تسجيل الدخول أولاً');
+                window.location.href = "home.html";
+                return;
+            }
             currentUser = user;
+            loadCities();
         });
 
+        // تحميل قائمة المدن
         async function loadCities() {
             try {
-                const citiesSnap = await getDocs(collection(db, 'cities'));
-                citiesSnap.docs.forEach(doc => {
-                    const city = doc.data();
-                    const option = document.createElement('option');
-                    option.value = city.name;
-                    option.textContent = city.name;
-                    placeCity.appendChild(option);
-                });
+                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name', 'asc')));
+                const cities = citiesSnap.docs.map(doc => doc.data());
+                const select = document.getElementById('placeCity');
+                select.innerHTML = '<option value="">اختر المدينة</option>' + 
+                    cities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
             } catch {
-                errorMessage.textContent = "خطأ في تحميل المدن";
-                errorMessage.classList.remove('hidden');
+                console.log('لم يتم تحميل المدن');
             }
         }
 
-        addPlaceForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            errorMessage.classList.add('hidden');
-            successMessage.classList.add('hidden');
+        // معالجة رفع الصورة من الهاتف
+        const imageUpload = document.getElementById('imageUpload');
+        const imageUrlInput = document.getElementById('placeImageUrl');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImageBtn = document.getElementById('removeImage');
 
-            try {
-                await addDoc(collection(db, 'places'), {
-                    name: document.getElementById('placeName').value,
-                    city: document.getElementById('placeCity').value,
-                    category: document.getElementById('placeCategory').value,
-                    phone: document.getElementById('placePhone').value,
-                    rating: parseInt(document.getElementById('placeRating').value),
-                    mapLink: document.getElementById('placeMapLink').value,
-                    imageUrl: document.getElementById('placeImageUrl').value,
-                    description: document.getElementById('placeDescription').value,
-                    createdBy: currentUser.uid,
-                    createdAt: new Date()
-                });
-                successMessage.classList.remove('hidden');
-                addPlaceForm.reset();
-            } catch {
-                errorMessage.textContent = "حدث خطأ، حاول مرة أخرى";
-                errorMessage.classList.remove('hidden');
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imageBase64 = event.target.result;
+                imagePreview.src = imageBase64;
+                previewContainer.classList.remove('hidden');
+                imageUrlInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // عند إدخال رابط صورة - عرض المعاينة
+        imageUrlInput.addEventListener('input', () => {
+            if (imageUrlInput.value.trim()) {
+                imagePreview.src = imageUrlInput.value;
+                previewContainer.classList.remove('hidden');
+                imageBase64 = '';
+                imageUpload.value = '';
+            } else {
+                previewContainer.classList.add('hidden');
             }
         });
 
-        loadCities();
+        // إزالة الصورة المختارة
+        removeImageBtn.addEventListener('click', () => {
+            previewContainer.classList.add('hidden');
+            imagePreview.src = '';
+            imageUpload.value = '';
+            imageUrlInput.value = '';
+            imageBase64 = '';
+        });
+
+        // إرسال النموذج
+        document.getElementById('addPlaceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            let finalImageUrl = imageUrlInput.value.trim() || imageBase64 || '';
+            
+            const placeData = {
+                name: document.getElementById('placeName').value,
+                city: document.getElementById('placeCity').value,
+                category: document.getElementById('placeCategory').value,
+                phone: document.getElementById('placePhone').value,
+                rating: parseInt(document.getElementById('placeRating').value),
+                mapLink: document.getElementById('placeMapLink').value,
+                imageUrl: finalImageUrl,
+                description: document.getElementById('placeDescription').value,
+                createdBy: currentUser.uid,
+                userEmail: currentUser.email,
+                createdAt: new Date()
+            };
+
+            try {
+                await addDoc(collection(db, 'places'), placeData);
+                document.getElementById('successMessage').classList.remove('hidden');
+                document.getElementById('errorMessage').classList.add('hidden');
+                document.getElementById('addPlaceForm').reset();
+                previewContainer.classList.add('hidden');
+                imageBase64 = '';
+            } catch (err) {
+                document.getElementById('errorMessage').textContent = '❌ حدث خطأ أثناء الإضافة، حاول مرة أخرى';
+                document.getElementById('errorMessage').classList.remove('hidden');
+                console.error(err);
+            }
+        });
     </script>
 </body>
 </html>
