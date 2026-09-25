@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء حساب جديد</title>
+    <title>طلب تسجيل جديد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -21,8 +21,8 @@
 <body class="flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
         <div class="text-center mb-6">
-            <h1 class="text-xl font-bold">إنشاء حساب جديد</h1>
-            <p class="text-gray-500 text-sm mt-1">سجل بياناتك وانتظر موافقة المشرف</p>
+            <h1 class="text-xl font-bold">طلب تسجيل جديد</h1>
+            <p class="text-gray-500 text-sm mt-1">أدخل بياناتك وسنقوم بالموافقة على رقم جوالك قريباً</p>
         </div>
         <div class="glass rounded-3xl shadow-lg p-6">
             <form id="regForm" class="space-y-4">
@@ -39,10 +39,8 @@
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
                 <input type="email" id="email" placeholder="البريد الإلكتروني (اختياري)"
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
-                <input type="password" id="password" placeholder="كلمة المرور *" required
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
                 <p class="text-xs text-warning bg-warning/10 p-2 rounded-lg">
-                    <i class="fa fa-info-circle ml-1"></i> ملاحظة: حسابك سيكون بانتظار موافقة المشرف قبل التفعيل
+                    <i class="fa fa-info-circle ml-1"></i> ملاحظة: لا تحتاج لكلمة مرور. فقط انتظر موافقة المشرف على رقم جوالك ثم سجل الدخول برقمك مباشرة ✅
                 </p>
                 <button type="submit" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
                     <i class="fa fa-check ml-2"></i> إرسال الطلب
@@ -72,20 +70,20 @@
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
             
-            // حفظ في قائمة الانتظار
             const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            if (users.find(u => u.phone === phone)) {
+                return alert('❌ هذا الرقم مسجل مسبقاً');
+            }
             users.push({
                 id: Date.now(),
-                name, phone, email, password,
+                name, phone, email,
                 avatar: avatarData,
                 status: 'pending',
                 registeredAt: new Date().toISOString()
             });
             localStorage.setItem('pendingUsers', JSON.stringify(users));
-            
-            alert('✅ تم إرسال طلبك! بانتظار موافقة المشرف');
+            alert('✅ تم إرسال طلبك! انتظر موافقة المشرف، ولا تحتاج لكلمة مرور فقط سجل دخول برقمك عند الموافقة 📱');
             location.href = 'login.html';
         });
     </script>
