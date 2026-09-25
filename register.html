@@ -3,88 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلب تسجيل جديد</title>
+    <title>تسجيل جديد — كشتات العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        tailwind.config = { theme: { extend: { colors: { primary: '#22C55E', warning: '#F59E0B' } } }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#22C55E', secondary: '#3B82F6', warning: '#F59E0B', danger: '#EF4444' }
+                }
+            }
+        }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
         body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; }
-        .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
-        .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
-        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px dashed #ccc; cursor: pointer; }
+        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
+        .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); transition: transform 0.2s; }
+        .btn-primary:active { transform: scale(0.97); }
+        .input-focus:focus { box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
     </style>
 </head>
 <body class="flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
-        <div class="text-center mb-6">
-            <h1 class="text-xl font-bold">طلب تسجيل جديد</h1>
-            <p class="text-gray-500 text-sm mt-1">أدخل بياناتك وسنقوم بالموافقة على رقم جوالك قريباً</p>
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <i class="fa fa-user-plus text-primary text-4xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">طلب تسجيل جديد</h1>
+            <p class="text-gray-500 text-sm mt-2">أدخل بياناتك وانتظر موافقة المشرف ✅</p>
         </div>
+
         <div class="glass rounded-3xl shadow-lg p-6">
-            <form id="regForm" class="space-y-4">
-                <div class="text-center">
-                    <label for="avatarInput">
-                        <img id="avatarPreview" src="https://via.placeholder.com/80" class="avatar-preview mx-auto" alt="صورة شخصية">
-                        <p class="text-xs text-gray-500 mt-1">اضغط لاختيار صورة (اختياري)</p>
-                    </label>
-                    <input type="file" id="avatarInput" accept="image/*" class="hidden">
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل *</label>
+                    <input type="text" id="fullName" placeholder="أدخل اسمك الكامل" required
+                        class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
                 </div>
-                <input type="text" id="name" placeholder="الاسم الكامل" required
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
-                <input type="tel" id="phone" placeholder="رقم الجوال * مثال: 05xxxxxxxx" required
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
-                <input type="email" id="email" placeholder="البريد الإلكتروني (اختياري)"
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
-                <p class="text-xs text-warning bg-warning/10 p-2 rounded-lg">
-                    <i class="fa fa-info-circle ml-1"></i> ملاحظة: لا تحتاج لكلمة مرور. فقط انتظر موافقة المشرف على رقم جوالك ثم سجل الدخول برقمك مباشرة ✅
-                </p>
-                <button type="submit" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
-                    <i class="fa fa-check ml-2"></i> إرسال الطلب
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال *</label>
+                    <input type="tel" id="phoneNumber" placeholder="05xxxxxxxx" required
+                        class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
+                    <p class="text-xs text-gray-400 mt-1">سيتم استخدام الرقم لتسجيل الدخول فقط — بدون كلمة مرور</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="emailAddress" placeholder="example@email.com"
+                        class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
+                </div>
+
+                <div class="bg-blue-50/60 p-3 rounded-xl text-sm text-blue-700">
+                    <i class="fa fa-info-circle ml-1"></i>
+                    بعد إرسال الطلب، ستحتاج إلى انتظار موافقة المشرف حتى تتمكن من الدخول.
+                </div>
+
+                <button type="submit" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium mt-2">
+                    <i class="fa fa-paper-plane ml-2"></i> إرسال الطلب للمشرف
                 </button>
             </form>
-            <p class="text-center text-sm mt-4">لديك حساب؟ <a href="login.html" class="text-primary font-medium">تسجيل الدخول</a></p>
+
+            <div id="successMessage" class="hidden mt-4 p-4 bg-green-50 rounded-xl text-center">
+                <i class="fa fa-check-circle text-success text-2xl mb-2"></i>
+                <p class="font-medium text-green-800">✅ تم إرسال طلبك بنجاح!</p>
+                <p class="text-sm text-green-600 mt-1">يرجى الانتظار حتى يقوم المشرف بمراجعة طلبك والموافقة عليه</p>
+                <a href="login.html" class="inline-block mt-3 text-primary font-medium">العودة لصفحة الدخول ←</a>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-200/50 text-center text-sm">
+                <p>لديك حساب بالفعل؟ <a href="login.html" class="text-primary font-medium">تسجيل الدخول</a></p>
+            </div>
         </div>
     </div>
 
     <script>
-        const avatarInput = document.getElementById('avatarInput');
-        const avatarPreview = document.getElementById('avatarPreview');
-        let avatarData = '';
-        avatarInput.addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    avatarPreview.src = ev.target.result;
-                    avatarData = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        document.getElementById('regForm').addEventListener('submit', e => {
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim();
             
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            if (users.find(u => u.phone === phone)) {
-                return alert('❌ هذا الرقم مسجل مسبقاً');
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const email = document.getElementById('emailAddress').value.trim();
+
+            // التحقق من المدخلات
+            if (!name) return alert('أدخل اسمك الكامل');
+            if (!phone || phone.length < 9) return alert('أدخل رقم جوال صحيح');
+
+            // قراءة الطلبات الموجودة أو إنشاء مصفوفة جديدة
+            let requests = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+
+            // التحقق من عدم تكرار رقم الجوال
+            const exists = requests.find(u => u.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
+            if (exists) {
+                if (exists.status === 'pending') {
+                    alert('⚠️ هذا الرقم مُرسل مسبقاً وينتظر الموافقة!');
+                } else if (exists.status === 'approved') {
+                    alert('✅ هذا الرقم موافق عليه بالفعل — اذهب لصفحة الدخول');
+                } else if (exists.status === 'rejected') {
+                    alert('❌ تم رفض هذا الطلب سابقاً');
+                }
+                return;
             }
-            users.push({
+
+            // إضافة الطلب الجديد
+            const newRequest = {
                 id: Date.now(),
-                name, phone, email,
-                avatar: avatarData,
+                name: name,
+                phone: phone,
+                email: email || '',
                 status: 'pending',
                 registeredAt: new Date().toISOString()
-            });
-            localStorage.setItem('pendingUsers', JSON.stringify(users));
-            alert('✅ تم إرسال طلبك! انتظر موافقة المشرف، ولا تحتاج لكلمة مرور فقط سجل دخول برقمك عند الموافقة 📱');
-            location.href = 'login.html';
+            };
+
+            requests.push(newRequest);
+            localStorage.setItem('pendingUsers', JSON.stringify(requests));
+
+            console.log('✅ تم حفظ الطلب:', newRequest);
+            console.log('📋 جميع الطلبات:', requests);
+
+            // إظهار رسالة النجاح وإخفاء النموذج
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
         });
     </script>
 </body>
