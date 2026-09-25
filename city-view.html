@@ -61,9 +61,9 @@
                 <p class="text-xs text-gray-400 mt-3">أضيف بواسطة: <span id="dBy"></span></p>
             </div>
             <div id="adminActions" class="flex gap-2 mt-5 pt-3 border-t hidden">
-                <div class="flex-1 py-2 rounded-lg bg-gray-100 text-sm text-center">
-                    <i class="fa fa-info-circle ml-1"></i> فقط المشرف يمكنه التعديل والحذف
-                </div>
+                <button id="deleteBtn" class="flex-1 py-2 rounded-lg bg-danger/10 text-danger text-sm">
+                    <i class="fa fa-trash ml-1"></i> حذف
+                </button>
             </div>
         </div>
     </div>
@@ -96,6 +96,9 @@
         const userData = JSON.parse(localStorage.getItem('user') || 'null');
         const isLoggedIn = !!userData;
         const isAdmin = userData?.type === 'admin';
+
+        // إظهار أزرار المشرف فقط إذا كان مشرفاً
+        document.getElementById('adminActions').classList.toggle('hidden', !isAdmin);
 
         // زر إضافة مكان لهذه المدينة
         document.getElementById('addPlaceHere').addEventListener('click', () => {
@@ -137,118 +140,3 @@
 
         function renderPlaces() {
             const container = document.getElementById('placesContainer');
-            container.innerHTML = '';
-            allPlaces.forEach(p => {
-                const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
-                container.innerHTML += `<div class="place-card p-4" data-id="${p.id}">
-                    <h3 class="font-bold text-lg">${p.name}</h3>
-                    <p class="text-sm text-gray-500">${p.category || 'بدون تصنيف'}</p>
-                    <p class="text-yellow-500 text-sm mt-1">${stars}</p>
-                    ${p.price ? `<p class="text-sm text-gray-600 mt-1">💰 ${p.price}</p>` : ''}
-                    <p class="text-xs text-gray-400 mt-2">أضيف بواسطة: ${p.createdBy || 'مجهول'}</p>
-                </div>`;
-            });
-            
-            // إضافة حدث النقر بعد إنشاء العناصر
-            document.querySelectorAll('.place-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const id = card.getAttribute('data-id');
-                    openDetail(id);
-                });
-            });
-        }
-
-        // نافذة التفاصيل
-        const detailModal = document.getElementById('detailModal');
-        const closeDetail = document.getElementById('closeDetail');
-        
-        closeDetail.addEventListener('click', () => {
-            detailModal.classList.add('hidden');
-        });
-        detailModal.addEventListener('click', (e) => {
-            if (e.target === detailModal) detailModal.classList.add('hidden');
-        });
-
-        window.openDetail = function(id) {
-            const place = allPlaces.find(p => p.id === id);
-            if (!place) return;
-            
-            document.getElementById('dName').textContent = place.name;
-            document.getElementById('dCat').textContent = place.category || 'غير محدد';
-            const stars = '★'.repeat(place.rating||0) + '☆'.repeat(5-(place.rating||0));
-            document.getElementById('dStars').textContent = stars;
-            document.getElementById('dPrice').textContent = place.price || 'غير محدد';
-            document.getElementById('dBy').textContent = place.createdBy || 'مجهول';
-            
-            // جوال
-            const phoneWrap = document.getElementById('dPhoneWrap');
-            const phoneEl = document.getElementById('dPhone');
-            if (place.phone) {
-                phoneWrap.classList.remove('hidden');
-                phoneEl.textContent = place.phone;
-                phoneEl.href = `tel:${place.phone}`;
-            } else {
-                phoneWrap.classList.add('hidden');
-            }
-            
-            // خريطة
-            const mapWrap = document.getElementById('dMapWrap');
-            const mapEl = document.getElementById('dMap');
-            if (place.mapUrl) {
-                mapWrap.classList.remove('hidden');
-                mapEl.href = place.mapUrl;
-            } else {
-                mapWrap.classList.add('hidden');
-            }
-            
-            // ملاحظات
-            const notesWrap = document.getElementById('dNotesWrap');
-            if (place.notes) {
-                notesWrap.classList.remove('hidden');
-                document.getElementById('dNotes').textContent = place.notes;
-            } else {
-                notesWrap.classList.add('hidden');
-            }
-            
-            // صور
-            const imgBox = document.getElementById('dImages');
-            imgBox.innerHTML = '';
-            if (place.images && place.images.length > 0) {
-                place.images.forEach(url => {
-                    imgBox.innerHTML += `<img src="${url}" class="w-24 h-24 object-cover rounded-lg">`;
-                });
-            } else {
-                imgBox.innerHTML = '<p class="text-sm text-gray-400">لا صور متاحة</p>';
-            }
-            
-            // أزرار المشرف
-            document.getElementById('adminActions').classList.toggle('hidden', !isAdmin);
-            
-            detailModal.classList.remove('hidden');
-        };
-
-        // حذف مكان
-        document.getElementById('adminActions').innerHTML = `
-            <button id="deleteBtn" class="flex-1 py-2 rounded-lg bg-danger/10 text-danger text-sm">
-                <i class="fa fa-trash ml-1"></i> حذف
-            </button>
-        `;
-        document.getElementById('deleteBtn').addEventListener('click', async () => {
-            if (!isAdmin) return alert('❌ غير مسموح لك');
-            if (!confirm('حذف هذا المكان؟')) return;
-            const placeId = allPlaces.find(p => p.name === document.getElementById('dName').textContent)?.id;
-            if (!placeId) return;
-            try {
-                await deleteDoc(doc(db, 'places', placeId));
-                alert('✅ تم الحذف');
-                detailModal.classList.add('hidden');
-                loadPlaces();
-            } catch (e) {
-                alert('❌ خطأ في الحذف: ' + e.message);
-            }
-        });
-
-        loadPlaces();
-    </script>
-</body>
-</html>
