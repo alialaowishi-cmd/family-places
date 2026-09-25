@@ -54,10 +54,10 @@
                     <i class="fa fa-clock-o ml-1"></i> رقمك بانتظار موافقة المشرف ⏳
                 </p>
                 <p id="rejectedNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
-                    <i class="fa fa-times-circle ml-1"></i> تم رفض هذا الرقم من المشرف
+                    <i class="fa fa-times-circle ml-1"></i> تم رفض هذا الرقم من المشرف ❌
                 </p>
-                <p id="errorNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
-                    <i class="fa fa-exclamation-triangle ml-1"></i> هذا الرقم غير مسجل لدينا<br>يرجى تقديم طلب تسجيل أولاً
+                <p id="notFoundNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
+                    <i class="fa fa-exclamation-triangle ml-1"></i> هذا الرقم غير مسجل لدينا<br>يرجى <a href="register.html" class="underline font-medium">تقديم طلب تسجيل جديد</a> أولاً
                 </p>
                 <p class="text-xs text-gray-400 text-center">لا تحتاج لكلمة مرور فقط أدخل رقمك الموافق عليه ✅</p>
             </div>
@@ -121,7 +121,7 @@
         function hideAllNotes() {
             document.getElementById('pendingNote').classList.add('hidden');
             document.getElementById('rejectedNote').classList.add('hidden');
-            document.getElementById('errorNote').classList.add('hidden');
+            document.getElementById('notFoundNote').classList.add('hidden');
         }
 
         function normalizePhone(phone) {
@@ -139,17 +139,16 @@
             }
             
             const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            console.log('جميع المستخدمين:', users); // للتصحيح
+            console.log('جميع الطلبات المخزنة:', users);
             
-            // البحث في جميع المستخدمين
             const found = users.find(u => normalizePhone(u.phone) === phone);
             
             if (!found) {
-                document.getElementById('errorNote').classList.remove('hidden');
+                document.getElementById('notFoundNote').classList.remove('hidden');
                 return;
             }
             
-            console.log('الحالة:', found.status); // للتصحيح
+            console.log('حالة الطلب:', found.status);
             
             if (found.status === 'pending') {
                 document.getElementById('pendingNote').classList.remove('hidden');
@@ -167,12 +166,10 @@
                     email: found.email || '',
                     type: 'user',
                     status: 'approved',
-                    avatar: found.avatar || ''
+                    avatar: ''
                 }));
                 alert('✅ تم الدخول بنجاح، أهلاً بك يا ' + found.name);
                 location.href = 'home.html';
-            } else {
-                alert('❌ حالة الحساب غير معروفة: ' + found.status);
             }
         }
 
