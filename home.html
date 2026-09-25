@@ -20,19 +20,19 @@
         * { font-family: 'Tajawal', sans-serif; }
         body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 100px; }
         .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
-        .city-card { background: rgba(255,255,255,0.85); border-radius: 16px; transition: all 0.25s ease; }
+        .city-card { background: rgba(255,255,255,0.85); border-radius: 16px; transition: all 0.25s ease; cursor: pointer; }
         .city-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
-        .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; }
+        .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
     <header class="glass sticky top-0 z-30 shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button id="userBtn" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+            <button id="userBtn" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-0">
                 <img id="headerAvatar" src="https://via.placeholder.com/40" class="w-full h-full object-cover">
             </button>
             <h1 class="text-lg font-bold">كشتات عائلة حسين العويشي</h1>
-            <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin">
+            <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin border-0">
                 <i class="fa fa-shield"></i>
             </button>
         </div>
@@ -141,19 +141,28 @@
         document.getElementById('userBtn').addEventListener('click', openMenu);
         overlay.addEventListener('click', closeMenu);
         document.getElementById('logoutLink').addEventListener('click', () => {
-            if (confirm('تسجيل الخروج؟')) { localStorage.removeItem('user'); location.reload(); }
+            if (confirm('تسجيل الخروج؟')) { 
+                localStorage.removeItem('user'); 
+                location.href = 'home.html'; 
+            }
         });
         document.getElementById('adminBtn').addEventListener('click', () => {
             if (isAdmin) alert('✅ أنت بالفعل المشرف');
             else location.href = 'login.html';
         });
 
-        // التحقق من تسجيل الدخول
+        // التحقق من تسجيل الدخول للإضافة فقط
         function needLogin() {
-            if (!isLoggedIn) { alert('يرجى تسجيل الدخول أولاً'); return false; }
+            if (!isLoggedIn) { 
+                alert('يرجى تسجيل الدخول أولاً'); 
+                location.href = 'login.html';
+                return false; 
+            }
             return true;
         }
-        document.getElementById('addPlaceBtn').addEventListener('click', () => needLogin() && (location.href = 'add-place.html'));
+        document.getElementById('addPlaceBtn').addEventListener('click', () => {
+            if (needLogin()) location.href = 'add-place.html';
+        });
         document.getElementById('addCityBtn').addEventListener('click', () => {
             if (!needLogin()) return;
             document.getElementById('cityModal').classList.remove('hidden');
@@ -163,7 +172,7 @@
         });
         document.getElementById('saveCity').addEventListener('click', async () => {
             const name = document.getElementById('newCityName').value.trim();
-            if (!name) return;
+            if (!name) return alert('أدخل اسم المدينة');
             try {
                 await addDoc(collection(db, 'cities'), { name, createdAt: new Date() });
                 alert(`✅ تمت إضافة "${name}"`);
@@ -173,19 +182,24 @@
             } catch (e) { alert('❌ خطأ: ' + e.message); }
         });
 
+        // فتح صفحة المدينة
+        window.openCity = (id, name) => {
+            location.href = `city-view.html?name=${encodeURIComponent(name)}`;
+        };
+
         // تحميل المدن
         async function loadCities() {
             const grid = document.getElementById('citiesGrid');
             try {
                 const snap = await getDocs(collection(db, 'cities'));
                 if (snap.empty) {
-                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد مدن مضافة</p><p class="text-sm text-gray-400 mt-1">استخدم الزر الأزرق لإنشاء أول مدينة</p></div>`;
+                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد مدن مضافة</p><p class="text-sm text-gray-400 mt-1">سجل دخول لإنشاء أول مدينة</p></div>`;
                     return;
                 }
                 grid.innerHTML = '';
                 snap.forEach(doc => {
                     const city = doc.data();
-                    grid.innerHTML += `<div class="city-card p-5 cursor-pointer" onclick="openCity('${doc.id}','${city.name}')">
+                    grid.innerHTML += `<div class="city-card p-5" onclick="openCity('${doc.id}','${city.name}')">
                         <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-3">
                             <i class="fa fa-folder text-primary text-xl"></i>
                         </div>
@@ -194,10 +208,10 @@
                     </div>`;
                 });
             } catch (e) {
-                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل — تحقق من Firebase Rules</p>`;
+                console.error(e);
+                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل — تأكد من اتصال الإنترنت وقواعد Firebase</p>`;
             }
         }
-        window.openCity = (id, name) => location.href = `city-view.html?id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}`;
 
         // تحميل أحدث الأماكن
         async function loadRecent() {
@@ -220,7 +234,7 @@
                     </div>`;
                 });
             } catch (e) {
-                cont.innerHTML = `<p class="text-red-500 text-sm">❌ خطأ</p>`;
+                cont.innerHTML = `<p class="text-red-500 text-sm">❌ خطأ في التحميل</p>`;
             }
         }
 
