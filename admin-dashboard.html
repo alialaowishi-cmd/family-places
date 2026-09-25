@@ -13,8 +13,7 @@
                     colors: { 
                         primary: '#22C55E', secondary: '#3B82F6', 
                         admin: '#6366F1', danger: '#EF4444', 
-                        warning: '#F59E0B', success: '#10B981',
-                        dark: '#1F2937', light: '#F9FAFB'
+                        warning: '#F59E0B', success: '#10B981'
                     }
                 }
             }
@@ -25,14 +24,13 @@
         * { font-family: 'Tajawal', sans-serif; }
         body { background: #F3F4F6; min-height: 100vh; padding-bottom: 80px; }
         .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-        .nav-item { transition: all 0.2s ease; }
-        .nav-item.active { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); color: white; }
+        .tab-btn { transition: all 0.2s ease; }
+        .tab-btn.active { background: #6366F1; color: white; }
         .card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #F3F4F6; }
         .btn { transition: all 0.15s ease; }
         .btn:active { transform: scale(0.97); }
-        .badge { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-        .tab-btn.active { background: #6366F1; color: white; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
     </style>
 </head>
 <body>
@@ -60,7 +58,7 @@
         <div class="flex flex-wrap gap-2 mb-6">
             <button class="tab-btn active px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="requests">
                 <i class="fa fa-user-plus ml-1"></i> الطلبات الجديدة
-                <span id="pendingBadge" class="ml-1 bg-warning text-white text-xs px-2 py-0.5 rounded-full badge">0</span>
+                <span id="pendingBadge" class="ml-1 bg-warning text-white text-xs px-2 py-0.5 rounded-full">0</span>
             </button>
             <button class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="users">
                 <i class="fa fa-users ml-1"></i> المشتركين
@@ -101,13 +99,17 @@
         <div id="usersTab" class="tab-content hidden">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold">قائمة المشتركين</h2>
-                <span class="text-sm text-gray-500" id="usersCount">0 مشترك</span>
+                <div class="flex gap-2">
+                    <button onclick="openAddUserModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium btn">
+                        <i class="fa fa-plus ml-1"></i> إضافة مستخدم يدوي
+                    </button>
+                </div>
             </div>
             <div id="approvedUsersList" class="space-y-3">
                 <div class="card p-6 text-center text-gray-500">
                     <i class="fa fa-users text-4xl text-gray-300 mb-3"></i>
                     <p>لا يوجد مشتركين حتى الآن</p>
-                    <p class="text-sm text-gray-400 mt-1">عند موافقتك على الطلبات ستظهر هنا ✅</p>
+                    <p class="text-sm text-gray-400 mt-1">استخدم زر "إضافة مستخدم يدوي" لإضافة أول مشترك ✅</p>
                 </div>
             </div>
         </div>
@@ -157,6 +159,20 @@
                 <div class="card p-5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+                                <i class="fa fa-user-plus text-success"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">إضافة مستخدم جديد يدوياً</h3>
+                                <p class="text-xs text-gray-500">إضافة مشترك مباشرة بدون طلب تسجيل</p>
+                            </div>
+                        </div>
+                        <button onclick="openAddUserModal()" class="bg-success text-white px-3 py-2 rounded-lg text-sm">إضافة</button>
+                    </div>
+                </div>
+                <div class="card p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center">
                                 <i class="fa fa-key text-admin"></i>
                             </div>
@@ -165,7 +181,7 @@
                                 <p class="text-xs text-gray-500">كلمة المرور الحالية: admin123</p>
                             </div>
                         </div>
-                        <button onclick="alert('قريباً - يمكنك تغيير الكود في ملف admin-dashboard.html يدويًا')" class="bg-gray-100 px-3 py-2 rounded-lg text-sm">تغيير</button>
+                        <button onclick="alert('قريباً')" class="bg-gray-100 px-3 py-2 rounded-lg text-sm">تغيير</button>
                     </div>
                 </div>
                 <div class="card p-5">
@@ -194,19 +210,6 @@
                             </div>
                         </div>
                         <button onclick="clearDemoData()" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm">مسح</button>
-                    </div>
-                </div>
-                <div class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center">
-                                <i class="fa fa-info-circle text-warning"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">معلومات النظام</h3>
-                                <p class="text-xs text-gray-500">الإصدار 1.0 — كشتات العويشي</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -243,8 +246,33 @@
     <!-- النوافذ المنبثقة -->
     <!-- ====================================== -->
 
+    <!-- نافذة إضافة مستخدم يدوي -->
+    <div id="addUserModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+        <div class="glass w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4">إضافة مستخدم جديد يدوياً</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium text-gray-600">الاسم الكامل *</label>
+                    <input type="text" id="newUserName" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="أدخل اسم المستخدم">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-600">رقم الجوال *</label>
+                    <input type="tel" id="newUserPhone" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="05xxxxxxxx">
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-600">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="newUserEmail" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="example@email.com">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-5">
+                <button onclick="closeModal('addUserModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="saveManualUser()" class="flex-1 p-3 bg-primary text-white rounded-xl">إضافة المستخدم ✅</button>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة تعديل بيانات مشترك -->
-    <div id="editUserModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div id="editUserModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
         <div class="glass w-full max-w-md rounded-2xl p-6">
             <h3 class="text-lg font-bold mb-4">تعديل بيانات المشترك</h3>
             <input type="hidden" id="editUserId">
@@ -270,7 +298,7 @@
     </div>
 
     <!-- نافذة تعديل مدينة -->
-    <div id="editCityModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div id="editCityModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
         <div class="glass w-full max-w-md rounded-2xl p-6">
             <h3 class="text-lg font-bold mb-4">تعديل اسم المدينة</h3>
             <input type="hidden" id="editCityId">
@@ -284,7 +312,7 @@
     </div>
 
     <!-- نافذة إضافة مدينة جديدة -->
-    <div id="addCityModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div id="addCityModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
         <div class="glass w-full max-w-md rounded-2xl p-6">
             <h3 class="text-lg font-bold mb-4">إضافة مدينة جديدة</h3>
             <input type="text" id="newCityNameAdmin" placeholder="أدخل اسم المدينة" 
@@ -296,79 +324,7 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل مكان -->
-    <div id="editPlaceModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="glass w-full max-w-md rounded-2xl p-6 my-8">
-            <h3 class="text-lg font-bold mb-4">تعديل بيانات المكان</h3>
-            <input type="hidden" id="editPlaceId">
-            <div class="space-y-3">
-                <div>
-                    <label class="text-sm font-medium text-gray-600">اسم المكان</label>
-                    <input type="text" id="editPlaceName" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">المدينة</label>
-                    <input type="text" id="editPlaceCity" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">التصنيف</label>
-                    <select id="editPlaceCategory" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                        <option value="مطعم">مطعم</option>
-                        <option value="كوفي">كوفي</option>
-                        <option value="منتزه">منتزه</option>
-                        <option value="محل">محل</option>
-                        <option value="أخرى">أخرى</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">السعر</label>
-                    <input type="text" id="editPlacePrice" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">رقم الجوال</label>
-                    <input type="tel" id="editPlacePhone" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">رابط الخريطة</label>
-                    <input type="url" id="editPlaceMap" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">التقييم (من 5)</label>
-                    <select id="editPlaceRating" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                        <option value="1">1 ⭐</option>
-                        <option value="2">2 ⭐</option>
-                        <option value="3">3 ⭐</option>
-                        <option value="4">4 ⭐</option>
-                        <option value="5">5 ⭐</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">ملاحظات إضافية</label>
-                    <textarea id="editPlaceNotes" rows="2" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2"></textarea>
-                </div>
-            </div>
-            <div class="flex gap-3 mt-5">
-                <button onclick="closeModal('editPlaceModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button onclick="savePlaceEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ التغييرات</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-            authDomain: "ali-alaowishi.firebaseapp.com",
-            projectId: "ali-alaowishi",
-            storageBucket: "ali-alaowishi.firebasestorage.app",
-            messagingSenderId: "536583940962",
-            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
+    <script>
         // التحقق من صلاحية المشرف
         const userData = JSON.parse(localStorage.getItem('user') || 'null');
         if (!userData || userData.type !== 'admin') {
@@ -390,29 +346,23 @@
         };
 
         window.switchTab = function(tabName) {
-            // تحديث أزرار التبويب العلوي
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.tab === tabName) btn.classList.add('active');
             });
-            // إخفاء جميع المحتويات
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            // إظهار المحتوى المحدد
             document.getElementById(tabName + 'Tab').classList.remove('hidden');
             
-            // تحميل البيانات
             if (tabName === 'requests') loadPendingUsers();
             if (tabName === 'users') loadApprovedUsers();
             if (tabName === 'cities') loadCitiesAdmin();
             if (tabName === 'places') loadPlacesAdmin();
         };
 
-        // ربط أزرار التبويب العلوي
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        // تسجيل الخروج
         window.logoutAdmin = function() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
                 localStorage.removeItem('user');
@@ -420,7 +370,6 @@
             }
         };
 
-        // مسح البيانات التجريبية
         window.clearDemoData = function() {
             if (confirm('⚠️ هل تريد مسح جميع الطلبات والمشتركين؟ لا يمكن التراجع!')) {
                 localStorage.removeItem('pendingUsers');
@@ -428,6 +377,52 @@
                 loadPendingUsers();
                 loadApprovedUsers();
             }
+        };
+
+        // ======================================
+        // فتح وإغلاق نافذة إضافة مستخدم يدوي
+        // ======================================
+        window.openAddUserModal = function() {
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserPhone').value = '';
+            document.getElementById('newUserEmail').value = '';
+            openModal('addUserModal');
+        };
+
+        // حفظ المستخدم المضاف يدوياً
+        window.saveManualUser = function() {
+            const name = document.getElementById('newUserName').value.trim();
+            const phone = document.getElementById('newUserPhone').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+
+            if (!name) return alert('⚠️ أدخل اسم المستخدم');
+            if (!phone || phone.length < 9) return alert('⚠️ أدخل رقم جوال صحيح');
+
+            let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+
+            // التحقق من عدم تكرار رقم الجوال
+            const exists = users.find(u => u.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
+            if (exists) {
+                return alert('⚠️ هذا الرقم موجود مسبقاً!');
+            }
+
+            // إضافة المستخدم مباشرة كـ "موافق عليه"
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                phone: phone,
+                email: email || '',
+                status: 'approved',
+                registeredAt: new Date().toISOString(),
+                manualAdded: true
+            };
+
+            users.push(newUser);
+            localStorage.setItem('pendingUsers', JSON.stringify(users));
+
+            alert(`✅ تم إضافة المستخدم "${name}" بنجاح ويمكنه الدخول فوراً برقم جواله`);
+            closeModal('addUserModal');
+            loadApprovedUsers();
         };
 
         // ======================================
@@ -455,7 +450,7 @@
                     <div class="card p-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
-                                <img src="${user.avatar || 'https://via.placeholder.com/50/6366F1/FFFFFF?text=' + (user.name?.charAt(0)||'U')}" class="w-12 h-12 rounded-full object-cover">
+                                <img src="https://via.placeholder.com/50/6366F1/FFFFFF?text=${user.name?.charAt(0)||'U'}" class="w-12 h-12 rounded-full object-cover">
                                 <div>
                                     <h4 class="font-bold">${user.name || 'بدون اسم'}</h4>
                                     <p class="text-sm text-gray-500">📱 ${user.phone || 'غير متوفر'}</p>
@@ -484,6 +479,7 @@
                 localStorage.setItem('pendingUsers', JSON.stringify(users));
                 alert(`✅ تمت الموافقة على "${users[idx].name}" — يمكنه الآن تسجيل الدخول برقم جواله`);
                 loadPendingUsers();
+                loadApprovedUsers();
             }
         };
 
@@ -511,7 +507,7 @@
                     <div class="card p-6 text-center text-gray-500">
                         <i class="fa fa-users text-4xl text-gray-300 mb-3"></i>
                         <p>لا يوجد مشتركين موافق عليهم بعد</p>
-                        <p class="text-sm text-gray-400 mt-1">عند موافقتك على الطلبات ستظهر هنا ✅</p>
+                        <p class="text-sm text-gray-400 mt-1">استخدم زر "إضافة مستخدم يدوي" لإضافة أول مشترك ✅</p>
                     </div>`;
                 return;
             }
@@ -521,11 +517,11 @@
                     <div class="card p-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
-                                <img src="${user.avatar || 'https://via.placeholder.com/50/3B82F6/FFFFFF?text=' + (user.name?.charAt(0)||'U')}" class="w-12 h-12 rounded-full object-cover">
+                                <img src="https://via.placeholder.com/50/3B82F6/FFFFFF?text=${user.name?.charAt(0)||'U'}" class="w-12 h-12 rounded-full object-cover">
                                 <div>
                                     <h4 class="font-bold">${user.name || 'بدون اسم'}</h4>
                                     <p class="text-sm text-gray-500">📱 ${user.phone || 'غير متوفر'}</p>
-                                    <p class="text-xs text-success">✅ نشط</p>
+                                    <p class="text-xs text-success">✅ نشط ${user.manualAdded ? '<span class="text-admin">(مضاف يدوياً)</span>' : ''}</p>
                                 </div>
                             </div>
                             <div class="flex gap-2">
@@ -592,214 +588,145 @@
             openModal('addCityModal');
         };
 
-        let citiesData = [];
-        async function loadCitiesAdmin() {
+        function loadCitiesAdmin() {
             const container = document.getElementById('citiesList');
-            try {
-                const snap = await getDocs(collection(db, 'cities'));
-                citiesData = [];
-                snap.forEach(d => {
-                    citiesData.push({id: d.id, ...d.data()});
-                });
-                document.getElementById('citiesCount').textContent = `${citiesData.length} مدينة`;
-                
-                if (citiesData.length === 0) {
-                    container.innerHTML = `
-                        <div class="card p-6 text-center text-gray-500">
-                            <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                            <p>لا توجد مدن مضافة</p>
-                            <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مدينة" لإنشاء أول مدينة 📍</p>
-                        </div>`;
-                    return;
-                }
-                container.innerHTML = '';
-                citiesData.forEach(city => {
-                    container.innerHTML += `
-                        <div class="card p-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                        <i class="fa fa-building text-primary"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold">${city.name}</h4>
-                                        <p class="text-xs text-gray-400">أضيفت: ${city.createdAt?.toDate ? city.createdAt.toDate().toLocaleDateString('ar-SA') : 'غير معروف'}</p>
-                                    </div>
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            
+            if (cities.length === 0) {
+                container.innerHTML = `
+                    <div class="card p-6 text-center text-gray-500">
+                        <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p>لا توجد مدن مضافة</p>
+                        <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مدينة" لإنشاء أول مدينة 📍</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = '';
+            cities.forEach((city, index) => {
+                container.innerHTML += `
+                    <div class="card p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <i class="fa fa-building text-primary"></i>
                                 </div>
-                                <div class="flex gap-2">
-                                    <button onclick="openEditCity('${city.id}','${city.name}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
-                                        <i class="fa fa-pencil"></i> تعديل
-                                    </button>
-                                    <button onclick="deleteCity('${city.id}')" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
-                                        <i class="fa fa-trash"></i> حذف
-                                    </button>
+                                <div>
+                                    <h4 class="font-bold">${city.name}</h4>
+                                    <p class="text-xs text-gray-400">أضيفت: ${new Date(city.createdAt).toLocaleDateString('ar-SA')}</p>
                                 </div>
                             </div>
+                            <div class="flex gap-2">
+                                <button onclick="openEditCity(${index},'${city.name}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
+                                    <i class="fa fa-pencil"></i> تعديل
+                                </button>
+                                <button onclick="deleteCity(${index})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
+                                    <i class="fa fa-trash"></i> حذف
+                                </button>
+                            </div>
                         </div>
-                    `;
-                });
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = `<p class="text-red-500 text-center py-8">❌ خطأ في تحميل المدن: ${e.message}</p>`;
-            }
+                    </div>
+                `;
+            });
         }
 
-        window.addNewCity = async function() {
+        window.addNewCity = function() {
             const name = document.getElementById('newCityNameAdmin').value.trim();
             if (!name) return alert('⚠️ أدخل اسم المدينة');
-            try {
-                await addDoc(collection(db, 'cities'), { name, createdAt: new Date() });
-                alert(`✅ تمت إضافة مدينة "${name}" بنجاح`);
-                document.getElementById('newCityNameAdmin').value = '';
-                closeModal('addCityModal');
-                loadCitiesAdmin();
-            } catch (e) {
-                alert(`❌ خطأ في الإضافة: ${e.message}`);
-            }
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            cities.push({ name: name, createdAt: new Date().toISOString() });
+            localStorage.setItem('cities', JSON.stringify(cities));
+            alert(`✅ تمت إضافة مدينة "${name}" بنجاح`);
+            document.getElementById('newCityNameAdmin').value = '';
+            closeModal('addCityModal');
+            loadCitiesAdmin();
         };
 
-        window.openEditCity = function(id, name) {
-            document.getElementById('editCityId').value = id;
+        window.openEditCity = function(index, name) {
+            document.getElementById('editCityId').value = index;
             document.getElementById('editCityName').value = name;
             openModal('editCityModal');
         };
 
-        window.saveCityEdit = async function() {
-            const id = document.getElementById('editCityId').value;
+        window.saveCityEdit = function() {
+            const index = parseInt(document.getElementById('editCityId').value);
             const newName = document.getElementById('editCityName').value.trim();
             if (!newName) return alert('⚠️ أدخل اسم المدينة الجديد');
-            try {
-                await updateDoc(doc(db, 'cities', id), { name: newName });
-                alert(`✅ تم تعديل اسم المدينة إلى "${newName}" بنجاح`);
-                closeModal('editCityModal');
-                loadCitiesAdmin();
-            } catch (e) {
-                alert(`❌ خطأ في التعديل: ${e.message}`);
-            }
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            cities[index].name = newName;
+            localStorage.setItem('cities', JSON.stringify(cities));
+            alert(`✅ تم تعديل اسم المدينة إلى "${newName}" بنجاح`);
+            closeModal('editCityModal');
+            loadCitiesAdmin();
         };
 
-        window.deleteCity = async function(id) {
-            const city = citiesData.find(c => c.id === id);
-            if (!confirm(`⚠️ حذف مدينة "${city?.name}"؟ لا يمكن التراجع!`)) return;
-            try {
-                await deleteDoc(doc(db, 'cities', id));
-                alert(`✅ تم حذف مدينة "${city?.name}" بنجاح`);
-                loadCitiesAdmin();
-            } catch (e) {
-                alert(`❌ خطأ في الحذف: ${e.message}`);
-            }
+        window.deleteCity = function(index) {
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const cityName = cities[index].name;
+            if (!confirm(`⚠️ حذف مدينة "${cityName}"؟ لا يمكن التراجع!`)) return;
+            cities.splice(index, 1);
+            localStorage.setItem('cities', JSON.stringify(cities));
+            alert(`✅ تم حذف مدينة "${cityName}" بنجاح`);
+            loadCitiesAdmin();
         };
 
         // ======================================
         // 4. إدارة الأماكن
         // ======================================
-        let placesData = [];
-        async function loadPlacesAdmin() {
+        function loadPlacesAdmin() {
             const container = document.getElementById('placesList');
-            try {
-                const snap = await getDocs(collection(db, 'places'));
-                placesData = [];
-                snap.forEach(d => {
-                    placesData.push({id: d.id, ...d.data()});
-                });
-                document.getElementById('placesCount').textContent = `${placesData.length} مكان`;
-                
-                if (placesData.length === 0) {
-                    container.innerHTML = `
-                        <div class="card p-6 text-center text-gray-500">
-                            <i class="fa fa-map-marker text-4xl text-gray-300 mb-3"></i>
-                            <p>لا توجد أماكن مضافة</p>
-                            <p class="text-sm text-gray-400 mt-1">سيتم عرض جميع الأماكن المضافة من المستخدمين هنا</p>
-                        </div>`;
-                    return;
-                }
-                container.innerHTML = '';
-                placesData.forEach(place => {
-                    const stars = '★'.repeat(place.rating||0) + '☆'.repeat(5-(place.rating||0));
-                    container.innerHTML += `
-                        <div class="card p-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div>
-                                    <h4 class="font-bold text-lg">${place.name || 'بدون اسم'}</h4>
-                                    <p class="text-sm text-gray-500">📍 ${place.city || 'بدون مدينة'} — ${place.category || 'بدون تصنيف'}</p>
-                                    <p class="text-yellow-500 text-sm">${stars}</p>
-                                    <p class="text-xs text-gray-400">أضيف بواسطة: ${place.createdBy || 'مجهول'}</p>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button onclick="openEditPlace('${place.id}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
-                                        <i class="fa fa-pencil"></i> تعديل
-                                    </button>
-                                    <button onclick="deletePlace('${place.id}')" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
-                                        <i class="fa fa-trash"></i> حذف
-                                    </button>
-                                </div>
+            const places = JSON.parse(localStorage.getItem('places') || '[]');
+            document.getElementById('placesCount').textContent = `${places.length} مكان`;
+            
+            if (places.length === 0) {
+                container.innerHTML = `
+                    <div class="card p-6 text-center text-gray-500">
+                        <i class="fa fa-map-marker text-4xl text-gray-300 mb-3"></i>
+                        <p>لا توجد أماكن مضافة</p>
+                        <p class="text-sm text-gray-400 mt-1">سيتم عرض جميع الأماكن المضافة من المستخدمين هنا</p>
+                    </div>`;
+                return;
+            }
+            container.innerHTML = '';
+            places.forEach((place, index) => {
+                const stars = '★'.repeat(place.rating||0) + '☆'.repeat(5-(place.rating||0));
+                container.innerHTML += `
+                    <div class="card p-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-bold text-lg">${place.name || 'بدون اسم'}</h4>
+                                <p class="text-sm text-gray-500">📍 ${place.city || 'بدون مدينة'} — ${place.category || 'بدون تصنيف'}</p>
+                                <p class="text-yellow-500 text-sm">${stars}</p>
+                                <p class="text-xs text-gray-400">أضيف بواسطة: ${place.createdByName || 'مجهول'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
+                                    <i class="fa fa-pencil"></i> تعديل
+                                </button>
+                                <button onclick="deletePlace(${index})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
+                                    <i class="fa fa-trash"></i> حذف
+                                </button>
                             </div>
                         </div>
-                    `;
-                });
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = `<p class="text-red-500 text-center py-8">❌ خطأ في تحميل الأماكن: ${e.message}</p>`;
-            }
+                    </div>
+                `;
+            });
         }
 
-        window.openEditPlace = function(id) {
-            const place = placesData.find(p => p.id === id);
-            if (place) {
-                document.getElementById('editPlaceId').value = id;
-                document.getElementById('editPlaceName').value = place.name || '';
-                document.getElementById('editPlaceCity').value = place.city || '';
-                document.getElementById('editPlaceCategory').value = place.category || 'أخرى';
-                document.getElementById('editPlacePrice').value = place.price || '';
-                document.getElementById('editPlacePhone').value = place.phone || '';
-                document.getElementById('editPlaceMap').value = place.mapUrl || '';
-                document.getElementById('editPlaceRating').value = place.rating || '0';
-                document.getElementById('editPlaceNotes').value = place.notes || '';
-                openModal('editPlaceModal');
-            }
-        };
-
-        window.savePlaceEdit = async function() {
-            const id = document.getElementById('editPlaceId').value;
-            const data = {
-                name: document.getElementById('editPlaceName').value.trim(),
-                city: document.getElementById('editPlaceCity').value.trim(),
-                category: document.getElementById('editPlaceCategory').value,
-                price: document.getElementById('editPlacePrice').value.trim(),
-                phone: document.getElementById('editPlacePhone').value.trim(),
-                mapUrl: document.getElementById('editPlaceMap').value.trim(),
-                rating: parseInt(document.getElementById('editPlaceRating').value),
-                notes: document.getElementById('editPlaceNotes').value.trim()
-            };
-            
-            if (!data.name || !data.city) return alert('⚠️ اسم المكان والمدينة مطلوبان');
-            
-            try {
-                await updateDoc(doc(db, 'places', id), data);
-                alert('✅ تم تعديل بيانات المكان بنجاح');
-                closeModal('editPlaceModal');
-                loadPlacesAdmin();
-            } catch (e) {
-                alert(`❌ خطأ في الحفظ: ${e.message}`);
-            }
-        };
-
-        window.deletePlace = async function(id) {
-            const place = placesData.find(p => p.id === id);
-            if (!confirm(`⚠️ حذف مكان "${place?.name}"؟ لا يمكن التراجع!`)) return;
-            try {
-                await deleteDoc(doc(db, 'places', id));
-                alert(`✅ تم حذف مكان "${place?.name}" بنجاح`);
-                loadPlacesAdmin();
-            } catch (e) {
-                alert(`❌ خطأ في الحذف: ${e.message}`);
-            }
+        window.deletePlace = function(index) {
+            const places = JSON.parse(localStorage.getItem('places') || '[]');
+            const placeName = places[index].name || 'المكان';
+            if (!confirm(`⚠️ حذف مكان "${placeName}"؟ لا يمكن التراجع!`)) return;
+            places.splice(index, 1);
+            localStorage.setItem('places', JSON.stringify(places));
+            alert(`✅ تم حذف مكان "${placeName}" بنجاح`);
+            loadPlacesAdmin();
         };
 
         // ======================================
         // تحميل أولي
         // ======================================
         loadPendingUsers();
+        loadApprovedUsers();
     </script>
 </body>
 </html>
