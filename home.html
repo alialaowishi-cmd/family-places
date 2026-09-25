@@ -41,8 +41,8 @@
                     <span id="headerTitle">كشكات</span>
                 </h1>
                 
-                <!-- زر المشرف المستقل -->
-                <a id="adminBtn" href="admin-dashboard.html" class="bg-amber-500 hover:bg-amber-600 px-3 py-2 rounded-lg flex items-center gap-2 transition hidden">
+                <!-- زر المشرف -->
+                <a id="adminBtn" href="admin-settings.html" class="bg-amber-500 hover:bg-amber-600 px-3 py-2 rounded-lg flex items-center gap-2 transition hidden">
                     <i class="fa fa-cog"></i>
                     <span class="hidden sm:inline">لوحة المشرف</span>
                 </a>
@@ -66,6 +66,9 @@
                     <button id="myPlacesLink" class="w-full text-right px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
                         <i class="fa fa-bookmark text-primary ml-2"></i> أماكني
                     </button>
+                    <a href="admin-settings.html" id="adminSettingsLink" class="hidden block px-4 py-2 text-amber-700 hover:bg-amber-50 rounded-lg">
+                        <i class="fa fa-cog ml-2"></i> إعدادات الموقع
+                    </a>
                     <hr class="my-2">
                     <button id="logoutBtn" class="w-full text-right px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg">
                         <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
@@ -91,7 +94,7 @@
                 </h2>
             </div>
             
-            <!-- أزرار الإضافة الجديدة -->
+            <!-- أزرار الإضافة -->
             <div class="flex flex-col gap-2 mb-5">
                 <button id="addCityBtn" class="text-primary hover:text-secondary text-sm flex items-center justify-center gap-2 bg-primary/10 px-4 py-2.5 rounded-full border border-primary/20">
                     <i class="fa fa-plus"></i> إضافة مدينة
@@ -218,7 +221,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -248,31 +251,45 @@
         const addPlaceMainBtn = document.getElementById('addPlaceMainBtn');
         const addCityModal = document.getElementById('addCityModal');
         const searchInput = document.getElementById('searchInput');
+        const myPlacesLink = document.getElementById('myPlacesLink');
 
-        // حالة تسجيل الدخول
+        // ======================================
+        // ✅ دالة onAuthStateChanged كاملة
+        // ======================================
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             
             if (user) {
+                // المستخدم مسجل الدخول
                 document.getElementById('userEmailDisplay').textContent = user.email;
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('myPlacesSection').classList.remove('hidden');
                 addCityBtn.style.display = 'flex';
                 addPlaceMainBtn.style.display = 'flex';
-                loadMyPlaces();
+                myPlacesLink.style.display = 'block';
                 
-                // إظهار زر المشرف
+                // التحقق من صلاحيات المشرف
                 if (user.email === ADMIN_EMAIL) {
                     document.getElementById('adminBtn').classList.remove('hidden');
+                    document.getElementById('adminSettingsLink').classList.remove('hidden');
+                } else {
+                    document.getElementById('adminBtn').classList.add('hidden');
+                    document.getElementById('adminSettingsLink').classList.add('hidden');
                 }
+                
+                loadMyPlaces();
             } else {
+                // المستخدم غير مسجل الدخول
                 document.getElementById('userEmailDisplay').textContent = '';
                 userDropdown.classList.add('hidden');
                 document.getElementById('adminBtn').classList.add('hidden');
+                document.getElementById('adminSettingsLink').classList.add('hidden');
                 document.getElementById('myPlacesSection').classList.add('hidden');
                 addCityBtn.style.display = 'none';
                 addPlaceMainBtn.style.display = 'none';
+                myPlacesLink.style.display = 'none';
             }
+            
             loadCities();
         });
 
@@ -291,6 +308,12 @@
             if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
                 userDropdown.classList.add('hidden');
             }
+        });
+
+        // رابط أماكني
+        myPlacesLink.addEventListener('click', () => {
+            userDropdown.classList.add('hidden');
+            document.getElementById('myPlacesSection').scrollIntoView({ behavior: 'smooth' });
         });
 
         // زر إضافة مدينة - فتح النافذة
@@ -351,13 +374,11 @@
             }
         });
 
-        // تحميل المدن - تم تبسيط الاستعلام لحل مشكلة الفهرس مؤقتاً
+        // تحميل المدن
         async function loadCities() {
             try {
-                // نحمل كل المدن أولاً بدون ترتيب مزدوج لتجنب مشكلة الفهرس
                 const citiesSnap = await getDocs(collection(db, 'cities'));
                 allCities = citiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // نرتبها يدوياً
                 allCities.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
                 renderCities(allCities);
             } catch (error) {
@@ -424,14 +445,19 @@
             return html;
         }
 
+        // ======================================
+        // ✅ دالة renderPlaces كاملة مع رابط التفاصيل
+        // ======================================
         function renderPlaces(places, filter = 'all') {
             let filtered = filter === 'all' ? places : places.filter(p => p.category === filter);
+            
             if (filtered.length === 0) {
                 document.getElementById('placesContainer').innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><p>لا توجد أماكن في هذا التصنيف</p></div>`;
                 return;
             }
+            
             document.getElementById('placesContainer').innerHTML = filtered.map(place => `
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm">
+                <a href="place-detail.html?id=${place.id}" class="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                     <div class="h-40 bg-gray-100 flex items-center justify-center">
                         ${place.imageUrl ? `<img src="${place.imageUrl}" alt="${place.name}" class="w-full h-full object-cover">` : `<i class="fa fa-image text-3xl text-gray-400"></i>`}
                     </div>
@@ -442,7 +468,7 @@
                         <p class="text-sm text-gray-600 line-clamp-2">${place.description || 'لا وصف متاح'}</p>
                         ${place.phone ? `<p class="text-sm text-gray-500 mt-1"><i class="fa fa-phone ml-1"></i> ${place.phone}</p>` : ''}
                     </div>
-                </div>
+                </a>
             `).join('');
         }
 
@@ -474,7 +500,9 @@
             }
         });
 
-        // تحميل أماكني
+        // ======================================
+        // ✅ دالة أماكني كاملة
+        // ======================================
         async function loadMyPlaces() {
             if (!currentUser) return;
             try {
@@ -494,15 +522,16 @@
                 return;
             }
             container.innerHTML = myPlaces.map(place => `
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm">
+                <a href="place-detail.html?id=${place.id}" class="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                     <div class="h-40 bg-gray-100 flex items-center justify-center">
                         ${place.imageUrl ? `<img src="${place.imageUrl}" alt="${place.name}" class="w-full h-full object-cover">` : `<i class="fa fa-image text-3xl text-gray-400"></i>`}
                     </div>
                     <div class="p-3">
                         <h3 class="font-bold text-lg mb-1">${place.name || 'بدون اسم'}</h3>
                         <p class="text-sm text-gray-500">${place.city} — ${place.category || 'غير مصنف'}</p>
+                        <p class="text-sm text-gray-600 line-clamp-2 mt-1">${place.description || 'لا وصف متاح'}</p>
                     </div>
-                </div>
+                </a>
             `).join('');
         }
 
@@ -517,7 +546,6 @@
         });
         document.getElementById('showLogin').addEventListener('click', () => {
             document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('authError').classList.add('hidden');
         });
@@ -543,6 +571,7 @@
                 authModal.classList.add('hidden');
             } catch {
                 document.getElementById('authError').textContent = 'حدث خطأ أثناء التسجيل';
+                document.getElementById('authError').classList.add('hidden');
                 document.getElementById('authError').classList.remove('hidden');
             }
         });
