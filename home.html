@@ -14,7 +14,6 @@
                         primary: '#16a34a',
                         secondary: '#15803d',
                         accent: '#f59e0b',
-                        light: '#f0fdf4',
                         dark: '#14532d',
                     },
                     fontFamily: {
@@ -29,7 +28,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        button, .cursor-pointer { cursor: pointer !important; }
         body { padding-top: 72px; background-color: #fafafa; }
         .auth-screen {
             min-height: 100vh;
@@ -38,100 +36,158 @@
             justify-content: center;
             background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
         }
-        .btn-clickable {
-            position: relative;
-            z-index: 10;
-            pointer-events: auto !important;
-        }
+        .input-focus:focus { box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
+        .card-shadow { box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- 🔐 شاشة تسجيل الدخول -->
+    <!-- 🔐 شاشة تسجيل الدخول - تصميم جديد -->
     <div id="authScreen" class="auth-screen fixed inset-0 z-[60] overflow-auto">
         <div class="w-full max-w-md px-4 py-8">
-            <div class="text-center mb-8">
-                <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fa fa-leaf text-white text-4xl"></i>
+            <!-- الشعار والعنوان -->
+            <div class="text-center mb-10">
+                <div class="w-28 h-28 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-5 backdrop-blur-sm">
+                    <i class="fa fa-map-o text-white text-5xl"></i>
                 </div>
-                <h1 id="siteTitle" class="text-3xl font-bold text-white mb-2">كشتات</h1>
+                <h1 class="text-4xl font-bold text-white mb-2">كشتات</h1>
                 <p class="text-green-100 text-lg">عائلة حسين العويشي</p>
+                <p class="text-green-200 text-sm mt-2">اكتشفوا أجمل الأماكن والمواقع المميزة</p>
             </div>
-            <div class="bg-white rounded-2xl p-6 shadow-2xl">
-                <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">مرحباً بك</h3>
-                <p class="text-gray-500 text-sm mb-6 text-center">سجّل الدخول لاستكشاف الأماكن</p>
+
+            <!-- بطاقة تسجيل الدخول -->
+            <div class="bg-white rounded-3xl p-7 card-shadow">
+                <h3 id="formHeading" class="text-2xl font-bold text-gray-800 mb-2 text-center">أهلاً بعودتك 👋</h3>
+                <p id="formSubheading" class="text-gray-500 text-sm mb-7 text-center">سجّل الدخول لمتابعة استكشاف الأماكن</p>
                 
-                <div id="loginFormMain">
-                    <button id="adminQuickLoginMain" class="btn-clickable w-full py-3 rounded-xl font-semibold text-amber-700 flex items-center justify-center gap-2 border-2 border-amber-500 bg-amber-50 mb-4 hover:bg-amber-100 transition-colors">
-                        <i class="fa fa-shield"></i>
-                        <span>الدخول كمشرف</span>
-                    </button>
-                    <p class="text-xs text-center text-gray-400 mb-4">كلمة المرور: admin123</p>
-                    
-                    <div class="relative mb-5">
-                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
-                        <div class="relative flex justify-center text-sm"><span class="px-3 bg-white text-gray-400">أو حساب شخصي</span></div>
-                    </div>
-                    
+                <!-- نموذج تسجيل الدخول -->
+                <div id="loginForm">
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-1.5">البريد الإلكتروني</label>
-                        <input type="email" id="emailInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="example@email.com">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fa fa-envelope-o ml-1 text-primary"></i> البريد الإلكتروني
+                        </label>
+                        <input type="email" id="emailInput" class="w-full p-3.5 border border-gray-200 rounded-xl input-focus outline-none transition" placeholder="example@email.com">
                     </div>
-                    <div class="mb-5">
-                        <label class="block text-gray-700 text-sm font-medium mb-1.5">كلمة المرور</label>
-                        <input type="password" id="passwordInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="••••••••">
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fa fa-lock ml-1 text-primary"></i> كلمة المرور
+                        </label>
+                        <input type="password" id="passwordInput" class="w-full p-3.5 border border-gray-200 rounded-xl input-focus outline-none transition" placeholder="••••••••">
                     </div>
                     
-                    <button id="loginSubmitMain" class="btn-clickable w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                    <button id="loginBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3.5 rounded-xl font-semibold hover:opacity-95 transition-all text-lg shadow-lg shadow-green-200">
                         تسجيل الدخول
                     </button>
                     
-                    <p class="text-center mt-4 text-sm text-gray-600">
+                    <p class="text-center mt-6 text-sm text-gray-500">
                         ليس لديك حساب؟
-                        <button type="button" id="showRegisterMain" class="btn-clickable text-primary font-semibold hover:underline">إنشاء حساب جديد</button>
+                        <button type="button" id="showRegister" class="text-primary font-bold hover:underline mr-1">إنشاء حساب جديد</button>
                     </p>
                 </div>
 
-                <div id="registerFormMain" class="hidden">
+                <!-- نموذج إنشاء حساب جديد -->
+                <div id="registerForm" class="hidden">
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-1.5">الاسم الكامل</label>
-                        <input type="text" id="nameInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fa fa-user-o ml-1 text-primary"></i> الاسم الكامل
+                        </label>
+                        <input type="text" id="nameInput" class="w-full p-3.5 border border-gray-200 rounded-xl input-focus outline-none transition" placeholder="أدخل اسمك الكامل">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-1.5">البريد الإلكتروني</label>
-                        <input type="email" id="regEmailInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fa fa-envelope-o ml-1 text-primary"></i> البريد الإلكتروني
+                        </label>
+                        <input type="email" id="regEmailInput" class="w-full p-3.5 border border-gray-200 rounded-xl input-focus outline-none transition" placeholder="example@email.com">
                     </div>
-                    <div class="mb-5">
-                        <label class="block text-gray-700 text-sm font-medium mb-1.5">كلمة المرور</label>
-                        <input type="password" id="regPasswordInputMain" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40">
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            <i class="fa fa-lock ml-1 text-primary"></i> كلمة المرور
+                        </label>
+                        <input type="password" id="regPasswordInput" class="w-full p-3.5 border border-gray-200 rounded-xl input-focus outline-none transition" placeholder="مكونة من 6 أحرف على الأقل">
                     </div>
                     
-                    <button type="button" id="registerSubmitMain" class="btn-clickable w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">
-                        إنشاء حساب
+                    <button id="registerBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3.5 rounded-xl font-semibold hover:opacity-95 transition-all text-lg shadow-lg shadow-green-200">
+                        إنشاء حساب جديد
                     </button>
                     
-                    <p class="text-center mt-4 text-sm text-gray-600">
-                        لديك حساب؟
-                        <button type="button" id="showLoginMain" class="btn-clickable text-primary font-semibold hover:underline">تسجيل الدخول</button>
+                    <p class="text-center mt-6 text-sm text-gray-500">
+                        لديك حساب بالفعل؟
+                        <button type="button" id="showLogin" class="text-primary font-bold hover:underline mr-1">تسجيل الدخول</button>
                     </p>
                 </div>
 
-                <div id="authErrorMain" class="mt-4 text-red-500 text-sm text-center hidden bg-red-50 p-3 rounded-lg"></div>
+                <!-- رسائل الخطأ والنجاح -->
+                <div id="authMessage" class="mt-5 text-sm text-center hidden p-3 rounded-lg"></div>
             </div>
-            <p class="text-center text-green-200 text-xs mt-4">© 2026 كشتات - عائلة حسين العويشي</p>
+
+            <p class="text-center text-green-200 text-xs mt-6">© 2026 كشتات - عائلة حسين العويشي. جميع الحقوق محفوظة.</p>
         </div>
     </div>
 
-    <!-- باقي محتوى الموقع كما هو -->
+    <!-- 📦 محتوى الموقع الرئيسي -->
     <div id="mainContent" class="hidden">
-        <div class="flex items-center justify-center min-h-screen text-gray-600">
-            <p>الموقع يعمل بنجاح ✅</p>
-        </div>
+        <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="w-10"></div>
+                    <div class="flex-1 text-center">
+                        <h1 class="text-xl font-bold inline-flex items-center gap-2">
+                            <i class="fa fa-leaf text-accent"></i>
+                            <span class="hidden sm:inline">كشتات عائلة حسين العويشي</span>
+                            <span class="sm:hidden">كشتات</span>
+                        </h1>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="history.back()" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
+                            <i class="fa fa-arrow-right"></i>
+                        </button>
+                        <a href="home.html" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
+                            <i class="fa fa-home"></i>
+                        </a>
+                        <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
+                            <i class="fa fa-user-circle-o text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="userDropdown" class="absolute left-4 right-4 sm:left-auto sm:right-4 sm:w-72 mt-2 bg-white rounded-xl shadow-xl z-50 hidden overflow-hidden">
+                    <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b">
+                        <p class="text-sm text-gray-500">البريد الإلكتروني</p>
+                        <p id="userEmailDisplay" class="font-semibold text-gray-800 text-sm truncate"></p>
+                        <span id="adminBadge" class="hidden inline-block mt-2 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                            <i class="fa fa-star ml-1"></i> حساب المشرف
+                        </span>
+                    </div>
+                    <div class="p-2">
+                        <a href="add-place.html" class="block px-4 py-2.5 text-gray-700 hover:bg-green-50 rounded-lg">
+                            <i class="fa fa-plus-circle text-primary ml-2"></i> إضافة مكان
+                        </a>
+                        <a href="admin-settings.html" id="adminSettingsLink" class="hidden block px-4 py-2.5 text-amber-700 hover:bg-amber-50 rounded-lg">
+                            <i class="fa fa-shield ml-2"></i> لوحة تحكم المشرف
+                        </a>
+                        <hr class="my-2">
+                        <button id="logoutBtn" class="w-full text-right px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">
+                            <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 py-6">
+            <div class="text-center py-20">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-check text-primary text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">تم الدخول بنجاح!</h2>
+                <p class="text-gray-500 mb-6">مرحباً بك في موقع كشتات</p>
+                <p class="text-sm text-gray-400">سيتم عرض المدن والأماكن هنا قريباً...</p>
+            </div>
+        </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -146,93 +202,138 @@
         const auth = getAuth(app);
 
         const ADMIN_EMAIL = "Alihossin28@gmail.com";
-        const ADMIN_PASSWORD = "admin123";
+        let currentUser = null;
 
-        // تبديل النماذج
-        document.getElementById('showRegisterMain').addEventListener('click', () => {
-            document.getElementById('loginFormMain').classList.add('hidden');
-            document.getElementById('registerFormMain').classList.remove('hidden');
-        });
-        document.getElementById('showLoginMain').addEventListener('click', () => {
-            document.getElementById('registerFormMain').classList.add('hidden');
-            document.getElementById('loginFormMain').classList.remove('hidden');
+        const authScreen = document.getElementById('authScreen');
+        const mainContent = document.getElementById('mainContent');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authMessage = document.getElementById('authMessage');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        function showMessage(text, isSuccess = false) {
+            authMessage.textContent = text;
+            authMessage.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'bg-green-50', 'text-green-600');
+            if (isSuccess) {
+                authMessage.classList.add('bg-green-50', 'text-green-600');
+            } else {
+                authMessage.classList.add('bg-red-50', 'text-red-600');
+            }
+            authMessage.classList.remove('hidden');
+            setTimeout(() => authMessage.classList.add('hidden'), 4000);
+        }
+
+        // التبديل إلى نموذج التسجيل
+        document.getElementById('showRegister').addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            document.getElementById('formHeading').textContent = "أنشئ حساباً جديداً ✨";
+            document.getElementById('formSubheading').textContent = "املأ البيانات لإنشاء حسابك";
         });
 
-        // ملء بيانات المشرف تلقائياً
-        document.getElementById('adminQuickLoginMain').addEventListener('click', () => {
-            document.getElementById('emailInputMain').value = ADMIN_EMAIL;
-            document.getElementById('passwordInputMain').value = ADMIN_PASSWORD;
-            document.getElementById('authErrorMain').classList.add('hidden');
+        // التبديل إلى نموذج الدخول
+        document.getElementById('showLogin').addEventListener('click', () => {
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            document.getElementById('formHeading').textContent = "أهلاً بعودتك 👋";
+            document.getElementById('formSubheading').textContent = "سجّل الدخول لمتابعة استكشاف الأماكن";
         });
 
         // تسجيل الدخول
-        document.getElementById('loginSubmitMain').addEventListener('click', async () => {
-            const email = document.getElementById('emailInputMain').value.trim();
-            const password = document.getElementById('passwordInputMain').value;
-            const errorEl = document.getElementById('authErrorMain');
-            errorEl.classList.add('hidden');
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
 
             if (!email || !password) {
-                errorEl.textContent = '❌ أدخل البريد الإلكتروني وكلمة المرور';
-                errorEl.classList.remove('hidden');
+                showMessage('❌ أدخل البريد الإلكتروني وكلمة المرور');
                 return;
             }
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
-                let msg = '❌ بيانات الدخول غير صحيحة';
+                let msg = '❌ بيانات الدخول غير صحيحة، حاول مرة أخرى';
                 if (err.code === 'auth/user-not-found') {
-                    msg = '❌ الحساب غير موجود! أنشئ حساباً جديداً أولاً';
+                    msg = '❌ هذا الحساب غير مسجل، أنشئ حساباً جديداً أولاً';
                 } else if (err.code === 'auth/wrong-password') {
                     msg = '❌ كلمة المرور غير صحيحة';
+                } else if (err.code === 'auth/invalid-email') {
+                    msg = '❌ أدخل بريداً إلكترونياً صالحاً';
                 }
-                errorEl.textContent = msg;
-                errorEl.classList.remove('hidden');
+                showMessage(msg);
             }
         });
 
         // إنشاء حساب جديد
-        document.getElementById('registerSubmitMain').addEventListener('click', async () => {
-            const name = document.getElementById('nameInputMain').value.trim();
-            const email = document.getElementById('regEmailInputMain').value.trim();
-            const password = document.getElementById('regPasswordInputMain').value;
-            const errorEl = document.getElementById('authErrorMain');
-            errorEl.classList.add('hidden');
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const name = document.getElementById('nameInput').value.trim();
+            const email = document.getElementById('regEmailInput').value.trim();
+            const password = document.getElementById('regPasswordInput').value;
 
             if (!name || !email || !password) {
-                errorEl.textContent = '❌ أدخل جميع البيانات المطلوبة';
-                errorEl.classList.remove('hidden');
+                showMessage('❌ أدخل جميع البيانات المطلوبة');
                 return;
             }
             if (password.length < 6) {
-                errorEl.textContent = '❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                errorEl.classList.remove('hidden');
+                showMessage('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل');
                 return;
             }
 
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
+                showMessage('✅ تم إنشاء الحساب بنجاح! جاري الدخول...', true);
             } catch (err) {
-                let msg = '❌ حدث خطأ أثناء التسجيل';
+                let msg = '❌ حدث خطأ أثناء التسجيل، حاول مرة أخرى';
                 if (err.code === 'auth/email-already-in-use') {
-                    msg = '❌ هذا البريد مستخدم بالفعل! سجل الدخول بدلاً من ذلك';
+                    msg = '❌ هذا البريد الإلكتروني مستخدم بالفعل، سجل الدخول';
+                } else if (err.code === 'auth/invalid-email') {
+                    msg = '❌ أدخل بريداً إلكترونياً صالحاً';
                 }
-                errorEl.textContent = msg;
-                errorEl.classList.remove('hidden');
+                showMessage(msg);
             }
         });
 
-        // حالة المصادقة
+        // حالة المصادقة - الانتقال للصفحة الرئيسية
         onAuthStateChanged(auth, (user) => {
+            currentUser = user;
             if (user) {
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-                console.log('✅ تم تسجيل الدخول بنجاح:', user.email);
+                authScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                document.getElementById('userEmailDisplay').textContent = user.email;
+                
+                // ✅ إظهار لوحة المشرف فقط إذا كان بريد المشرف
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('adminBadge').classList.remove('hidden');
+                    document.getElementById('adminSettingsLink').classList.remove('hidden');
+                } else {
+                    document.getElementById('adminBadge').classList.add('hidden');
+                    document.getElementById('adminSettingsLink').classList.add('hidden');
+                }
             } else {
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('mainContent').classList.add('hidden');
+                authScreen.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+                // تفريغ الحقول عند الخروج
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
             }
+        });
+
+        // قائمة المستخدم
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            userDropdown.classList.add('hidden');
         });
     </script>
 </body>
