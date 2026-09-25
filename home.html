@@ -19,25 +19,38 @@
     <style>
         * { font-family: 'Tajawal', sans-serif; }
         body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 100px; }
-        .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
-        .city-card { background: rgba(255,255,255,0.85); border-radius: 16px; transition: all 0.25s ease; cursor: pointer; }
+        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
+        .city-card { background: rgba(255,255,255,0.9); border-radius: 16px; transition: all 0.25s ease; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
         .city-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
         .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
         .user-avatar { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+        .avatar-ring { border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #22C55E, #3B82F6) border-box; }
     </style>
 </head>
 <body>
+    <!-- حماية الصفحة: إعادة التوجيه إذا لم يكن مسجلاً -->
+    <script>
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!userData) {
+            location.href = 'login.html';
+        }
+    </script>
+
     <header class="glass sticky top-0 z-30 shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button id="userBtn" class="w-10 h-10 rounded-full user-avatar flex items-center justify-center overflow-hidden border-0 shadow-sm">
-                <img id="headerAvatar" src="https://via.placeholder.com/40" class="w-full h-full object-cover">
+            <!-- أيقونة المستخدم المحسنة -->
+            <button id="userBtn" class="relative w-11 h-11 rounded-full user-avatar flex items-center justify-center overflow-hidden avatar-ring">
+                <img id="headerAvatar" src="https://via.placeholder.com/44/FFFFFF/3B82F6?text=U" class="w-full h-full object-cover">
+                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
             </button>
+            
             <div class="flex items-center gap-2">
-                <div class="logo-circle w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
                     <i class="fa fa-map-marker text-primary"></i>
                 </div>
                 <h1 class="text-base font-bold">كشتات العويشي</h1>
             </div>
+            
             <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin border-0" title="لوحة التحكم">
                 <i class="fa fa-shield"></i>
             </button>
@@ -47,22 +60,19 @@
     <!-- قائمة المستخدم -->
     <div id="userMenu" class="fixed top-0 right-0 h-full w-72 glass shadow-2xl z-50 transform translate-x-full transition-transform duration-300">
         <div class="p-5 bg-gradient-to-br from-primary to-secondary text-white">
-            <img id="menuAvatar" src="https://via.placeholder.com/60" class="w-16 h-16 rounded-full object-cover mb-3 border-2 border-white/50">
-            <h3 id="menuName" class="font-bold text-lg">الزائر</h3>
-            <p id="menuPhone" class="text-sm text-white/80">غير مسجل الدخول</p>
+            <img id="menuAvatar" src="https://via.placeholder.com/60" class="w-16 h-16 rounded-full object-cover mb-3 border-3 border-white/50">
+            <h3 id="menuName" class="font-bold text-lg">المستخدم</h3>
+            <p id="menuPhone" class="text-sm text-white/80">رقم الجوال</p>
         </div>
         <nav class="p-4 space-y-2 mt-2">
             <a href="home.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100/70">
                 <i class="fa fa-home text-primary"></i> الصفحة الرئيسية
             </a>
-            <a href="profile.html" id="profileLink" class="hidden flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/10 text-secondary">
+            <a href="profile.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/10 text-secondary">
                 <i class="fa fa-user-circle"></i> ملفي الشخصي
             </a>
-            <a href="#" id="logoutLink" class="hidden flex items-center gap-3 p-3 rounded-xl hover:bg-red-50/60 text-red-500">
+            <a href="#" id="logoutLink" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50/60 text-red-500">
                 <i class="fa fa-sign-out"></i> تسجيل الخروج
-            </a>
-            <a href="login.html" id="loginLink" class="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/10 text-secondary">
-                <i class="fa fa-sign-in"></i> تسجيل الدخول
             </a>
         </nav>
     </div>
@@ -86,7 +96,7 @@
                 <div class="col-span-full text-center py-12">
                     <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
                     <p class="text-gray-500">لا توجد مدن مضافة</p>
-                    <p class="text-sm text-gray-400 mt-1">سجل دخول لإنشاء أول مدينة</p>
+                    <p class="text-sm text-gray-400 mt-1">اضغط على الزر الأزرق لإنشاء أول مدينة</p>
                 </div>
             </div>
         </section>
@@ -130,21 +140,19 @@
         const isLoggedIn = !!userData;
         const isAdmin = userData?.type === 'admin';
 
+        // تحميل بيانات المستخدم في القائمة والأيقونة
         if (userData) {
             document.getElementById('menuName').textContent = userData.name;
             document.getElementById('menuPhone').textContent = userData.phone || userData.email || '';
-            document.getElementById('profileLink').classList.remove('hidden');
             if (userData.avatar) {
                 document.getElementById('headerAvatar').src = userData.avatar;
                 document.getElementById('menuAvatar').src = userData.avatar;
             } else {
-                document.getElementById('headerAvatar').src = 'https://via.placeholder.com/40/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
+                document.getElementById('headerAvatar').src = 'https://via.placeholder.com/44/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
                 document.getElementById('menuAvatar').src = 'https://via.placeholder.com/60/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
             }
         }
-        document.getElementById('logoutLink').classList.toggle('hidden', !isLoggedIn);
-        document.getElementById('loginLink').classList.toggle('hidden', isLoggedIn);
-        document.getElementById('adminBtn').classList.toggle('hidden', !isLoggedIn);
+        document.getElementById('adminBtn').classList.toggle('hidden', !isAdmin);
 
         const userMenu = document.getElementById('userMenu');
         const overlay = document.getElementById('overlay');
@@ -155,20 +163,15 @@
         document.getElementById('logoutLink').addEventListener('click', () => {
             if (confirm('تسجيل الخروج؟')) { 
                 localStorage.removeItem('user'); 
-                location.href = 'home.html'; 
+                location.href = 'login.html'; 
             }
         });
         document.getElementById('adminBtn').addEventListener('click', () => {
             if (isAdmin) location.href = 'admin-dashboard.html';
-            else location.href = 'login.html';
         });
 
-        function needLogin() {
-            if (!isLoggedIn) { alert('يرجى تسجيل الدخول أولاً'); location.href = 'login.html'; return false; }
-            return true;
-        }
-        document.getElementById('addPlaceBtn').addEventListener('click', () => { if (needLogin()) location.href = 'add-place.html'; });
-        document.getElementById('addCityBtn').addEventListener('click', () => { if (!needLogin()) return; document.getElementById('cityModal').classList.remove('hidden'); });
+        document.getElementById('addPlaceBtn').addEventListener('click', () => { location.href = 'add-place.html'; });
+        document.getElementById('addCityBtn').addEventListener('click', () => { document.getElementById('cityModal').classList.remove('hidden'); });
         document.getElementById('closeCityModal').addEventListener('click', () => { document.getElementById('cityModal').classList.add('hidden'); });
         document.getElementById('saveCity').addEventListener('click', async () => {
             const name = document.getElementById('newCityName').value.trim();
@@ -189,7 +192,7 @@
             try {
                 const snap = await getDocs(collection(db, 'cities'));
                 if (snap.empty) {
-                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد مدن مضافة</p><p class="text-sm text-gray-400 mt-1">${isLoggedIn ? 'اضغط على الزر الأزرق لإنشاء أول مدينة' : 'سجل دخول أولاً'}</p></div>`;
+                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد مدن مضافة</p><p class="text-sm text-gray-400 mt-1">اضغط على الزر الأزرق لإنشاء أول مدينة</p></div>`;
                     return;
                 }
                 grid.innerHTML = '';
