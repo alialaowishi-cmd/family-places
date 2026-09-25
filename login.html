@@ -10,7 +10,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#22C55E', secondary: '#3B82F6', dark: '#1F2937', admin: '#6366F1' }
+                    colors: { primary: '#22C55E', secondary: '#3B82F6', dark: '#1F2937', admin: '#6366F1', warning: '#F59E0B' }
                 }
             }
         }
@@ -23,27 +23,43 @@
         .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
         .btn-primary:active { transform: scale(0.97); }
         .input-focus:focus { box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
+        .logo-circle { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
     </style>
 </head>
 <body class="flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
+        <!-- الشعار -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 glass rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <i class="fa fa-map-marker text-primary text-3xl"></i>
+            <div class="logo-circle w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fa fa-map-marker text-white text-4xl"></i>
             </div>
             <h1 class="text-xl font-bold text-dark">كشتات عائلة حسين العويشي</h1>
-            <p class="text-gray-500 text-sm mt-1">سجل الدخول للمتابعة</p>
+            <p class="text-gray-500 text-sm mt-1">اكتشف واستمتع بأجمل الأماكن</p>
         </div>
 
         <div class="glass rounded-3xl shadow-lg p-6">
             <div class="flex mb-6 bg-gray-100/60 rounded-xl p-1">
-                <button class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium bg-white shadow-sm text-primary" data-tab="email">بريد إلكتروني</button>
-                <button class="tab-btn flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="phone">رقم الجوال</button>
+                <button class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium bg-white shadow-sm text-primary" data-tab="phone">رقم الجوال</button>
+                <button class="tab-btn flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="email">بريد إلكتروني</button>
                 <button class="tab-btn flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="admin">مشرف</button>
             </div>
 
+            <!-- تسجيل بالجوال (الافتراضي) -->
+            <div id="phoneTab" class="tab-content space-y-4">
+                <input type="tel" id="phone" placeholder="05xxxxxxxx" 
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
+                <input type="password" id="phonePass" placeholder="كلمة المرور" 
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
+                <button onclick="loginPhone()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
+                    <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
+                </button>
+                <p id="pendingNote" class="hidden text-sm text-warning text-center bg-warning/10 p-2 rounded-lg">
+                    <i class="fa fa-clock-o ml-1"></i> حسابك بانتظار موافقة المشرف
+                </p>
+            </div>
+
             <!-- تسجيل بالبريد -->
-            <div id="emailTab" class="tab-content space-y-4">
+            <div id="emailTab" class="tab-content hidden space-y-4">
                 <input type="email" id="email" placeholder="بريدك الإلكتروني" 
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
                 <input type="password" id="emailPass" placeholder="كلمة المرور" 
@@ -53,27 +69,18 @@
                 </button>
             </div>
 
-            <!-- تسجيل بالجوال -->
-            <div id="phoneTab" class="tab-content hidden space-y-4">
-                <input type="tel" id="phone" placeholder="05xxxxxxxx" 
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
-                <input type="password" id="phonePass" placeholder="كلمة المرور" 
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
-                <button onclick="loginPhone()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
-                    <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
-                </button>
-            </div>
-
-            <!-- دخول المشرف — بكلمة سر فقط! -->
+            <!-- دخول المشرف -->
             <div id="adminTab" class="tab-content hidden space-y-4">
                 <div class="text-center mb-2">
-                    <i class="fa fa-shield text-admin text-4xl"></i>
+                    <div class="w-16 h-16 rounded-full bg-admin/10 flex items-center justify-center mx-auto mb-2">
+                        <i class="fa fa-shield text-admin text-3xl"></i>
+                    </div>
                     <p class="text-sm text-gray-500 mt-2">أدخل كلمة سر المشرف للدخول</p>
                 </div>
                 <input type="password" id="adminPass" placeholder="••••••••" 
                     class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none text-center text-lg tracking-widest">
                 <button onclick="loginAdmin()" class="w-full bg-admin text-white py-3.5 rounded-xl font-medium hover:bg-indigo-700">
-                    <i class="fa fa-unlock ml-2"></i> دخول المشرف
+                    <i class="fa fa-unlock ml-2"></i> دخول لوحة التحكم
                 </button>
             </div>
 
@@ -92,8 +99,13 @@
                     b.classList.remove('bg-white','shadow-sm','text-primary');
                     b.classList.add('text-gray-500');
                 });
-                btn.classList.add('bg-white','shadow-sm','text-primary');
-                btn.classList.remove('text-gray-500');
+                if (btn.dataset.tab === 'admin') {
+                    tabs.forEach(b => b.classList.remove('bg-white','shadow-sm','text-admin'));
+                    btn.classList.add('bg-white','shadow-sm','text-admin');
+                } else {
+                    btn.classList.add('bg-white','shadow-sm','text-primary');
+                    btn.classList.remove('text-gray-500');
+                }
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
                 document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
             });
@@ -103,25 +115,51 @@
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('emailPass').value;
             if (!email || !pass) return alert('أدخل البريد وكلمة المرور');
-            localStorage.setItem('user', JSON.stringify({email, phone: '', name: email.split('@')[0], type: 'user', avatar: ''}));
+            localStorage.setItem('user', JSON.stringify({email, phone: '', name: email.split('@')[0], type: 'user', status: 'approved', avatar: ''}));
             alert('✅ تم الدخول');
             location.href = 'home.html';
         }
-        function loginPhone() {
+
+        async function loginPhone() {
             const phone = document.getElementById('phone').value.trim();
             const pass = document.getElementById('phonePass').value;
             if (!phone || !pass) return alert('أدخل رقم الجوال وكلمة المرور');
-            localStorage.setItem('user', JSON.stringify({phone, email: '', name: 'مستخدم', type: 'user', avatar: ''}));
+            
+            // تحقق من حالة الموافقة
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const found = users.find(u => u.phone === phone && u.password === pass);
+            
+            if (!found) return alert('❌ رقم الجوال أو كلمة المرور غير صحيحة');
+            if (found.status === 'pending') {
+                document.getElementById('pendingNote').classList.remove('hidden');
+                return;
+            }
+            if (found.status === 'rejected') return alert('❌ تم رفض حسابك من قبل المشرف');
+            
+            localStorage.setItem('user', JSON.stringify({
+                id: found.id,
+                name: found.name,
+                phone: found.phone,
+                email: found.email || '',
+                type: 'user',
+                status: 'approved',
+                avatar: found.avatar || ''
+            }));
             alert('✅ تم الدخول');
             location.href = 'home.html';
         }
+
         function loginAdmin() {
             const pass = document.getElementById('adminPass').value;
-            // 🔑 كلمة سر المشرف
             if (pass === 'admin123') {
-                localStorage.setItem('user', JSON.stringify({name: 'المشرف', type: 'admin', avatar: ''}));
-                alert('✅ دخول المشرف بنجاح');
-                location.href = 'home.html';
+                localStorage.setItem('user', JSON.stringify({
+                    name: 'المشرف',
+                    type: 'admin',
+                    avatar: '',
+                    status: 'approved'
+                }));
+                alert('✅ دخول لوحة التحكم بنجاح');
+                location.href = 'admin-dashboard.html';
             } else {
                 alert('❌ كلمة سر المشرف غير صحيحة');
             }
