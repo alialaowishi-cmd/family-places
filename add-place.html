@@ -22,24 +22,22 @@
 <body>
     <header class="glass sticky top-0 z-30 shadow-sm">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button onclick="location.href='home.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+            <button onclick="location.href='home.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border-0">
                 <i class="fa fa-arrow-right"></i>
             </button>
-            <h1 class="text-lg font-bold" id="pageTitle">إضافة مكان جديد</h1>
+            <h1 class="text-lg font-bold">إضافة مكان جديد</h1>
             <div class="w-10"></div>
         </div>
     </header>
 
     <main class="container mx-auto px-4 py-5">
         <form id="placeForm" class="glass rounded-2xl p-5 space-y-4">
-            <input type="hidden" id="editId">
-            
             <div>
                 <label class="block text-sm font-medium mb-2">المدينة *</label>
                 <select id="placeCity" class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
-                    <option value="">-- اختر المدينة --</option>
+                    <option value="">-- اختر المدينة أدناه أو اكتب مدينة جديدة --</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">أو اكتب مدينة جديدة أدناه</p>
+                <p class="text-xs text-gray-500 mt-1">أو اكتب مدينة جديدة</p>
                 <input type="text" id="newCity" placeholder="اسم مدينة جديدة" 
                     class="w-full p-3 rounded-xl bg-gray-50/50 border border-gray-200/70 outline-none mt-2">
             </div>
@@ -102,7 +100,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -129,13 +127,17 @@
         });
 
         // تحميل قائمة المدن
-        async function loadCityOptions() {
+            async function loadCityOptions() {
             const sel = document.getElementById('placeCity');
-            const snap = await getDocs(collection(db, 'cities'));
-            snap.forEach(d => {
-                const c = d.data();
-                sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
-            });
+            try {
+                const snap = await getDocs(collection(db, 'cities'));
+                snap.forEach(d => {
+                    const c = d.data();
+                    sel.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+                });
+            } catch (e) {
+                console.log('لا توجد مدن بعد');
+            }
         }
         loadCityOptions();
 
@@ -155,11 +157,15 @@
                 reader.readAsDataURL(file);
                 
                 // رفع لـ Firebase Storage
-                const ext = file.name.split('.').pop();
-                const imgRef = ref(storage, `places/${Date.now()}-${Math.random().toString(36).substr(2)}.${ext}`);
-                const snap = await uploadBytes(imgRef, file);
-                const url = await getDownloadURL(snap.ref);
-                uploadedUrls.push(url);
+                try {
+                    const ext = file.name.split('.').pop();
+                    const imgRef = ref(storage, `places/${Date.now()}-${Math.random().toString(36).substr(2)}.${ext}`);
+                    const snap = await uploadBytes(imgRef, file);
+                    const url = await getDownloadURL(snap.ref);
+                    uploadedUrls.push(url);
+                } catch (err) {
+                    console.log('لم يتم رفع الصورة:', err);
+                }
             }
         });
 
@@ -172,6 +178,7 @@
             const name = document.getElementById('placeName').value.trim();
             if (!finalCity || !name) return alert('أدخل المدينة واسم المكان');
 
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
             const placeData = {
                 city: finalCity,
                 name: name,
@@ -183,7 +190,7 @@
                 notes: document.getElementById('placeNotes').value.trim(),
                 images: uploadedUrls,
                 createdAt: new Date(),
-                createdBy: JSON.parse(localStorage.getItem('user'))?.name || 'مجهول'
+                createdBy: userData.name || 'مجهول'
             };
 
             try {
