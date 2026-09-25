@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم — كشتات العويشي</title>
+    <title>لوحة تحكم المشرف — كشتات العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -11,9 +11,10 @@
             theme: {
                 extend: {
                     colors: { 
-                        primary: '#22C55E', secondary: '#3B82F6', 
-                        admin: '#6366F1', danger: '#EF4444', 
-                        warning: '#F59E0B', success: '#10B981'
+                        primary: '#22C55E', 
+                        secondary: '#3B82F6', 
+                        danger: '#EF4444',
+                        warning: '#F59E0B'
                     }
                 }
             }
@@ -22,711 +23,401 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        body { background: #F3F4F6; min-height: 100vh; padding-bottom: 80px; }
-        .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-        .tab-btn { transition: all 0.2s ease; }
-        .tab-btn.active { background: #6366F1; color: white; }
-        .card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #F3F4F6; }
-        .btn { transition: all 0.15s ease; }
-        .btn:active { transform: scale(0.97); }
+        body { background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); min-height: 100vh; padding-bottom: 40px; }
+        .tab-btn.active { background: #22C55E; color: white; }
         .modal { display: none; }
         .modal.active { display: flex; }
     </style>
 </head>
-<body>
-    <!-- رأس الصفحة -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center">
-                    <i class="fa fa-shield text-admin text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-dark">لوحة التحكم</h1>
-                    <p class="text-xs text-gray-500">إدارة موقع كشتات العويشي</p>
-                </div>
-            </div>
-            <button onclick="logoutAdmin()" class="flex items-center gap-2 text-gray-600 hover:text-danger text-sm">
+<body class="px-4 py-6">
+    <header class="mb-8">
+        <div class="flex items-center justify-between">
+            <button onclick="window.location.href='home.html'" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
+                <i class="fa fa-arrow-right text-gray-600"></i>
+            </button>
+            <h1 class="text-xl font-bold">لوحة تحكم المشرف</h1>
+            <button onclick="logout()" class="text-gray-500 hover:text-danger text-sm">
                 <i class="fa fa-sign-out"></i>
-                <span class="hidden sm:inline">خروج</span>
             </button>
         </div>
     </header>
 
-    <!-- شريط التبويبات العلوي -->
-    <div class="container mx-auto px-4 pt-4">
-        <div class="flex flex-wrap gap-2 mb-6">
-            <button class="tab-btn active px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="requests">
-                <i class="fa fa-user-plus ml-1"></i> الطلبات الجديدة
-                <span id="pendingBadge" class="ml-1 bg-warning text-white text-xs px-2 py-0.5 rounded-full">0</span>
+    <!-- علامات التبويب -->
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium" onclick="switchTab('users')">
+            <i class="fa fa-users ml-1"></i> المستخدمين
+        </button>
+        <button class="tab-btn bg-gray-100 px-4 py-2 rounded-xl text-sm font-medium" onclick="switchTab('cities')">
+            <i class="fa fa-building ml-1"></i> المدن
+        </button>
+        <button class="tab-btn bg-gray-100 px-4 py-2 rounded-xl text-sm font-medium" onclick="switchTab('places')">
+            <i class="fa fa-map-marker ml-1"></i> الأماكن
+        </button>
+    </div>
+
+    <!-- قسم المستخدمين -->
+    <div id="usersSection" class="tab-content">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">قائمة المشتركين</h2>
+            <button onclick="openAddUserModal()" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium">
+                <i class="fa fa-plus ml-1"></i> إضافة مستخدم
             </button>
-            <button class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="users">
-                <i class="fa fa-users ml-1"></i> المشتركين
-            </button>
-            <button class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="cities">
-                <i class="fa fa-building ml-1"></i> المدن
-            </button>
-            <button class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="places">
-                <i class="fa fa-map-marker ml-1"></i> الأماكن
-            </button>
-            <button class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100" data-tab="settings">
-                <i class="fa fa-cog ml-1"></i> الإعدادات
-            </button>
+        </div>
+
+        <div id="usersList" class="space-y-3">
+            <div class="text-center py-8 text-gray-400">جاري تحميل البيانات...</div>
         </div>
     </div>
 
-    <main class="container mx-auto px-4">
-        <!-- ====================================== -->
-        <!-- قسم 1: طلبات التسجيل الجديدة -->
-        <!-- ====================================== -->
-        <div id="requestsTab" class="tab-content">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">طلبات التسجيل الجديدة</h2>
-                <span class="text-sm text-gray-500" id="requestsCount">0 طلب</span>
-            </div>
-            <div id="pendingUsersList" class="space-y-3">
-                <div class="card p-6 text-center text-gray-500">
-                    <i class="fa fa-check-circle text-4xl text-success/30 mb-3"></i>
-                    <p>لا توجد طلبات تسجيل جديدة</p>
-                    <p class="text-sm text-gray-400 mt-1">جميع الطلبات تمت معالجتها ✅</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- قسم 2: المشتركين -->
-        <!-- ====================================== -->
-        <div id="usersTab" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">قائمة المشتركين</h2>
-                <div class="flex gap-2">
-                    <button onclick="openAddUserModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium btn">
-                        <i class="fa fa-plus ml-1"></i> إضافة مستخدم يدوي
-                    </button>
-                </div>
-            </div>
-            <div id="approvedUsersList" class="space-y-3">
-                <div class="card p-6 text-center text-gray-500">
-                    <i class="fa fa-users text-4xl text-gray-300 mb-3"></i>
-                    <p>لا يوجد مشتركين حتى الآن</p>
-                    <p class="text-sm text-gray-400 mt-1">استخدم زر "إضافة مستخدم يدوي" لإضافة أول مشترك ✅</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- قسم 3: إدارة المدن -->
-        <!-- ====================================== -->
-        <div id="citiesTab" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">إدارة المدن</h2>
-                <button onclick="openAddCityModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium btn">
-                    <i class="fa fa-plus ml-1"></i> إضافة مدينة
-                </button>
-            </div>
-            <div id="citiesList" class="space-y-3">
-                <div class="card p-6 text-center text-gray-500">
-                    <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                    <p>لا توجد مدن مضافة</p>
-                    <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مدينة" لإنشاء أول مدينة 📍</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- قسم 4: إدارة الأماكن -->
-        <!-- ====================================== -->
-        <div id="placesTab" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">إدارة الأماكن</h2>
-                <span class="text-sm text-gray-500" id="placesCount">0 مكان</span>
-            </div>
-            <div id="placesList" class="space-y-3">
-                <div class="card p-6 text-center text-gray-500">
-                    <i class="fa fa-map-marker text-4xl text-gray-300 mb-3"></i>
-                    <p>لا توجد أماكن مضافة</p>
-                    <p class="text-sm text-gray-400 mt-1">سيتم عرض جميع الأماكن المضافة من المستخدمين هنا</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====================================== -->
-        <!-- قسم 5: الإعدادات -->
-        <!-- ====================================== -->
-        <div id="settingsTab" class="tab-content hidden">
-            <h2 class="text-lg font-bold mb-4">إعدادات لوحة التحكم</h2>
-            <div class="space-y-4">
-                <div class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
-                                <i class="fa fa-user-plus text-success"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">إضافة مستخدم جديد يدوياً</h3>
-                                <p class="text-xs text-gray-500">إضافة مشترك مباشرة بدون طلب تسجيل</p>
-                            </div>
-                        </div>
-                        <button onclick="openAddUserModal()" class="bg-success text-white px-3 py-2 rounded-lg text-sm">إضافة</button>
-                    </div>
-                </div>
-                <div class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center">
-                                <i class="fa fa-key text-admin"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">تغيير كلمة سر المشرف</h3>
-                                <p class="text-xs text-gray-500">كلمة المرور الحالية: admin123</p>
-                            </div>
-                        </div>
-                        <button onclick="alert('قريباً')" class="bg-gray-100 px-3 py-2 rounded-lg text-sm">تغيير</button>
-                    </div>
-                </div>
-                <div class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <i class="fa fa-home text-primary"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">الذهاب للموقع الرئيسي</h3>
-                                <p class="text-xs text-gray-500">معاينة الموقع كما يراه الزوار</p>
-                            </div>
-                        </div>
-                        <a href="home.html" class="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm">زيارة الموقع</a>
-                    </div>
-                </div>
-                <div class="card p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-                                <i class="fa fa-database text-secondary"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium">مسح جميع البيانات التجريبية</h3>
-                                <p class="text-xs text-gray-500">يحذف الطلبات والمشتركين فقط</p>
-                            </div>
-                        </div>
-                        <button onclick="clearDemoData()" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm">مسح</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- شريط التنقل السفلي -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg px-6 py-3 z-40">
-        <div class="flex justify-between items-center max-w-lg mx-auto">
-            <button onclick="switchTab('requests')" class="flex flex-col items-center gap-1 text-xs text-gray-600 hover:text-admin">
-                <i class="fa fa-user-plus text-lg"></i>
-                <span>الطلبات</span>
-            </button>
-            <button onclick="switchTab('users')" class="flex flex-col items-center gap-1 text-xs text-gray-600 hover:text-admin">
-                <i class="fa fa-users text-lg"></i>
-                <span>الكل</span>
-            </button>
-            <button onclick="switchTab('cities')" class="flex flex-col items-center gap-1 text-xs text-gray-600 hover:text-admin">
-                <i class="fa fa-building text-lg"></i>
-                <span>المدن</span>
-            </button>
-            <button onclick="switchTab('places')" class="flex flex-col items-center gap-1 text-xs text-gray-600 hover:text-admin">
-                <i class="fa fa-map-marker text-lg"></i>
-                <span>الأماكن</span>
-            </button>
-            <button onclick="switchTab('settings')" class="flex flex-col items-center gap-1 text-xs text-gray-600 hover:text-admin">
-                <i class="fa fa-cog text-lg"></i>
-                <span>الإعدادات</span>
+    <!-- قسم المدن -->
+    <div id="citiesSection" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">إدارة المدن</h2>
+            <button onclick="openAddCityModal()" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium">
+                <i class="fa fa-plus ml-1"></i> إضافة مدينة
             </button>
         </div>
-    </nav>
 
-    <!-- ====================================== -->
-    <!-- النوافذ المنبثقة -->
-    <!-- ====================================== -->
+        <div id="citiesList" class="space-y-3">
+            <div class="text-center py-8 text-gray-400">لا توجد مدن مضافة</div>
+        </div>
+    </div>
 
-    <!-- نافذة إضافة مستخدم يدوي -->
-    <div id="addUserModal" class="modal fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
-        <div class="glass w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">إضافة مستخدم جديد يدوياً</h3>
+    <!-- قسم الأماكن -->
+    <div id="placesSection" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">إدارة جميع الأماكن</h2>
+        </div>
+
+        <div id="allPlacesList" class="space-y-3">
+            <div class="text-center py-8 text-gray-400">لا توجد أماكن مضافة</div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة مستخدم جديد -->
+    <div id="addUserModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4 text-center">إضافة مستخدم جديد</h3>
+            
             <div class="space-y-3">
                 <div>
-                    <label class="text-sm font-medium text-gray-600">الاسم الكامل *</label>
-                    <input type="text" id="newUserName" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="أدخل اسم المستخدم">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل *</label>
+                    <input type="text" id="newUserName" placeholder="أدخل الاسم"
+                        class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-600">رقم الجوال *</label>
-                    <input type="tel" id="newUserPhone" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="05xxxxxxxx">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال *</label>
+                    <input type="tel" id="newUserPhone" placeholder="05xxxxxxxx"
+                        class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-600">البريد الإلكتروني (اختياري)</label>
-                    <input type="email" id="newUserEmail" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2" placeholder="example@email.com">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="newUserEmail" placeholder="بريدك@email.com"
+                        class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none">
                 </div>
             </div>
-            <div class="flex gap-3 mt-5">
-                <button onclick="closeModal('addUserModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button onclick="saveManualUser()" class="flex-1 p-3 bg-primary text-white rounded-xl">إضافة المستخدم ✅</button>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeAddUserModal()" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="saveNewUser()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ ✅</button>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات مشترك -->
-    <div id="editUserModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="glass w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">تعديل بيانات المشترك</h3>
-            <input type="hidden" id="editUserId">
-            <div class="space-y-3">
-                <div>
-                    <label class="text-sm font-medium text-gray-600">الاسم الكامل</label>
-                    <input type="text" id="editUserName" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">رقم الجوال</label>
-                    <input type="tel" id="editUserPhone" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-600">البريد الإلكتروني</label>
-                    <input type="email" id="editUserEmail" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 mt-2">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-5">
-                <button onclick="closeModal('editUserModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button onclick="saveUserEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ التغييرات</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل مدينة -->
-    <div id="editCityModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="glass w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">تعديل اسم المدينة</h3>
-            <input type="hidden" id="editCityId">
-            <input type="text" id="editCityName" placeholder="اسم المدينة الجديد" 
-                class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 outline-none mb-4">
-            <div class="flex gap-3">
-                <button onclick="closeModal('editCityModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button onclick="saveCityEdit()" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة إضافة مدينة جديدة -->
+    <!-- نافذة إضافة مدينة -->
     <div id="addCityModal" class="modal fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
-        <div class="glass w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">إضافة مدينة جديدة</h3>
-            <input type="text" id="newCityNameAdmin" placeholder="أدخل اسم المدينة" 
+        <div class="w-full max-w-md bg-white rounded-2xl p-6">
+            <h3 class="text-lg font-bold mb-4 text-center">إضافة مدينة جديدة</h3>
+            <input type="text" id="adminNewCityName" placeholder="أدخل اسم المدينة"
                 class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 outline-none mb-4">
             <div class="flex gap-3">
-                <button onclick="closeModal('addCityModal')" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button onclick="addNewCity()" class="flex-1 p-3 bg-primary text-white rounded-xl">إضافة</button>
+                <button onclick="closeAddCityModal()" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
+                <button onclick="saveAdminCity()" class="flex-1 p-3 bg-primary text-white rounded-xl">إضافة ✅</button>
             </div>
         </div>
     </div>
 
     <script>
         // التحقق من صلاحية المشرف
-        const userData = JSON.parse(localStorage.getItem('user') || 'null');
-        if (!userData || userData.type !== 'admin') {
+        const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!currentUser || currentUser.type !== 'admin') {
             alert('❌ غير مصرح لك بالدخول لهذه الصفحة');
-            location.href = 'login.html';
+            window.location.href = 'login.html';
         }
 
-        // ======================================
-        // دوال أساسية
-        // ======================================
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.getElementById(id).classList.remove('flex');
-        };
-
-        window.openModal = function(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById(id).classList.add('flex');
-        };
-
-        window.switchTab = function(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.tab === tabName) btn.classList.add('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(tabName + 'Tab').classList.remove('hidden');
-            
-            if (tabName === 'requests') loadPendingUsers();
-            if (tabName === 'users') loadApprovedUsers();
-            if (tabName === 'cities') loadCitiesAdmin();
-            if (tabName === 'places') loadPlacesAdmin();
-        };
-
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-        });
-
-        window.logoutAdmin = function() {
+        function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
                 localStorage.removeItem('user');
-                location.href = 'login.html';
+                window.location.href = 'login.html';
             }
-        };
+        }
 
-        window.clearDemoData = function() {
-            if (confirm('⚠️ هل تريد مسح جميع الطلبات والمشتركين؟ لا يمكن التراجع!')) {
-                localStorage.removeItem('pendingUsers');
-                alert('✅ تم مسح البيانات بنجاح');
-                loadPendingUsers();
-                loadApprovedUsers();
+        // تبديل علامات التبويب
+        function switchTab(tabName) {
+            // إخفاء جميع الأقسام
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            // إلغاء تنشيط جميع الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-primary', 'text-white');
+                btn.classList.add('bg-gray-100');
+            });
+            
+            // إظهار القسم المحدد
+            document.getElementById(tabName + 'Section').classList.remove('hidden');
+            // تنشيط الزر المحدد
+            event.target.classList.add('active');
+            event.target.classList.remove('bg-gray-100');
+            
+            // تحميل البيانات
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'cities') loadCitiesAdmin();
+            if (tabName === 'places') loadAllPlaces();
+        }
+
+        // ==================== إدارة المستخدمين ====================
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const container = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-gray-400">لا يوجد مستخدمين مسجلين حتى الآن</div>`;
+                return;
             }
-        };
 
-        // ======================================
-        // فتح وإغلاق نافذة إضافة مستخدم يدوي
-        // ======================================
-        window.openAddUserModal = function() {
+            container.innerHTML = '';
+            users.forEach(user => {
+                const statusColor = user.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+                const statusText = user.status === 'approved' ? 'مفعل ✅' : 'بانتظار الموافقة ⏳';
+                const isAdmin = user.type === 'admin';
+                
+                container.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa fa-user text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">${user.name || 'بدون اسم'}</h4>
+                                    <p class="text-sm text-gray-500">📱 ${user.phone}</p>
+                                    ${user.email ? `<p class="text-sm text-gray-400">✉️ ${user.email}</p>` : ''}
+                                    <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs ${statusColor}">${statusText}</span>
+                                    ${isAdmin ? '<span class="inline-block mt-1 mr-1 px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700">مشرف 👑</span>' : ''}
+                                </div>
+                            </div>
+                            ${!isAdmin ? `
+                                <div class="flex flex-col gap-1">
+                                    ${user.status !== 'approved' ? `
+                                        <button onclick="approveUser('${user.id}')" class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-lg">
+                                            <i class="fa fa-check ml-1"></i> موافقة
+                                        </button>
+                                    ` : ''}
+                                    <button onclick="deleteUser('${user.id}')" class="text-xs bg-red-50 text-red-500 px-2 py-1 rounded-lg">
+                                        <i class="fa fa-trash ml-1"></i> حذف
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openAddUserModal() {
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserPhone').value = '';
             document.getElementById('newUserEmail').value = '';
-            openModal('addUserModal');
-        };
+            document.getElementById('addUserModal').classList.remove('hidden');
+            document.getElementById('addUserModal').classList.add('flex');
+        }
 
-        // حفظ المستخدم المضاف يدوياً
-        window.saveManualUser = function() {
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.add('hidden');
+            document.getElementById('addUserModal').classList.remove('flex');
+        }
+
+        function saveNewUser() {
             const name = document.getElementById('newUserName').value.trim();
-            const phone = document.getElementById('newUserPhone').value.trim();
+            const phone = document.getElementById('newUserPhone').value.trim().replace(/\s/g, '');
             const email = document.getElementById('newUserEmail').value.trim();
 
-            if (!name) return alert('⚠️ أدخل اسم المستخدم');
-            if (!phone || phone.length < 9) return alert('⚠️ أدخل رقم جوال صحيح');
-
-            let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-
-            // التحقق من عدم تكرار رقم الجوال
-            const exists = users.find(u => u.phone.replace(/\s/g,'') === phone.replace(/\s/g,''));
-            if (exists) {
-                return alert('⚠️ هذا الرقم موجود مسبقاً!');
+            if (!name || !phone) {
+                alert('⚠️ الرجاء إدخال الاسم ورقم الجوال');
+                return;
             }
 
-            // إضافة المستخدم مباشرة كـ "موافق عليه"
+            let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            
+            // تحقق من عدم تكرار الرقم
+            const exists = users.find(u => u.phone.replace(/\s/g, '') === phone);
+            if (exists) {
+                alert('⚠️ هذا الرقم مسجل مسبقاً!');
+                return;
+            }
+
             const newUser = {
-                id: Date.now(),
+                id: 'user_' + Date.now(),
                 name: name,
                 phone: phone,
-                email: email || '',
+                email: email,
                 status: 'approved',
-                registeredAt: new Date().toISOString(),
-                manualAdded: true
+                type: 'user',
+                registeredAt: new Date().toISOString()
             };
 
             users.push(newUser);
             localStorage.setItem('pendingUsers', JSON.stringify(users));
-
-            alert(`✅ تم إضافة المستخدم "${name}" بنجاح ويمكنه الدخول فوراً برقم جواله`);
-            closeModal('addUserModal');
-            loadApprovedUsers();
-        };
-
-        // ======================================
-        // 1. طلبات التسجيل
-        // ======================================
-        function loadPendingUsers() {
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const pending = users.filter(u => u.status === 'pending');
-            const container = document.getElementById('pendingUsersList');
-            document.getElementById('pendingBadge').textContent = pending.length;
-            document.getElementById('requestsCount').textContent = `${pending.length} طلب`;
-            
-            if (pending.length === 0) {
-                container.innerHTML = `
-                    <div class="card p-6 text-center text-gray-500">
-                        <i class="fa fa-check-circle text-4xl text-success/30 mb-3"></i>
-                        <p>لا توجد طلبات تسجيل جديدة</p>
-                        <p class="text-sm text-gray-400 mt-1">جميع الطلبات تمت معالجتها ✅</p>
-                    </div>`;
-                return;
-            }
-            container.innerHTML = '';
-            pending.forEach(user => {
-                container.innerHTML += `
-                    <div class="card p-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <img src="https://via.placeholder.com/50/6366F1/FFFFFF?text=${user.name?.charAt(0)||'U'}" class="w-12 h-12 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-bold">${user.name || 'بدون اسم'}</h4>
-                                    <p class="text-sm text-gray-500">📱 ${user.phone || 'غير متوفر'}</p>
-                                    <p class="text-xs text-gray-400">${user.email || 'بدون بريد إلكتروني'}</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="approveUser(${user.id})" class="bg-success/10 text-success px-4 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-check ml-1"></i> موافقة ✅
-                                </button>
-                                <button onclick="rejectUser(${user.id})" class="bg-danger/10 text-danger px-4 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-times ml-1"></i> رفض ❌
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+            alert(`✅ تم إضافة المستخدم "${name}" بنجاح`);
+            closeAddUserModal();
+            loadUsers();
         }
 
-        window.approveUser = function(id) {
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const idx = users.findIndex(u => u.id === id);
+        function approveUser(userId) {
+            let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+            const idx = users.findIndex(u => u.id === userId);
             if (idx !== -1) {
                 users[idx].status = 'approved';
                 localStorage.setItem('pendingUsers', JSON.stringify(users));
-                alert(`✅ تمت الموافقة على "${users[idx].name}" — يمكنه الآن تسجيل الدخول برقم جواله`);
-                loadPendingUsers();
-                loadApprovedUsers();
+                alert('✅ تمت الموافقة على المستخدم');
+                loadUsers();
             }
-        };
-
-        window.rejectUser = function(id) {
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const idx = users.findIndex(u => u.id === id);
-            if (idx !== -1 && confirm(`هل تريد رفض طلب "${users[idx].name}"؟`)) {
-                users[idx].status = 'rejected';
-                localStorage.setItem('pendingUsers', JSON.stringify(users));
-                alert(`❌ تم رفض طلب "${users[idx].name}"`);
-                loadPendingUsers();
-            }
-        };
-
-        // ======================================
-        // 2. إدارة المشتركين
-        // ======================================
-        function loadApprovedUsers() {
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]').filter(u => u.status === 'approved');
-            const container = document.getElementById('approvedUsersList');
-            document.getElementById('usersCount').textContent = `${users.length} مشترك`;
-            
-            if (users.length === 0) {
-                container.innerHTML = `
-                    <div class="card p-6 text-center text-gray-500">
-                        <i class="fa fa-users text-4xl text-gray-300 mb-3"></i>
-                        <p>لا يوجد مشتركين موافق عليهم بعد</p>
-                        <p class="text-sm text-gray-400 mt-1">استخدم زر "إضافة مستخدم يدوي" لإضافة أول مشترك ✅</p>
-                    </div>`;
-                return;
-            }
-            container.innerHTML = '';
-            users.forEach(user => {
-                container.innerHTML += `
-                    <div class="card p-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <img src="https://via.placeholder.com/50/3B82F6/FFFFFF?text=${user.name?.charAt(0)||'U'}" class="w-12 h-12 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-bold">${user.name || 'بدون اسم'}</h4>
-                                    <p class="text-sm text-gray-500">📱 ${user.phone || 'غير متوفر'}</p>
-                                    <p class="text-xs text-success">✅ نشط ${user.manualAdded ? '<span class="text-admin">(مضاف يدوياً)</span>' : ''}</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="openEditUser(${user.id})" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-pencil"></i> تعديل
-                                </button>
-                                <button onclick="deleteUser(${user.id})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-trash"></i> حذف
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
         }
 
-        window.openEditUser = function(id) {
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const user = users.find(u => u.id === id);
-            if (user) {
-                document.getElementById('editUserId').value = user.id;
-                document.getElementById('editUserName').value = user.name || '';
-                document.getElementById('editUserPhone').value = user.phone || '';
-                document.getElementById('editUserEmail').value = user.email || '';
-                openModal('editUserModal');
-            }
-        };
-
-        window.saveUserEdit = function() {
-            const id = parseInt(document.getElementById('editUserId').value);
-            const name = document.getElementById('editUserName').value.trim();
-            const phone = document.getElementById('editUserPhone').value.trim();
-            const email = document.getElementById('editUserEmail').value.trim();
-            
-            if (!name || !phone) return alert('⚠️ الاسم ورقم الجوال مطلوبان');
-            
-            const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const idx = users.findIndex(u => u.id === id);
-            if (idx !== -1) {
-                users[idx].name = name;
-                users[idx].phone = phone;
-                users[idx].email = email;
-                localStorage.setItem('pendingUsers', JSON.stringify(users));
-                alert('✅ تم حفظ التعديلات بنجاح');
-                closeModal('editUserModal');
-                loadApprovedUsers();
-            }
-        };
-
-        window.deleteUser = function(id) {
-            if (!confirm('⚠️ حذف هذا المشترك نهائياً؟ لا يمكن التراجع!')) return;
+        function deleteUser(userId) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع!')) return;
             let users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const user = users.find(u => u.id === id);
-            users = users.filter(u => u.id !== id);
+            users = users.filter(u => u.id !== userId);
             localStorage.setItem('pendingUsers', JSON.stringify(users));
-            alert(`✅ تم حذف "${user?.name || 'المشترك'}" بنجاح`);
-            loadApprovedUsers();
-        };
+            alert('✅ تم حذف المستخدم بنجاح');
+            loadUsers();
+        }
 
-        // ======================================
-        // 3. إدارة المدن
-        // ======================================
-        window.openAddCityModal = function() {
-            openModal('addCityModal');
-        };
-
+        // ==================== إدارة المدن ====================
         function loadCitiesAdmin() {
-            const container = document.getElementById('citiesList');
             const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const places = JSON.parse(localStorage.getItem('places') || '[]');
+            const container = document.getElementById('citiesList');
             
             if (cities.length === 0) {
-                container.innerHTML = `
-                    <div class="card p-6 text-center text-gray-500">
-                        <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                        <p>لا توجد مدن مضافة</p>
-                        <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مدينة" لإنشاء أول مدينة 📍</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center py-8 text-gray-400">لا توجد مدن مضافة حتى الآن</div>`;
                 return;
             }
+
             container.innerHTML = '';
-            cities.forEach((city, index) => {
+            cities.forEach(city => {
+                const count = places.filter(p => p.city === city.name).length;
                 container.innerHTML += `
-                    <div class="card p-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                    <i class="fa fa-building text-primary"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold">${city.name}</h4>
-                                    <p class="text-xs text-gray-400">أضيفت: ${new Date(city.createdAt).toLocaleDateString('ar-SA')}</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="openEditCity(${index},'${city.name}')" class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-pencil"></i> تعديل
-                                </button>
-                                <button onclick="deleteCity(${index})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-trash"></i> حذف
-                                </button>
-                            </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold">${city.name}</h4>
+                            <p class="text-sm text-gray-500">${count} مكان مسجل</p>
                         </div>
+                        <button onclick="deleteCity('${city.name}')" class="text-red-500 text-sm p-2 hover:bg-red-50 rounded-lg">
+                            <i class="fa fa-trash"></i>
+                        </button>
                     </div>
                 `;
             });
         }
 
-        window.addNewCity = function() {
-            const name = document.getElementById('newCityNameAdmin').value.trim();
-            if (!name) return alert('⚠️ أدخل اسم المدينة');
-            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+        function openAddCityModal() {
+            document.getElementById('adminNewCityName').value = '';
+            document.getElementById('addCityModal').classList.remove('hidden');
+            document.getElementById('addCityModal').classList.add('flex');
+        }
+
+        function closeAddCityModal() {
+            document.getElementById('addCityModal').classList.add('hidden');
+            document.getElementById('addCityModal').classList.remove('flex');
+        }
+
+        function saveAdminCity() {
+            const name = document.getElementById('adminNewCityName').value.trim();
+            if (!name) {
+                alert('⚠️ أدخل اسم المدينة');
+                return;
+            }
+            let cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const exists = cities.find(c => c.name.trim() === name.trim());
+            if (exists) {
+                alert('⚠️ هذه المدينة موجودة مسبقاً!');
+                return;
+            }
             cities.push({ name: name, createdAt: new Date().toISOString() });
             localStorage.setItem('cities', JSON.stringify(cities));
             alert(`✅ تمت إضافة مدينة "${name}" بنجاح`);
-            document.getElementById('newCityNameAdmin').value = '';
-            closeModal('addCityModal');
+            closeAddCityModal();
             loadCitiesAdmin();
-        };
+        }
 
-        window.openEditCity = function(index, name) {
-            document.getElementById('editCityId').value = index;
-            document.getElementById('editCityName').value = name;
-            openModal('editCityModal');
-        };
-
-        window.saveCityEdit = function() {
-            const index = parseInt(document.getElementById('editCityId').value);
-            const newName = document.getElementById('editCityName').value.trim();
-            if (!newName) return alert('⚠️ أدخل اسم المدينة الجديد');
-            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
-            cities[index].name = newName;
+        function deleteCity(cityName) {
+            if (!confirm(`⚠️ حذف مدينة "${cityName}"؟ سيتم حذف جميع الأماكن التابعة لها أيضاً! لا يمكن التراجع!`)) return;
+            
+            let cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            let places = JSON.parse(localStorage.getItem('places') || '[]');
+            
+            cities = cities.filter(c => c.name !== cityName);
+            places = places.filter(p => p.city !== cityName);
+            
             localStorage.setItem('cities', JSON.stringify(cities));
-            alert(`✅ تم تعديل اسم المدينة إلى "${newName}" بنجاح`);
-            closeModal('editCityModal');
+            localStorage.setItem('places', JSON.stringify(places));
+            
+            alert(`✅ تم حذف مدينة "${cityName}" وجميع أماكنها بنجاح`);
             loadCitiesAdmin();
-        };
+        }
 
-        window.deleteCity = function(index) {
-            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
-            const cityName = cities[index].name;
-            if (!confirm(`⚠️ حذف مدينة "${cityName}"؟ لا يمكن التراجع!`)) return;
-            cities.splice(index, 1);
-            localStorage.setItem('cities', JSON.stringify(cities));
-            alert(`✅ تم حذف مدينة "${cityName}" بنجاح`);
-            loadCitiesAdmin();
-        };
-
-        // ======================================
-        // 4. إدارة الأماكن
-        // ======================================
-        function loadPlacesAdmin() {
-            const container = document.getElementById('placesList');
+        // ==================== إدارة جميع الأماكن ====================
+        function loadAllPlaces() {
             const places = JSON.parse(localStorage.getItem('places') || '[]');
-            document.getElementById('placesCount').textContent = `${places.length} مكان`;
+            const container = document.getElementById('allPlacesList');
             
             if (places.length === 0) {
-                container.innerHTML = `
-                    <div class="card p-6 text-center text-gray-500">
-                        <i class="fa fa-map-marker text-4xl text-gray-300 mb-3"></i>
-                        <p>لا توجد أماكن مضافة</p>
-                        <p class="text-sm text-gray-400 mt-1">سيتم عرض جميع الأماكن المضافة من المستخدمين هنا</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center py-8 text-gray-400">لا توجد أماكن مضافة حتى الآن</div>`;
                 return;
             }
+
             container.innerHTML = '';
-            places.forEach((place, index) => {
-                const stars = '★'.repeat(place.rating||0) + '☆'.repeat(5-(place.rating||0));
+            places.forEach(place => {
+                const stars = '★'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0));
                 container.innerHTML += `
-                    <div class="card p-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                        <div class="flex items-start justify-between">
                             <div>
-                                <h4 class="font-bold text-lg">${place.name || 'بدون اسم'}</h4>
-                                <p class="text-sm text-gray-500">📍 ${place.city || 'بدون مدينة'} — ${place.category || 'بدون تصنيف'}</p>
-                                <p class="text-yellow-500 text-sm">${stars}</p>
-                                <p class="text-xs text-gray-400">أضيف بواسطة: ${place.createdByName || 'مجهول'}</p>
+                                <h4 class="font-bold">${place.name || 'بدون اسم'}</h4>
+                                <p class="text-sm text-sky-600">📍 ${place.city || 'بدون مدينة'} — ${place.category || 'أخرى'}</p>
+                                <p class="text-yellow-400 text-sm">${stars}</p>
+                                ${place.phone ? `<p class="text-sm text-gray-500">📱 ${place.phone}</p>` : ''}
                             </div>
-                            <div class="flex gap-2">
-                                <button class="bg-secondary/10 text-secondary px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-pencil"></i> تعديل
-                                </button>
-                                <button onclick="deletePlace(${index})" class="bg-danger/10 text-danger px-3 py-2 rounded-lg text-sm font-medium btn">
-                                    <i class="fa fa-trash"></i> حذف
-                                </button>
-                            </div>
+                            <button onclick="deletePlaceByAdmin('${place.id}')" class="text-red-500 text-sm p-2 hover:bg-red-50 rounded-lg">
+                                <i class="fa fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        window.deletePlace = function(index) {
-            const places = JSON.parse(localStorage.getItem('places') || '[]');
-            const placeName = places[index].name || 'المكان';
-            if (!confirm(`⚠️ حذف مكان "${placeName}"؟ لا يمكن التراجع!`)) return;
-            places.splice(index, 1);
+        function deletePlaceByAdmin(placeId) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا المكان؟ لا يمكن التراجع!')) return;
+            let places = JSON.parse(localStorage.getItem('places') || '[]');
+            places = places.filter(p => p.id !== placeId);
             localStorage.setItem('places', JSON.stringify(places));
-            alert(`✅ تم حذف مكان "${placeName}" بنجاح`);
-            loadPlacesAdmin();
-        };
+            alert('✅ تم حذف المكان بنجاح');
+            loadAllPlaces();
+        }
 
-        // ======================================
-        // تحميل أولي
-        // ======================================
-        loadPendingUsers();
-        loadApprovedUsers();
+        // إغلاق النوافذ عند النقر خارجها
+        document.getElementById('addUserModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addUserModal') closeAddUserModal();
+        });
+        document.getElementById('addCityModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addCityModal') closeAddCityModal();
+        });
+
+        // تحميل عند فتح الصفحة
+        loadUsers();
     </script>
 </body>
 </html>
