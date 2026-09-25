@@ -1,21 +1,471 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كشكات — استكشف الأماكن</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#22c55e',
+                        secondary: '#15803d',
+                        dark: '#0f766e',
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-  authDomain: "ali-alaowishi.firebaseapp.com",
-  projectId: "ali-alaowishi",
-  storageBucket: "ali-alaowishi.firebasestorage.app",
-  messagingSenderId: "536583940962",
-  appId: "1:536583940962:web:1b101ab662b21e18d3da3b",
-  measurementId: "G-01L9L5FS9F"
-};
+    <!-- شريط التنقل العلوي -->
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <i class="fa fa-leaf"></i>
+                كشكات
+            </h1>
+            <div class="flex items-center gap-3">
+                <button id="addPlaceBtn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full flex items-center gap-2 transition hidden">
+                    <i class="fa fa-plus"></i>
+                    إضافة مكان
+                </button>
+                <button id="userBtn" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+                    <i class="fa fa-user-o"></i>
+                </button>
+                <button id="logoutBtn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition hidden">
+                    تسجيل الخروج
+                </button>
+            </div>
+        </div>
+    </header>
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    <main class="container mx-auto px-4 py-8">
+        <!-- شريط البحث -->
+        <div class="relative mb-8">
+            <input type="text" id="searchInput" placeholder="ابحث عن مدينة، تصنيف، أو اسم مكان..." 
+                class="w-full p-4 pr-12 rounded-xl border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+            <i class="fa fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+
+        <!-- قسم المدن -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fa fa-map-marker text-primary"></i>
+                اختر المدينة
+            </h2>
+            <div id="citiesContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <i class="fa fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>جاري تحميل المدن...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم الأماكن (مخفي في البداية) -->
+        <section id="placesSection" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa fa-map-o text-primary"></i>
+                    <span id="currentCityName">الأماكن</span>
+                </h2>
+                <button id="backToCities" class="text-primary hover:text-secondary flex items-center gap-1">
+                    <i class="fa fa-arrow-right"></i>
+                    العودة للمدن
+                </button>
+            </div>
+
+            <!-- التصنيفات -->
+            <div class="flex flex-wrap gap-2 mb-6" id="categoriesFilter">
+                <button class="px-4 py-2 rounded-full bg-primary text-white text-sm category-btn active" data-category="all">الكل</button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm category-btn" data-category="مطاعم">مطاعم</button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm category-btn" data-category="مقاهي">مقاهي</button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm category-btn" data-category="حدائق">حدائق</button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm category-btn" data-category="مراكز ترفيه">مراكز ترفيه</button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm category-btn" data-category="معالم سياحية">معالم سياحية</button>
+            </div>
+
+            <div id="placesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <i class="fa fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>جاري تحميل الأماكن...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- نافذة تسجيل الدخول -->
+    <div id="authModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">تسجيل الدخول</h3>
+                <p class="text-gray-500 text-sm mt-1">سجّل الدخول لإضافة أماكنك المفضلة</p>
+            </div>
+            <div id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">البريد الإلكتروني</label>
+                    <input type="email" id="emailInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">كلمة المرور</label>
+                    <input type="password" id="passwordInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <button id="loginSubmit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium transition">
+                    تسجيل الدخول
+                </button>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    ليس لديك حساب؟ 
+                    <button id="showRegister" class="text-primary hover:underline">إنشاء حساب جديد</button>
+                </p>
+            </div>
+            <div id="registerForm" class="hidden">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">الاسم الكامل</label>
+                    <input type="text" id="nameInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">البريد الإلكتروني</label>
+                    <input type="email" id="regEmailInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">كلمة المرور</label>
+                    <input type="password" id="regPasswordInput" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+                <button id="registerSubmit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium transition">
+                    إنشاء حساب
+                </button>
+                <p class="text-center mt-4 text-sm text-gray-600">
+                    لديك حساب بالفعل؟ 
+                    <button id="showLogin" class="text-primary hover:underline">تسجيل الدخول</button>
+                </p>
+            </div>
+            <button id="closeAuthModal" class="absolute top-4 left-4 text-gray-400 hover:text-gray-600">
+                <i class="fa fa-times text-xl"></i>
+            </button>
+            <div id="authError" class="mt-4 text-red-500 text-sm text-center hidden"></div>
+        </div>
+    </div>
+
+    <!-- تضمين Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        // إعداد Firebase الصحيح ✅
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        // تهيئة Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // المتغيرات العامة
+        let currentCity = null;
+        let allCities = [];
+        let allPlaces = [];
+        let currentUser = null;
+
+        // العناصر
+        const citiesContainer = document.getElementById('citiesContainer');
+        const placesSection = document.getElementById('placesSection');
+        const placesContainer = document.getElementById('placesContainer');
+        const currentCityName = document.getElementById('currentCityName');
+        const backToCities = document.getElementById('backToCities');
+        const searchInput = document.getElementById('searchInput');
+        const authModal = document.getElementById('authModal');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authError = document.getElementById('authError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const addPlaceBtn = document.getElementById('addPlaceBtn');
+
+        // التحقق من حالة تسجيل الدخول
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                logoutBtn.classList.remove('hidden');
+                addPlaceBtn.classList.remove('hidden');
+            } else {
+                logoutBtn.classList.add('hidden');
+                addPlaceBtn.classList.add('hidden');
+            }
+        });
+
+        // تحميل المدن
+        async function loadCities() {
+            try {
+            const citiesSnap = await getDocs(collection(db, 'cities'));
+            allCities = citiesSnap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            if (allCities.length === 0) {
+                citiesContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa fa-info-circle text-2xl mb-2"></i>
+                        <p>لا توجد مدن مضافة بعد</p>
+                    </div>
+                `;
+                return;
+            }
+
+            renderCities(allCities);
+            } catch (error) {
+                console.error("خطأ في تحميل المدن:", error);
+                citiesContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-red-500">
+                        <i class="fa fa-exclamation-circle text-2xl mb-2"></i>
+                        <p>حدث خطأ أثناء تحميل المدن</p>
+                        <p class="text-sm">تحقق من اتصال الإنترنت وقواعد Firestore</p>
+                    </div>
+                `;
+            }
+        }
+
+        // عرض المدن
+        function renderCities(cities) {
+            citiesContainer.innerHTML = cities.map(city => `
+                <div class="bg-white rounded-xl p-4 card-shadow hover:shadow-lg transition cursor-pointer city-card" data-city-id="${city.id}" data-city-name="${city.name}">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl mb-3 mx-auto">
+                        <i class="fa fa-map-marker"></i>
+                    </div>
+                    <h3 class="font-bold text-center text-gray-800">${city.name}</h3>
+                </div>
+            `).join('');
+
+            // إضافة مستمعات النقر
+            document.querySelectorAll('.city-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const cityName = card.dataset.cityName;
+                    currentCity = cityName;
+                    currentCityName.textContent = cityName;
+                    loadPlaces(cityName);
+                    
+                    // إخفاء المدن وعرض الأماكن
+                    citiesContainer.parentElement.classList.add('hidden');
+                    placesSection.classList.remove('hidden');
+                    searchInput.value = '';
+                });
+            });
+        }
+
+        // تحميل الأماكن لمدينة معينة
+        async function loadPlaces(cityName) {
+            placesContainer.innerHTML = `
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <i class="fa fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>جاري تحميل الأماكن...</p>
+                </div>
+            `;
+
+            try {
+                const q = query(collection(db, 'places'), where('city', '==', cityName));
+                const placesSnap = await getDocs(q);
+                allPlaces = placesSnap.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderPlaces(allPlaces);
+            } catch (error) {
+                console.error("خطأ في تحميل الأماكن:", error);
+                placesContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-red-500">
+                        <i class="fa fa-exclamation-circle text-2xl mb-2"></i>
+                        <p>حدث خطأ أثناء تحميل الأماكن</p>
+                    </div>
+                `;
+            }
+        }
+
+        // عرض الأماكن
+        function renderPlaces(places, filter = 'all') {
+            let filtered = places;
+            if (filter !== 'all') {
+                filtered = places.filter(p => p.category === filter);
+            }
+
+            if (filtered.length === 0) {
+                placesContainer.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa fa-map-o text-2xl mb-2"></i>
+                        <p>لا توجد أماكن في هذا التصنيف حتى الآن</p>
+                    </div>
+                `;
+                return;
+            }
+
+            placesContainer.innerHTML = filtered.map(place => `
+                <div class="bg-white rounded-xl overflow-hidden card-shadow hover:shadow-lg transition">
+                    <div class="h-40 bg-gray-100 flex items-center justify-center text-gray-400">
+                        <i class="fa fa-image text-4xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg text-gray-800 mb-1">${place.name || 'بدون اسم'}</h3>
+                        <p class="text-sm text-gray-500 mb-2">
+                            <i class="fa fa-tag ml-1"></i> ${place.category || 'غير مصنف'}
+                        </p>
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-3">${place.description || 'لا وصف متاح'}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-400">
+                                <i class="fa fa-map-marker ml-1"></i> ${place.city}
+                            </span>
+                            ${place.website ? `
+                                <a href="${place.website}" target="_blank" class="text-primary hover:text-secondary text-sm">
+                                    <i class="fa fa-external-link"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // زر العودة للمدن
+        backToCities.addEventListener('click', () => {
+            placesSection.classList.add('hidden');
+            citiesContainer.parentElement.classList.remove('hidden');
+            currentCity = null;
+        });
+
+        // تصفية حسب التصنيف
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white', 'active');
+                    b.classList.add('bg-gray-200');
+                });
+                btn.classList.remove('bg-gray-200');
+                btn.classList.add('bg-primary', 'text-white', 'active');
+                
+                const category = btn.dataset.category;
+                renderPlaces(allPlaces, category);
+            });
+        });
+
+        // البحث
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            if (!currentCity) {
+                // البحث في المدن
+                const filtered = allCities.filter(c => 
+                    c.name.toLowerCase().includes(term)
+                );
+                renderCities(filtered.length ? filtered : allCities);
+            } else {
+                // البحث في الأماكن
+                const filtered = allPlaces.filter(p => 
+                    (p.name && p.name.toLowerCase().includes(term)) ||
+                    (p.description && p.description.toLowerCase().includes(term)) ||
+                    (p.category && p.category.toLowerCase().includes(term))
+                );
+                renderPlaces(filtered);
+            }
+        });
+
+        // نافذة تسجيل الدخول
+        document.getElementById('userBtn').addEventListener('click', () => {
+            if (!currentUser) {
+                authModal.classList.remove('hidden');
+                authError.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('closeAuthModal').addEventListener('click', () => {
+            authModal.classList.add('hidden');
+        });
+
+        document.getElementById('showRegister').addEventListener('click', () => {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            authError.classList.add('hidden');
+        });
+
+        document.getElementById('showLogin').addEventListener('click', () => {
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            authError.classList.add('hidden');
+        });
+
+        // تسجيل الدخول
+        document.getElementById('loginSubmit').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            authError.classList.add('hidden');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authModal.classList.add('hidden');
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
+            } catch (error) {
+                authError.textContent = 'بريد إلكتروني أو كلمة مرور غير صحيحة';
+                authError.classList.remove('hidden');
+                console.error(error);
+            }
+        });
+
+        // إنشاء حساب
+        document.getElementById('registerSubmit').addEventListener('click', async () => {
+            const name = document.getElementById('nameInput').value;
+            const email = document.getElementById('regEmailInput').value;
+            const password = document.getElementById('regPasswordInput').value;
+            authError.classList.add('hidden');
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                authModal.classList.add('hidden');
+                document.getElementById('nameInput').value = '';
+                document.getElementById('regEmailInput').value = '';
+                document.getElementById('regPasswordInput').value = '';
+            } catch (error) {
+                authError.textContent = 'حدث خطأ أثناء إنشاء الحساب، ربما البريد مستخدم بالفعل';
+                authError.classList.remove('hidden');
+                console.error(error);
+            }
+        });
+
+        // تسجيل الخروج
+        logoutBtn.addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        // الانتقال لصفحة الإضافة
+        addPlaceBtn.addEventListener('click', () => {
+            window.location.href = 'add-place.html';
+        });
+
+        // تحميل البيانات عند فتح الصفحة
+        loadCities();
+    </script>
+</body>
+</html>
