@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعدادات الموقع — كشكات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { primary: '#22c55e', secondary: '#15803d' } }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-3 py-3 flex items-center">
+            <a href="home.html" class="text-white mr-2"><i class="fa fa-arrow-left text-lg"></i></a>
+            <h1 class="text-lg font-bold">إعدادات الموقع</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-3 py-6 max-w-lg">
+        <div id="accessDenied" class="hidden text-center py-16">
+            <i class="fa fa-lock text-4xl text-gray-400 mb-3"></i>
+            <h2 class="text-xl font-bold text-gray-700 mb-2">غير مصرح بالوصول</h2>
+            <p class="text-gray-500 mb-4">هذه الصفحة خاصة بالمشرف فقط</p>
+            <a href="home.html" class="inline-block bg-primary text-white px-4 py-2 rounded-lg">العودة للرئيسية</a>
+        </div>
+
+        <div id="settingsContent" class="hidden">
+            <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b">
+                    <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center">
+                        <i class="fa fa-cog text-2xl text-amber-500"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">لوحة تحكم المشرف</h2>
+                        <p class="text-sm text-gray-500">إدارة إعدادات الموقع العام</p>
+                    </div>
+                </div>
+
+                <form id="settingsForm" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">اسم الموقع</label>
+                        <input type="text" id="siteName" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="مثال: كشكات">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">وصف الموقع</label>
+                        <textarea id="siteDescription" rows="3" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="مثال: استكشف أفضل الأماكن في مدينتك"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">بريد التواصل</label>
+                        <input type="email" id="contactEmail" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="info@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-1">رقم التواصل</label>
+                        <input type="tel" id="contactPhone" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="05xxxxxxxx">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium mt-2">
+                        <i class="fa fa-save ml-2"></i> حفظ الإعدادات
+                    </button>
+                </form>
+                <div id="saveMessage" class="mt-4 p-3 rounded-lg hidden text-sm"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-chart-bar text-primary"></i> إحصائيات الموقع
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-green-50 p-4 rounded-xl text-center">
+                        <p class="text-2xl font-bold text-primary" id="statsCities">0</p>
+                        <p class="text-sm text-gray-500">مدينة مضافة</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl text-center">
+                        <p class="text-2xl font-bold text-blue-600" id="statsPlaces">0</p>
+                        <p class="text-sm text-gray-500">مكان مضاف</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "Alihossin28@gmail.com";
+        const settingsDocRef = doc(db, 'settings', 'general');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user || user.email !== ADMIN_EMAIL) {
+                document.getElementById('accessDenied').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('settingsContent').classList.remove('hidden');
+            await loadSettings();
+            await loadStats();
+        });
+
+        async function loadSettings() {
+            try {
+                const docSnap = await getDoc(settingsDocRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('siteName').value = data.siteName || 'كشكات';
+                    document.getElementById('siteDescription').value = data.siteDescription || '';
+                    document.getElementById('contactEmail').value = data.contactEmail || '';
+                    document.getElementById('contactPhone').value = data.contactPhone || '';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const citiesSnap = await getDocs(collection(db, 'cities'));
+                const placesSnap = await getDocs(collection(db, 'places'));
+                document.getElementById('statsCities').textContent = citiesSnap.size;
+                document.getElementById('statsPlaces').textContent = placesSnap.size;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('saveMessage');
+            try {
+                await setDoc(settingsDocRef, {
+                    siteName: document.getElementById('siteName').value,
+                    siteDescription: document.getElementById('siteDescription').value,
+                    contactEmail: document.getElementById('contactEmail').value,
+                    contactPhone: document.getElementById('contactPhone').value,
+                    updatedAt: new Date()
+                });
+                msgEl.textContent = '✅ تم حفظ الإعدادات بنجاح!';
+                msgEl.className = 'mt-4 p-3 rounded-lg bg-green-50 text-green-700';
+                msgEl.classList.remove('hidden');
+                setTimeout(() => msgEl.classList.add('hidden'), 3000);
+            } catch (err) {
+                msgEl.textContent = '❌ حدث خطأ أثناء الحفظ';
+                msgEl.className = 'mt-4 p-3 rounded-lg bg-red-50 text-red-600';
+                msgEl.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

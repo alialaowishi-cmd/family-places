@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المكان — كشكات</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#22c55e', secondary: '#15803d', danger: '#ef4444', warning: '#f59e0b' }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        .star-active { color: #f59e0b; }
+        .star-inactive { color: #d1d5db; }
+        .images-scroll { scrollbar-width: thin; scrollbar-color: #22c55e #f1f1f1; }
+        .images-scroll::-webkit-scrollbar { height: 4px; }
+        .images-scroll::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-3 py-3 flex items-center justify-between">
+            <a href="home.html" class="text-white"><i class="fa fa-arrow-left text-lg"></i></a>
+            <h1 class="text-lg font-bold">تفاصيل المكان</h1>
+            <div class="w-6"></div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-3 py-4 max-w-2xl">
+        <div id="loadingState" class="text-center py-16 text-gray-500">
+            <i class="fa fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>جاري تحميل البيانات...</p>
+        </div>
+
+        <div id="placeContent" class="hidden">
+            <!-- معرض الصور -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+                <div class="h-56 bg-gray-100 flex items-center justify-center relative" id="mainImageContainer">
+                    <img id="mainImage" class="w-full h-full object-cover hidden" alt="صورة المكان">
+                    <i id="noImageIcon" class="fa fa-image text-4xl text-gray-400"></i>
+                </div>
+                <!-- شريط الصور الإضافية -->
+                <div id="thumbnailsContainer" class="px-3 py-2 flex gap-2 overflow-x-auto images-scroll hidden">
+                    <!-- الصور المصغرة ستظهر هنا ديناميكياً -->
+                </div>
+            </div>
+
+            <!-- معلومات المكان -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+                <h2 id="placeName" class="text-2xl font-bold text-gray-800 mb-2">اسم المكان</h2>
+                
+                <div class="flex items-center mb-3">
+                    <span id="placeRating" class="flex items-center"></span>
+                    <span id="placeCategory" class="mr-3 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"></span>
+                </div>
+
+                <div class="flex items-center text-gray-600 mb-3">
+                    <i class="fa fa-map-marker text-primary ml-2"></i>
+                    <span id="placeCity"></span>
+                </div>
+
+                <p id="placeDescription" class="text-gray-600 leading-relaxed mb-4"></p>
+            </div>
+
+            <!-- أزرار الاتصال والانتقال -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <a id="phoneBtn" href="#" class="bg-green-50 hover:bg-green-100 text-primary p-4 rounded-xl flex flex-col items-center gap-1 transition">
+                    <i class="fa fa-phone text-xl"></i>
+                    <span class="text-sm font-medium">اتصال مباشر</span>
+                </a>
+                <a id="mapBtn" href="#" target="_blank" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-4 rounded-xl flex flex-col items-center gap-1 transition">
+                    <i class="fa fa-map text-xl"></i>
+                    <span class="text-sm font-medium">الاتجاهات</span>
+                </a>
+            </div>
+
+            <!-- قسم إدارة المكان (يظهر فقط لصاحب المكان أو المشرف) -->
+            <div id="manageSection" class="bg-white rounded-2xl shadow-sm p-5 mb-4 hidden">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <i class="fa fa-cog text-primary"></i> إدارة المكان
+                </h3>
+                <div class="space-y-2">
+                    <button id="editBtn" class="w-full py-2.5 px-4 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center gap-2 hover:bg-amber-100 transition">
+                        <i class="fa fa-pencil"></i> تعديل البيانات
+                    </button>
+                    <button id="addImagesBtn" class="w-full py-2.5 px-4 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-100 transition">
+                        <i class="fa fa-camera"></i> إضافة صور جديدة
+                    </button>
+                    <button id="deleteBtn" class="w-full py-2.5 px-4 bg-red-50 text-red-600 rounded-lg flex items-center justify-center gap-2 hover:bg-red-100 transition">
+                        <i class="fa fa-trash"></i> حذف المكان
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة تعديل المكان -->
+        <div id="editModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-5 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+                <h3 class="text-lg font-bold mb-4">تعديل بيانات المكان</h3>
+                <form id="editForm" class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">اسم المكان</label>
+                        <input type="text" id="editName" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">التصنيف</label>
+                        <select id="editCategory" class="w-full p-2 border rounded-lg">
+                            <option value="مطاعم">مطاعم</option>
+                            <option value="مقاهي">مقاهي</option>
+                            <option value="حدائق">حدائق</option>
+                            <option value="مراكز ترفيه">مراكز ترفيه</option>
+                            <option value="معالم سياحية">معالم سياحية</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">رقم الجوال</label>
+                        <input type="tel" id="editPhone" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">التقييم</label>
+                        <select id="editRating" class="w-full p-2 border rounded-lg">
+                            <option value="5">5 من 5</option>
+                            <option value="4">4 من 5</option>
+                            <option value="3">3 من 5</option>
+                            <option value="2">2 من 5</option>
+                            <option value="1">1 من 5</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">رابط الموقع على الخريطة</label>
+                        <input type="url" id="editMapLink" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">الوصف</label>
+                        <textarea id="editDescription" rows="3" class="w-full p-2 border rounded-lg"></textarea>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" id="cancelEdit" class="flex-1 py-2 bg-gray-200 rounded-lg">إلغاء</button>
+                        <button type="submit" class="flex-1 py-2 bg-primary text-white rounded-lg">حفظ التغييرات</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- نافذة إضافة صور جديدة -->
+        <div id="addImagesModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-5 w-full max-w-md mx-4">
+                <h3 class="text-lg font-bold mb-4">إضافة صور جديدة</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">اختر صوراً من هاتفك</label>
+                    <input type="file" id="newImagesUpload" accept="image/*" multiple class="w-full text-sm">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">أو أدخل روابط الصور</label>
+                    <textarea id="newImageLinks" rows="3" placeholder="أدخل رابط كل صورة في سطر منفصل" class="w-full p-2 border rounded-lg text-sm"></textarea>
+                </div>
+                <div id="newImagesPreview" class="grid grid-cols-3 gap-2 mb-4"></div>
+                <div class="flex gap-2">
+                    <button id="cancelAddImages" class="flex-1 py-2 bg-gray-200 rounded-lg">إلغاء</button>
+                    <button id="saveNewImages" class="flex-1 py-2 bg-primary text-white rounded-lg">حفظ الصور</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة تأكيد الحذف -->
+        <div id="deleteModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-5 w-full max-w-sm mx-4 text-center">
+                <i class="fa fa-exclamation-triangle text-4xl text-danger mb-3"></i>
+                <h3 class="text-lg font-bold mb-2">حذف المكان؟</h3>
+                <p class="text-gray-500 text-sm mb-4">هذا الإجراء لا يمكن التراجع عنه!</p>
+                <div class="flex gap-2">
+                    <button id="cancelDelete" class="flex-1 py-2 bg-gray-200 rounded-lg">إلغاء</button>
+                    <button id="confirmDelete" class="flex-1 py-2 bg-danger text-white rounded-lg">نعم، احذف</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="messageBox" class="fixed bottom-6 left-4 right-4 max-w-md mx-auto bg-white rounded-xl shadow-lg p-3 hidden z-50 text-center"></div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "Alihossin28@gmail.com";
+        let placeId = null;
+        let placeData = null;
+        let currentUser = null;
+        let newImages = [];
+
+        // قراءة المعاملات من الرابط
+        const urlParams = new URLSearchParams(window.location.search);
+        placeId = urlParams.get('id');
+
+        if (!placeId) {
+            showMessage('❌ معرف المكان غير موجود', 'error');
+            setTimeout(() => window.location.href = 'home.html', 1500);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            loadPlaceDetails();
+        });
+
+        async function loadPlaceDetails() {
+            try {
+                const docRef = doc(db, 'places', placeId);
+                const docSnap = await getDoc(docRef);
+                
+                if (!docSnap.exists()) {
+                    showMessage('❌ المكان غير موجود', 'error');
+                    setTimeout(() => window.location.href = 'home.html', 1500);
+                    return;
+                }
+
+                placeData = { id: docSnap.id, ...docSnap.data() };
+                renderPlace();
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('placeContent').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                showMessage('❌ خطأ في تحميل البيانات', 'error');
+            }
+        }
+
+        function renderPlace() {
+            // الاسم والمدينة
+            document.getElementById('placeName').textContent = placeData.name || 'بدون اسم';
+            document.getElementById('placeCity').textContent = placeData.city || '';
+            document.getElementById('placeCategory').textContent = placeData.category || '';
+            document.getElementById('placeDescription').textContent = placeData.description || 'لا وصف متاح';
+
+            // التقييم بالنجوم
+            const rating = Math.round(placeData.rating || 0);
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fa fa-star ${i <= rating ? 'star-active' : 'star-inactive'}"></i>`;
+            }
+            document.getElementById('placeRating').innerHTML = stars;
+
+            // الصور
+            const allImages = [];
+            if (placeData.imageUrl) allImages.push(placeData.imageUrl);
+            if (Array.isArray(placeData.moreImages)) allImages.push(...placeData.moreImages);
+            
+            const mainImage = document.getElementById('mainImage');
+            const noImageIcon = document.getElementById('noImageIcon');
+            const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+            
+            if (allImages.length > 0) {
+                mainImage.src = allImages[0];
+                mainImage.classList.remove('hidden');
+                noImageIcon.classList.add('hidden');
+                
+                if (allImages.length > 1) {
+                    thumbnailsContainer.classList.remove('hidden');
+                    thumbnailsContainer.innerHTML = allImages.map((img, idx) => `
+                        <img src="${img}" class="w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${idx === 0 ? 'border-primary' : 'border-transparent'}" 
+                             onclick="changeMainImage('${img}', this)">
+                    `).join('');
+                }
+            }
+
+            // زر الاتصال
+            const phoneBtn = document.getElementById('phoneBtn');
+            if (placeData.phone) {
+                phoneBtn.href = `tel:${placeData.phone}`;
+                phoneBtn.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                phoneBtn.href = '#';
+                phoneBtn.classList.add('opacity-50', 'pointer-events-none');
+                phoneBtn.querySelector('span').textContent = 'لا يوجد رقم';
+            }
+
+            // زر الخريطة
+            const mapBtn = document.getElementById('mapBtn');
+            if (placeData.mapLink) {
+                mapBtn.href = placeData.mapLink;
+                mapBtn.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                mapBtn.href = '#';
+                mapBtn.classList.add('opacity-50', 'pointer-events-none');
+                mapBtn.querySelector('span').textContent = 'لا يوجد موقع';
+            }
+
+            // إظهار أزرار الإدارة لصاحب المكان أو المشرف فقط
+            if (currentUser && (currentUser.uid === placeData.createdBy || currentUser.email === ADMIN_EMAIL)) {
+                document.getElementById('manageSection').classList.remove('hidden');
+                fillEditForm();
+            }
+        }
+
+        window.changeMainImage = function(src, el) {
+            document.getElementById('mainImage').src = src;
+            document.querySelectorAll('#thumbnailsContainer img').forEach(img => img.classList.remove('border-primary'));
+            el.classList.add('border-primary');
+        };
+
+        function fillEditForm() {
+            document.getElementById('editName').value = placeData.name || '';
+            document.getElementById('editCategory').value = placeData.category || 'مطاعم';
+            document.getElementById('editPhone').value = placeData.phone || '';
+            document.getElementById('editRating').value = placeData.rating || '3';
+            document.getElementById('editMapLink').value = placeData.mapLink || '';
+            document.getElementById('editDescription').value = placeData.description || '';
+        }
+
+        // فتح وإغلاق النوافذ
+        document.getElementById('editBtn').addEventListener('click', () => {
+            fillEditForm();
+            document.getElementById('editModal').classList.remove('hidden');
+        });
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+        });
+
+        document.getElementById('addImagesBtn').addEventListener('click', () => {
+            newImages = [];
+            document.getElementById('newImagesPreview').innerHTML = '';
+            document.getElementById('newImageLinks').value = '';
+            document.getElementById('addImagesModal').classList.remove('hidden');
+        });
+        document.getElementById('cancelAddImages').addEventListener('click', () => {
+            document.getElementById('addImagesModal').classList.add('hidden');
+        });
+
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            document.getElementById('deleteModal').classList.remove('hidden');
+        });
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            document.getElementById('deleteModal').classList.add('hidden');
+        });
+
+        // معاينة الصور الجديدة المختارة
+        document.getElementById('newImagesUpload').addEventListener('change', (e) => {
+            const files = e.target.files;
+            const preview = document.getElementById('newImagesPreview');
+            preview.innerHTML = '';
+            newImages = [];
+            
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    newImages.push(event.target.result);
+                    preview.innerHTML += `<img src="${event.target.result}" class="w-full h-20 object-cover rounded-lg">`;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // حفظ التعديلات
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await updateDoc(doc(db, 'places', placeId), {
+                    name: document.getElementById('editName').value,
+                    category: document.getElementById('editCategory').value,
+                    phone: document.getElementById('editPhone').value,
+                    rating: parseInt(document.getElementById('editRating').value),
+                    mapLink: document.getElementById('editMapLink').value,
+                    description: document.getElementById('editDescription').value,
+                    updatedAt: new Date()
+                });
+                document.getElementById('editModal').classList.add('hidden');
+                showMessage('✅ تم حفظ التغييرات بنجاح', 'success');
+                placeData = {
+                    ...placeData,
+                    name: document.getElementById('editName').value,
+                    category: document.getElementById('editCategory').value,
+                    phone: document.getElementById('editPhone').value,
+                    rating: parseInt(document.getElementById('editRating').value),
+                    mapLink: document.getElementById('editMapLink').value,
+                    description: document.getElementById('editDescription').value
+                };
+                renderPlace();
+            } catch (err) {
+                console.error(err);
+                showMessage('❌ خطأ في الحفظ', 'error');
+            }
+        });
+
+        // حفظ الصور الجديدة
+        document.getElementById('saveNewImages').addEventListener('click', async () => {
+            const linksText = document.getElementById('newImageLinks').value.trim();
+            if (linksText) {
+                const links = linksText.split('\n').filter(l => l.trim());
+                newImages.push(...links);
+            }
+            
+            if (newImages.length === 0) {
+                showMessage('⚠️ لم تختار أي صور', 'warning');
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'places', placeId), {
+                    moreImages: arrayUnion(...newImages)
+                });
+                document.getElementById('addImagesModal').classList.add('hidden');
+                showMessage('✅ تمت إضافة الصور بنجاح', 'success');
+                placeData.moreImages = [...(placeData.moreImages || []), ...newImages];
+                renderPlace();
+            } catch (err) {
+                console.error(err);
+                showMessage('❌ خطأ في حفظ الصور', 'error');
+            }
+        });
+
+        // تأكيد الحذف
+        document.getElementById('confirmDelete').addEventListener('click', async () => {
+            try {
+                await deleteDoc(doc(db, 'places', placeId));
+                document.getElementById('deleteModal').classList.add('hidden');
+                showMessage('✅ تم حذف المكان بنجاح', 'success');
+                setTimeout(() => window.location.href = 'home.html', 1500);
+            } catch (err) {
+                console.error(err);
+                showMessage('❌ خطأ في الحذف', 'error');
+            }
+        });
+
+        function showMessage(text, type = 'success') {
+            const box = document.getElementById('messageBox');
+            box.textContent = text;
+            box.className = 'fixed bottom-6 left-4 right-4 max-w-md mx-auto rounded-xl shadow-lg p-3 z-50 text-center';
+            if (type === 'success') box.classList.add('bg-green-50', 'text-green-700');
+            else if (type === 'error') box.classList.add('bg-red-50', 'text-red-600');
+            else box.classList.add('bg-amber-50', 'text-amber-700');
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 3000);
+        }
+    </script>
+</body>
+</html>
