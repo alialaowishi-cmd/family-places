@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#22C55E' } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; }
+        .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
+        .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px dashed #ccc; cursor: pointer; }
+    </style>
+</head>
+<body class="flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-6">
+            <h1 class="text-xl font-bold">إنشاء حساب جديد</h1>
+            <p class="text-gray-500 text-sm mt-1">أكمل بياناتك</p>
+        </div>
+        <div class="glass rounded-3xl shadow-lg p-6">
+            <form id="regForm" class="space-y-4">
+                <div class="text-center">
+                    <label for="avatarInput">
+                        <img id="avatarPreview" src="https://via.placeholder.com/80" class="avatar-preview mx-auto" alt="صورة شخصية">
+                        <p class="text-xs text-gray-500 mt-1">اضغط لاختيار صورة (اختياري)</p>
+                    </label>
+                    <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                </div>
+                <input type="text" id="name" placeholder="الاسم الكامل" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="tel" id="phone" placeholder="رقم الجوال * مثال: 05xxxxxxxx" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="email" id="email" placeholder="البريد الإلكتروني (اختياري)"
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="password" id="password" placeholder="كلمة المرور *" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <button type="submit" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
+                    <i class="fa fa-check ml-2"></i> إنشاء الحساب
+                </button>
+            </form>
+            <p class="text-center text-sm mt-4">لديك حساب؟ <a href="login.html" class="text-primary font-medium">تسجيل الدخول</a></p>
+        </div>
+    </div>
+
+    <script>
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarPreview = document.getElementById('avatarPreview');
+        let avatarData = '';
+        avatarInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    avatarPreview.src = ev.target.result;
+                    avatarData = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        document.getElementById('regForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            localStorage.setItem('user', JSON.stringify({
+                name, phone, email, password, avatar: avatarData, type: 'user'
+            }));
+            alert('✅ تم إنشاء الحساب بنجاح');
+            location.href = 'home.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأماكن</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#22C55E', danger: '#EF4444' } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 80px; }
+        .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
+        .place-card { background: rgba(255,255,255,0.85); border-radius: 16px; transition: all 0.2s ease; }
+        .place-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .star { color: #FACC15; }
+        .star-empty { color: #D1D5DB; }
+    </style>
+</head>
+<body>
+    <header class="glass sticky top-0 z-30 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <button onclick="location.href='home.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fa fa-arrow-right"></i>
+            </button>
+            <h1 id="cityTitle" class="text-lg font-bold">الأماكن</h1>
+            <button id="addPlaceHere" class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-5">
+        <div id="placesContainer" class="space-y-4">
+            <p class="text-gray-500 text-center py-10">جاري التحميل...</p>
+        </div>
+    </main>
+
+    <!-- نافذة تفاصيل المكان -->
+    <div id="detailModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="dName" class="text-xl font-bold"></h2>
+                <button id="closeDetail" class="text-gray-400 text-xl">&times;</button>
+            </div>
+            <div id="dImages" class="flex overflow-x-auto gap-2 mb-4"></div>
+            <div class="space-y-2 text-sm">
+                <p><strong>التصنيف:</strong> <span id="dCat"></span></p>
+                <p><strong>التقييم:</strong> <span id="dStars"></span></p>
+                <p><strong>السعر:</strong> <span id="dPrice"></span></p>
+                <p id="dPhoneWrap" class="hidden"><strong>للتواصل:</strong> 
+                    <a id="dPhone" href="" class="text-primary underline"></a>
+                </p>
+                <p id="dMapWrap" class="hidden"><strong>الموقع:</strong> 
+                    <a id="dMap" href="" target="_blank" class="text-secondary underline">افتح في جوجل ماب ↗</a>
+                </p>
+                <p id="dNotesWrap" class="hidden"><strong>ملاحظات:</strong><br><span id="dNotes" class="text-gray-600"></span></p>
+                <p class="text-xs text-gray-400 mt-3">أضيف بواسطة: <span id="dBy"></span></p>
+            </div>
+            <div id="adminActions" class="flex gap-2 mt-5 pt-3 border-t hidden">
+                <button id="editBtn" class="flex-1 py-2 rounded-lg bg-gray-100 text-sm">
+                    <i class="fa fa-pencil ml-1"></i> تعديل
+                </button>
+                <button id="deleteBtn" class="flex-1 py-2 rounded-lg bg-danger/10 text-danger text-sm">
+                    <i class="fa fa-trash ml-1"></i> حذف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // بيانات الصفحة
+        const params = new URLSearchParams(location.search);
+        const cityName = params.get('name') || 'مدينة';
+        document.getElementById('cityTitle').textContent = cityName;
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        const isAdmin = userData?.type === 'admin';
+
+        // زر إضافة مكان لهذه المدينة
+        document.getElementById('addPlaceHere').addEventListener('click', () => {
+            if (!userData) return alert('يرجى تسجيل الدخول أولاً');
+            location.href = `add-place.html?city=${encodeURIComponent(cityName)}`;
+        });
+
+        // تحميل أماكن المدينة
+        let allPlaces = [];
+        async function loadPlaces() {
+            const container = document.getElementById('placesContainer');
+            try {
+                const q = query(collection(db, 'places'), where('city', '==', cityName));
+                const snap = await getDocs(q);
+                allPlaces = [];
+                if (snap.empty) {
+                    container.innerHTML = `<div class="text-center py-12"><i class="fa fa-map-o text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد أماكن مضافة في ${cityName}</p><p class="text-sm text-gray-400 mt-1">اضغط على الزر + لإضافة أول مكان</p></div>`;
+                    return;
+                }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    allPlaces.push({id: d.id, ...d.data()});
+                });
+                renderPlaces();
+            } catch (e) {
+                container.innerHTML = `<p class="text-red-500 text-center">❌ خطأ في التحميل — تحقق من Firebase Rules</p>`;
+            }
+        }
+        function renderPlaces() {
+            const container = document.getElementById('placesContainer');
+            container.innerHTML = '';
+            allPlaces.forEach(p => {
+                const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
+                container.innerHTML += `<div class="place-card p-4" onclick="openDetail('${p.id}')">
+                    <h3 class="font-bold text-lg">${p.name}</h3>
+                    <p class="text-sm text-gray-500">${p.category}</p>
+                    <p class="text-yellow-500 text-sm mt-1">${stars}</p>
+                    ${p.price ? `<p class="text-sm text-gray-600 mt-1">💰 ${p.price}</p>` : ''}
+                    <p class="text-xs text-gray-400 mt-2">أضيف بواسطة: ${p.createdBy || 'مجهول'}</p>
+                </div>`;
+            });
+        }
+
+        // نافذة التفاصيل
+        let currentId = '';
+        window.openDetail = id
