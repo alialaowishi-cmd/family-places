@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المدينة — كشتات العويشي</title>
+    <title>إضافة مكان جديد — كشتات العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -19,264 +19,120 @@
     <style>
         * { font-family: 'Tajawal', sans-serif; }
         body { background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); min-height: 100vh; padding-bottom: 40px; }
-        .place-card { transition: all 0.2s ease; cursor: pointer; }
-        .place-card:active { transform: scale(0.98); }
-        .modal { display: none; }
-        .modal.active { display: flex; }
-        .stars { color: #FBBF24; }
+        .star { cursor: pointer; font-size: 24px; color: #D1D5DB; transition: color 0.2s; }
+        .star.active { color: #FBBF24; }
+        .preview-img { width: 80px; height: 80px; object-cover: rounded-lg; }
     </style>
 </head>
-<body>
-    <header class="px-4 pt-6 pb-4">
-        <div class="flex items-center justify-between mb-6">
+<body class="px-4 py-6">
+    <header class="mb-6">
+        <div class="flex items-center justify-between">
             <button onclick="goBack()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
                 <i class="fa fa-arrow-right text-gray-600"></i>
             </button>
-            <h1 class="text-xl font-bold text-dark" id="cityNameHeader">المدينة</h1>
+            <h1 class="text-xl font-bold" id="pageTitle">إضافة مكان جديد</h1>
             <div class="w-10"></div>
         </div>
-
-        <!-- ✅ الرابط صحيح -->
-        <button onclick="window.location.href='add-place.html'" class="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold mb-3 shadow-md">
-            <i class="fa fa-plus ml-2"></i> إضافة مكان جديد
-        </button>
-        <button onclick="window.location.href='home.html'" class="w-full bg-gray-100 text-gray-600 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
-            <i class="fa fa-home"></i> الرجوع للمدن
-        </button>
     </header>
 
-    <main class="px-4">
-        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-            <i class="fa fa-map-marker text-primary"></i>
-            الأماكن في <span id="citySubtitle">المدينة</span>
-        </h2>
-
-        <div id="placesList" class="space-y-4">
-            <div class="text-center py-16 text-gray-400">
-                <i class="fa fa-map-o text-5xl mb-4"></i>
-                <p>لا توجد أماكن مضافة في هذه المدينة حتى الآن</p>
-                <p class="text-sm mt-1">كن أول من يضيف مكاناً جديداً! 🎉</p>
-            </div>
+    <form id="placeForm" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">اسم المكان *</label>
+            <input type="text" id="placeName" required 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
         </div>
-    </main>
 
-    <div id="placeDetailModal" class="modal fixed inset-0 bg-black/50 z-50 items-end justify-center">
-        <div class="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold" id="modalPlaceName">اسم المكان</h2>
-                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                    <i class="fa fa-times text-gray-500"></i>
-                </button>
-            </div>
-
-            <div id="modalImagesContainer" class="mb-4">
-                <img id="modalMainImage" src="" class="w-full h-48 object-cover rounded-xl mb-2 hidden">
-                <div id="modalGallery" class="grid grid-cols-3 gap-2 mt-2"></div>
-            </div>
-
-            <div class="space-y-3 mb-6">
-                <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm" id="modalCategory">تصنيف</span>
-                    <span class="stars" id="modalStars">★★★★★</span>
-                </div>
-                
-                <div class="flex items-center gap-2 text-gray-600" id="modalPriceContainer">
-                    <i class="fa fa-tag text-sm"></i>
-                    <span>السعر: </span>
-                    <span class="font-medium" id="modalPrice">غير محدد</span>
-                </div>
-
-                <div class="text-gray-600 text-sm" id="modalNotesContainer">
-                    <i class="fa fa-sticky-note-o ml-1"></i>
-                    <span id="modalNotes"></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 mb-6" id="actionButtons">
-                <a id="callBtn" href="#" class="bg-green-500 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
-                    <i class="fa fa-phone"></i>
-                    <span>اتصال مباشر</span>
-                </a>
-                <a id="mapBtn" href="#" target="_blank" class="bg-blue-500 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
-                    <i class="fa fa-map"></i>
-                    <span>فتح في الخريطة</span>
-                </a>
-            </div>
-
-            <div id="manageButtons" class="grid grid-cols-2 gap-3 mt-4 hidden">
-                <button onclick="editCurrentPlace()" class="bg-indigo-500 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">المدينة</label>
+            <div class="flex gap-2 mb-2">
+                <select id="citySelect" class="flex-1 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <option value="">-- اختر المدينة --</option>
+                </select>
+                <button type="button" onclick="toggleManualCity()" class="px-4 py-3 bg-gray-100 rounded-xl text-sm">
                     <i class="fa fa-pencil"></i>
-                    <span>تعديل</span>
-                </button>
-                <button onclick="deleteCurrentPlace()" class="bg-red-50 text-red-500 py-3 rounded-xl flex items-center justify-center gap-2 font-medium">
-                    <i class="fa fa-trash"></i>
-                    <span>حذف</span>
                 </button>
             </div>
+            <input type="text" id="manualCity" placeholder="أو اكتب اسم المدينة يدوياً..." 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 hidden">
         </div>
-    </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">التصنيف</label>
+            <select id="category" class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <option value="">-- اختر التصنيف --</option>
+                <option value="مطعم">مطعم</option>
+                <option value="كوفي">كوفي</option>
+                <option value="منتزه">منتزه</option>
+                <option value="محل">محل</option>
+                <option value="أخرى">أخرى</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">التقييم</label>
+            <div id="starsContainer" class="flex gap-1">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <input type="hidden" id="rating" value="0">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">السعر التقريبي</label>
+            <input type="text" id="price" placeholder="مثال: 50 - 100 ريال" 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال</label>
+            <input type="tel" id="phone" placeholder="05xxxxxxxx" 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">رابط الموقع في قوقل ماب</label>
+            <input type="url" id="mapUrl" placeholder="الصق رابط الموقع هنا..." 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">إضافة صور للمكان</label>
+            <input type="file" id="imageInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
+            <button type="button" onclick="document.getElementById('imageInput').click()" 
+                class="w-full p-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-primary hover:text-primary transition-colors">
+                <i class="fa fa-upload ml-2"></i> اختر الصور
+            </button>
+            <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">ملاحظات إضافية</label>
+            <textarea id="notes" rows="3" placeholder="أي معلومات أخرى عن المكان..." 
+                class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold mt-6">
+            <i class="fa fa-save ml-2"></i> حفظ المكان
+        </button>
+    </form>
 
     <script>
-        function getCityName() {
-            const params = new URLSearchParams(window.location.search);
-            const cityFromUrl = params.get('city');
-            if (cityFromUrl) {
-                localStorage.setItem('currentCity', cityFromUrl);
-                return cityFromUrl;
-            }
-            return localStorage.getItem('currentCity') || 'الطائف';
-        }
-
-        let currentCity = getCityName();
-        let allPlaces = [];
-        let currentPlace = null;
+        // التحقق من تسجيل الدخول
         const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
-
-        document.getElementById('cityNameHeader').textContent = currentCity;
-        document.getElementById('citySubtitle').textContent = currentCity;
-        document.title = `${currentCity} — كشتات العويشي`;
-
-        function loadPlaces() {
-            const places = JSON.parse(localStorage.getItem('places') || '[]');
-            allPlaces = places.filter(p => p.city === currentCity);
-            renderPlaces();
+        if (!currentUser) {
+            window.location.href = 'login.html';
         }
 
-        function renderPlaces() {
-            const container = document.getElementById('placesList');
-            if (allPlaces.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-16 text-gray-400">
-                        <i class="fa fa-map-o text-5xl mb-4"></i>
-                        <p>لا توجد أماكن مضافة في ${currentCity} حتى الآن</p>
-                        <p class="text-sm mt-1">كن أول من يضيف مكاناً جديداً! 🎉</p>
-                    </div>
-                `;
-                return;
+        // دوال الإشعارات
+        function initNotifications() {
+            if (!localStorage.getItem('notifications')) {
+                localStorage.setItem('notifications', JSON.stringify([]));
             }
-            container.innerHTML = '';
-            allPlaces.forEach((place, index) => {
-                const stars = '★'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0));
-                const mainImage = place.images && place.images.length > 0 ? place.images[0] : null;
-                container.innerHTML += `
-                    <div class="place-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4" 
-                         onclick="openDetailModal(${index})">
-                        <div class="flex gap-3">
-                            ${mainImage ? `<img src="${mainImage}" class="w-20 h-20 rounded-xl object-cover">` 
-                                : `<div class="w-20 h-20 rounded-xl bg-green-50 flex items-center justify-center"><i class="fa fa-map-marker text-green-500 text-xl"></i></div>`
-                            }
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-bold text-lg truncate">${place.name || 'بدون اسم'}</h3>
-                                <p class="text-sm text-sky-600">${place.category || 'أخرى'}</p>
-                                <p class="stars text-sm">${stars}</p>
-                                ${place.phone ? `<p class="text-sm text-gray-500 mt-1">📱 ${place.phone}</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
         }
 
-        window.openDetailModal = function(index) {
-            currentPlace = allPlaces[index];
-            const modal = document.getElementById('placeDetailModal');
-            
-            document.getElementById('modalPlaceName').textContent = currentPlace.name || 'بدون اسم';
-            document.getElementById('modalCategory').textContent = currentPlace.category || 'أخرى';
-            const stars = '★'.repeat(currentPlace.rating || 0) + '☆'.repeat(5 - (currentPlace.rating || 0));
-            document.getElementById('modalStars').textContent = stars;
-            
-            if (currentPlace.price) {
-                document.getElementById('modalPrice').textContent = currentPlace.price;
-                document.getElementById('modalPriceContainer').classList.remove('hidden');
-            } else {
-                document.getElementById('modalPriceContainer').classList.add('hidden');
-            }
-            
-            if (currentPlace.notes) {
-                document.getElementById('modalNotes').textContent = currentPlace.notes;
-                document.getElementById('modalNotesContainer').classList.remove('hidden');
-            } else {
-                document.getElementById('modalNotesContainer').classList.add('hidden');
-            }
-            
-            const callBtn = document.getElementById('callBtn');
-            if (currentPlace.phone) {
-                callBtn.href = `tel:${currentPlace.phone}`;
-                callBtn.classList.remove('hidden');
-            } else {
-                callBtn.classList.add('hidden');
-            }
-            
-            const mapBtn = document.getElementById('mapBtn');
-            if (currentPlace.mapUrl) {
-                mapBtn.href = currentPlace.mapUrl;
-                mapBtn.classList.remove('hidden');
-            } else {
-                mapBtn.classList.add('hidden');
-            }
-            
-            const mainImg = document.getElementById('modalMainImage');
-            const gallery = document.getElementById('modalGallery');
-            if (currentPlace.images && currentPlace.images.length > 0) {
-                mainImg.src = currentPlace.images[0];
-                mainImg.classList.remove('hidden');
-                gallery.innerHTML = '';
-                currentPlace.images.forEach((img, i) => {
-                    if (i > 0) gallery.innerHTML += `<img src="${img}" class="w-full h-20 object-cover rounded-lg">`;
-                });
-                if (currentPlace.images.length <= 1) gallery.innerHTML = '';
-            } else {
-                mainImg.classList.add('hidden');
-                gallery.innerHTML = '';
-            }
-            
-            const manageBtns = document.getElementById('manageButtons');
-            if (currentUser && (currentUser.type === 'admin' || currentUser.phone === currentPlace.createdByPhone)) {
-                manageBtns.classList.remove('hidden');
-            } else {
-                manageBtns.classList.add('hidden');
-            }
-            
-            modal.classList.add('active', 'flex');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeDetailModal = function() {
-            document.getElementById('placeDetailModal').classList.remove('active', 'flex');
-            document.body.style.overflow = 'auto';
-            currentPlace = null;
-        };
-
-        window.editCurrentPlace = function() {
-            if (!currentPlace) return;
-            localStorage.setItem('editPlaceData', JSON.stringify(currentPlace));
-            localStorage.setItem('editPlaceCity', currentCity);
-            // ✅ الرابط صحيح
-            window.location.href = `add-place.html?edit=${encodeURIComponent(currentPlace.id || '')}&city=${encodeURIComponent(currentCity)}`;
-        };
-
-        window.deleteCurrentPlace = function() {
-            if (!currentPlace) return;
-            if (!confirm(`⚠️ هل أنت متأكد من حذف "${currentPlace.name}"؟ لا يمكن التراجع!`)) return;
-            let places = JSON.parse(localStorage.getItem('places') || '[]');
-            places = places.filter(p => p.id !== currentPlace.id);
-            localStorage.setItem('places', JSON.stringify(places));
-            alert(`✅ تم حذف "${currentPlace.name}" بنجاح`);
-            closeDetailModal();
-            loadPlaces();
-        };
-
-        window.goBack = function() {
-            // ✅ الرابط صحيح
-            window.location.href = 'home.html';
-        };
-
-        document.getElementById('placeDetailModal').addEventListener('click', (e) => {
-            if (e.target.id === 'placeDetailModal') closeDetailModal();
-        });
-
-        loadPlaces();
-    </script>
-</body>
-</html>
+        function addNotification(place, type = 'new') {
+            initNotifications();
+            const notifications = JSON.parse(localStorage.getItem('notifications
