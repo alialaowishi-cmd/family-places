@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المشرف</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#22C55E', secondary: '#3B82F6', 
+                        admin: '#6366F1', danger: '#EF4444', 
+                        warning: '#F59E0B', success: '#10B981' 
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: linear-gradient(135deg, #F5F7FA 0%, #E4E8F0 100%); min-height: 100vh; padding-bottom: 40px; }
+        .glass { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
+        .sidebar-link { transition: all 0.15s ease; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(99, 102, 241, 0.1); color: #6366F1; }
+        .pending-badge { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="flex">
+    <!-- الشريط الجانبي -->
+    <aside class="hidden md:flex flex-col w-64 glass min-h-screen fixed right-0 top-0 shadow-lg z-40">
+        <div class="p-5 border-b border-gray-200/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center">
+                    <i class="fa fa-shield text-admin"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-admin">لوحة التحكم</h2>
+                    <p class="text-xs text-gray-500">المشرف</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 p-3 space-y-1 mt-2">
+            <button class="sidebar-link active w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="users">
+                <i class="fa fa-users w-5 text-center"></i>
+                <span>طلبات التسجيل</span>
+                <span id="pendingCount" class="ml-auto bg-warning text-white text-xs px-2 py-0.5 rounded-full pending-badge">0</span>
+            </button>
+            <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="cities">
+                <i class="fa fa-building w-5 text-center"></i>
+                <span>إدارة المدن</span>
+            </button>
+            <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="places">
+                <i class="fa fa-map-marker w-5 text-center"></i>
+                <span>إدارة الأماكن</span>
+            </button>
+            <button class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right" data-page="settings">
+                <i class="fa fa-cog w-5 text-center"></i>
+                <span>إعدادات الموقع</span>
+            </button>
+        </nav>
+        <div class="p-3 border-t border-gray-200/50">
+            <a href="home.html" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right text-gray-600">
+                <i class="fa fa-home w-5 text-center"></i>
+                <span>العودة للموقع</span>
+            </a>
+            <button id="logoutAdmin" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl text-right text-red-500 mt-1">
+                <i class="fa fa-sign-out w-5 text-center"></i>
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 md:mr-64 min-h-screen">
+        <header class="glass sticky top-0 z-30 shadow-sm md:hidden px-4 py-3 flex items-center justify-between">
+            <button id="openMobileMenu" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin">
+                <i class="fa fa-bars"></i>
+            </button>
+            <h1 class="font-bold">لوحة التحكم</h1>
+            <div class="w-10"></div>
+        </header>
+
+        <div class="container mx-auto px-4 py-6">
+            <!-- صفحة طلبات التسجيل -->
+            <div id="usersPage" class="admin-page">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">
+                        <i class="fa fa-user-check ml-2 text-admin"></i> طلبات التسجيل الجديدة
+                    </h2>
+                    <span class="text-sm text-gray-500">قم بالموافقة أو الرفض
