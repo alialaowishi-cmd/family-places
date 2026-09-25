@@ -10,7 +10,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#22C55E', secondary: '#3B82F6', dark: '#1F2937' }
+                    colors: { primary: '#22C55E', secondary: '#3B82F6', dark: '#1F2937', admin: '#6366F1' }
                 }
             }
         }
@@ -29,7 +29,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <div class="w-20 h-20 glass rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <i class="fa fa-map-marker-alt text-primary text-3xl"></i>
+                <i class="fa fa-map-marker text-primary text-3xl"></i>
             </div>
             <h1 class="text-xl font-bold text-dark">كشتات عائلة حسين العويشي</h1>
             <p class="text-gray-500 text-sm mt-1">سجل الدخول للمتابعة</p>
@@ -64,14 +64,16 @@
                 </button>
             </div>
 
-            <!-- دخول المشرف -->
+            <!-- دخول المشرف — بكلمة سر فقط! -->
             <div id="adminTab" class="tab-content hidden space-y-4">
-                <input type="email" id="adminEmail" placeholder="بريد المشرف" 
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
-                <input type="password" id="adminPass" placeholder="كلمة المرور" 
-                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none">
-                <button onclick="loginAdmin()" class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-medium hover:bg-indigo-700">
-                    <i class="fa fa-shield ml-2"></i> دخول المشرف
+                <div class="text-center mb-2">
+                    <i class="fa fa-shield text-admin text-4xl"></i>
+                    <p class="text-sm text-gray-500 mt-2">أدخل كلمة سر المشرف للدخول</p>
+                </div>
+                <input type="password" id="adminPass" placeholder="••••••••" 
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 input-focus outline-none text-center text-lg tracking-widest">
+                <button onclick="loginAdmin()" class="w-full bg-admin text-white py-3.5 rounded-xl font-medium hover:bg-indigo-700">
+                    <i class="fa fa-unlock ml-2"></i> دخول المشرف
                 </button>
             </div>
 
@@ -114,13 +116,15 @@
             location.href = 'home.html';
         }
         function loginAdmin() {
-            const email = document.getElementById('adminEmail').value.trim();
             const pass = document.getElementById('adminPass').value;
-            if (email === 'Alihossin28@gmail.com' && pass === 'admin123') {
-                localStorage.setItem('user', JSON.stringify({email, name: 'المشرف', type: 'admin', avatar: ''}));
+            // 🔑 كلمة سر المشرف
+            if (pass === 'admin123') {
+                localStorage.setItem('user', JSON.stringify({name: 'المشرف', type: 'admin', avatar: ''}));
                 alert('✅ دخول المشرف بنجاح');
                 location.href = 'home.html';
-            } else alert('❌ بيانات المشرف غير صحيحة');
+            } else {
+                alert('❌ كلمة سر المشرف غير صحيحة');
+            }
         }
     </script>
 </body>
