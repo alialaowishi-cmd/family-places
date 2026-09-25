@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الرئيسية — كشتات عائلة حسين العويشي</title>
+    <title>كشتات عائلة حسين العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#22C55E', secondary: '#3B82F6', accent: '#F59E0B', admin: '#6366F1' }
+                    colors: { primary: '#22C55E', secondary: '#3B82F6' }
                 }
             }
         }
@@ -18,216 +18,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 100px; }
-        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
-        .city-card { background: rgba(255,255,255,0.9); border-radius: 16px; transition: all 0.25s ease; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
-        .city-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
-        .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
-        .user-avatar { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
-        .avatar-ring { border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #22C55E, #3B82F6) border-box; }
+        body { background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); min-height: 100vh; padding-bottom: 80px; }
+        .city-card { transition: all 0.2s ease; cursor: pointer; }
+        .city-card:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
-    <!-- حماية الصفحة: إعادة التوجيه إذا لم يكن مسجلاً -->
-    <script>
-        const userData = JSON.parse(localStorage.getItem('user') || 'null');
-        if (!userData) {
-            location.href = 'login.html';
-        }
-    </script>
-
-    <header class="glass sticky top-0 z-30 shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- أيقونة المستخدم المحسنة -->
-            <button id="userBtn" class="relative w-11 h-11 rounded-full user-avatar flex items-center justify-center overflow-hidden avatar-ring">
-                <img id="headerAvatar" src="https://via.placeholder.com/44/FFFFFF/3B82F6?text=U" class="w-full h-full object-cover">
-                <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-            </button>
-            
-            <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                    <i class="fa fa-map-marker text-primary"></i>
-                </div>
-                <h1 class="text-base font-bold">كشتات العويشي</h1>
-            </div>
-            
-            <button id="adminBtn" class="w-10 h-10 rounded-full bg-admin/10 flex items-center justify-center text-admin border-0" title="لوحة التحكم">
-                <i class="fa fa-shield"></i>
-            </button>
-        </div>
+    <header class="px-4 pt-8 pb-4 text-center">
+        <h1 class="text-2xl font-bold text-gray-800">كشتات عائلة حسين العويشي</h1>
+        <p class="text-gray-500 text-sm mt-1">اختر المدينة لعرض الأماكن</p>
     </header>
 
-    <!-- قائمة المستخدم -->
-    <div id="userMenu" class="fixed top-0 right-0 h-full w-72 glass shadow-2xl z-50 transform translate-x-full transition-transform duration-300">
-        <div class="p-5 bg-gradient-to-br from-primary to-secondary text-white">
-            <img id="menuAvatar" src="https://via.placeholder.com/60" class="w-16 h-16 rounded-full object-cover mb-3 border-3 border-white/50">
-            <h3 id="menuName" class="font-bold text-lg">المستخدم</h3>
-            <p id="menuPhone" class="text-sm text-white/80">رقم الجوال</p>
-        </div>
-        <nav class="p-4 space-y-2 mt-2">
-            <a href="home.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100/70">
-                <i class="fa fa-home text-primary"></i> الصفحة الرئيسية
-            </a>
-            <a href="profile.html" class="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/10 text-secondary">
-                <i class="fa fa-user-circle"></i> ملفي الشخصي
-            </a>
-            <a href="#" id="logoutLink" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50/60 text-red-500">
-                <i class="fa fa-sign-out"></i> تسجيل الخروج
-            </a>
-        </nav>
-    </div>
-    <div id="overlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
+    <main class="px-4">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <i class="fa fa-building text-primary"></i>
+            المدن
+        </h2>
 
-    <main class="container mx-auto px-4 py-5">
-        <section class="mb-8">
-            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
-                <i class="fa fa-clock-o text-accent"></i> أحدث الأماكن المضافة
-            </h2>
-            <div id="recentScroll" class="flex overflow-x-auto gap-3 pb-2">
-                <p class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</p>
+        <div id="citiesList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="text-center py-12 text-gray-400 col-span-full">
+                <i class="fa fa-folder-open text-5xl mb-4"></i>
+                <p>لا توجد مدن مضافة حتى الآن</p>
+                <p class="text-sm mt-1">أضف مدناً من لوحة تحكم المشرف أولاً 📍</p>
             </div>
-        </section>
-        <hr class="my-6 border-gray-200/50">
-        <section>
-            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                <i class="fa fa-folder-open text-primary"></i> المدن
-            </h2>
-            <div id="citiesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="col-span-full text-center py-12">
-                    <i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">لا توجد مدن مضافة</p>
-                    <p class="text-sm text-gray-400 mt-1">اضغط على الزر الأزرق لإنشاء أول مدينة</p>
-                </div>
-            </div>
-        </section>
+        </div>
     </main>
 
-    <button id="addCityBtn" class="btn-float bg-secondary" style="bottom: 90px;">
-        <i class="fa fa-building-o text-lg"></i>
-    </button>
-    <button id="addPlaceBtn" class="btn-float bg-primary">
-        <i class="fa fa-plus text-lg"></i>
-    </button>
-
-    <div id="cityModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-lg font-bold mb-4">إضافة مدينة جديدة</h3>
-            <input type="text" id="newCityName" placeholder="اسم المدينة" 
-                class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none mb-4">
-            <div class="flex gap-3">
-                <button id="closeCityModal" class="flex-1 p-3 rounded-xl bg-gray-100">إلغاء</button>
-                <button id="saveCity" class="flex-1 p-3 bg-primary text-white rounded-xl">حفظ</button>
-            </div>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg px-6 py-3 z-40">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <button onclick="window.location.href='home.html'" class="flex flex-col items-center gap-1 text-xs text-primary">
+                <i class="fa fa-home text-lg"></i>
+                <span>الرئيسية</span>
+            </button>
+            <button onclick="window.location.href='add-place.html'" class="flex flex-col items-center gap-1 text-xs text-gray-500 hover:text-primary">
+                <i class="fa fa-plus-circle text-lg"></i>
+                <span>إضافة مكان</span>
+            </button>
+            <button onclick="window.location.href='profile.html'" class="flex flex-col items-center gap-1 text-xs text-gray-500 hover:text-primary">
+                <i class="fa fa-user text-lg"></i>
+                <span>حسابي</span>
+            </button>
         </div>
-    </div>
+    </nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-            authDomain: "ali-alaowishi.firebaseapp.com",
-            projectId: "ali-alaowishi",
-            storageBucket: "ali-alaowishi.firebasestorage.app",
-            messagingSenderId: "536583940962",
-            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const userData = JSON.parse(localStorage.getItem('user') || 'null');
-        const isLoggedIn = !!userData;
-        const isAdmin = userData?.type === 'admin';
-
-        // تحميل بيانات المستخدم في القائمة والأيقونة
-        if (userData) {
-            document.getElementById('menuName').textContent = userData.name;
-            document.getElementById('menuPhone').textContent = userData.phone || userData.email || '';
-            if (userData.avatar) {
-                document.getElementById('headerAvatar').src = userData.avatar;
-                document.getElementById('menuAvatar').src = userData.avatar;
-            } else {
-                document.getElementById('headerAvatar').src = 'https://via.placeholder.com/44/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
-                document.getElementById('menuAvatar').src = 'https://via.placeholder.com/60/3B82F6/FFFFFF?text=' + userData.name.charAt(0);
+    <script>
+        function loadCities() {
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const places = JSON.parse(localStorage.getItem('places') || '[]');
+            const container = document.getElementById('citiesList');
+            
+            if (cities.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400 col-span-full">
+                        <i class="fa fa-folder-open text-5xl mb-4"></i>
+                        <p>لا توجد مدن مضافة حتى الآن</p>
+                        <p class="text-sm mt-1">أضف مدناً من لوحة تحكم المشرف أولاً 📍</p>
+                    </div>
+                `;
+                return;
             }
-        }
-        document.getElementById('adminBtn').classList.toggle('hidden', !isAdmin);
 
-        const userMenu = document.getElementById('userMenu');
-        const overlay = document.getElementById('overlay');
-        const openMenu = () => { userMenu.classList.remove('translate-x-full'); overlay.classList.remove('hidden'); };
-        const closeMenu = () => { userMenu.classList.add('translate-x-full'); overlay.classList.add('hidden'); };
-        document.getElementById('userBtn').addEventListener('click', openMenu);
-        overlay.addEventListener('click', closeMenu);
-        document.getElementById('logoutLink').addEventListener('click', () => {
-            if (confirm('تسجيل الخروج؟')) { 
-                localStorage.removeItem('user'); 
-                location.href = 'login.html'; 
-            }
-        });
-        document.getElementById('adminBtn').addEventListener('click', () => {
-            if (isAdmin) location.href = 'admin-dashboard.html';
-        });
-
-        document.getElementById('addPlaceBtn').addEventListener('click', () => { location.href = 'add-place.html'; });
-        document.getElementById('addCityBtn').addEventListener('click', () => { document.getElementById('cityModal').classList.remove('hidden'); });
-        document.getElementById('closeCityModal').addEventListener('click', () => { document.getElementById('cityModal').classList.add('hidden'); });
-        document.getElementById('saveCity').addEventListener('click', async () => {
-            const name = document.getElementById('newCityName').value.trim();
-            if (!name) return alert('أدخل اسم المدينة');
-            try {
-                await addDoc(collection(db, 'cities'), { name, createdAt: new Date() });
-                alert(`✅ تمت إضافة "${name}"`);
-                document.getElementById('cityModal').classList.add('hidden');
-                document.getElementById('newCityName').value = '';
-                loadCities();
-            } catch (e) { alert('❌ خطأ: ' + e.message); }
-        });
-
-        window.openCity = (id, name) => { location.href = `city-view.html?name=${encodeURIComponent(name)}`; };
-
-        async function loadCities() {
-            const grid = document.getElementById('citiesGrid');
-            try {
-                const snap = await getDocs(collection(db, 'cities'));
-                if (snap.empty) {
-                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-folder-open text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد مدن مضافة</p><p class="text-sm text-gray-400 mt-1">اضغط على الزر الأزرق لإنشاء أول مدينة</p></div>`;
-                    return;
-                }
-                grid.innerHTML = '';
-                snap.forEach(doc => {
-                    const city = doc.data();
-                    grid.innerHTML += `<div class="city-card p-5" onclick="openCity('${doc.id}','${city.name}')">
-                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-3">
-                            <i class="fa fa-folder text-primary text-xl"></i>
+            container.innerHTML = '';
+            cities.forEach(city => {
+                const count = places.filter(p => p.city === city.name).length;
+                container.innerHTML += `
+                    <div class="city-card bg-white rounded-2xl shadow-sm border border-gray-100 p-5 text-center"
+                         onclick="openCity('${city.name}')">
+                        <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3">
+                            <i class="fa fa-map-marker text-primary text-2xl"></i>
                         </div>
                         <h3 class="font-bold text-lg">${city.name}</h3>
-                        <p class="text-sm text-gray-500 mt-1">انقر لعرض الأماكن</p>
-                    </div>`;
-                });
-            } catch (e) {
-                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل — تأكد من Firebase</p>`;
-            }
+                        <p class="text-sm text-gray-500 mt-1">${count} مكان</p>
+                    </div>
+                `;
+            });
         }
 
-        async function loadRecent() {
-            const cont = document.getElementById('recentScroll');
-            try {
-                const q = query(collection(db, 'places'), orderBy('createdAt', 'desc'), limit(6));
-                const snap = await getDocs(q);
-                if (snap.empty) { cont.innerHTML = `<p class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</p>`; return; }
-                cont.innerHTML = '';
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
-                    cont.innerHTML += `<div class="flex-shrink-0 w-44 p-3 glass rounded-xl"><h4 class="font-bold text-sm truncate">${p.name}</h4><p class="text-xs text-gray-500">${p.city}</p><p class="text-yellow-500 text-xs mt-1">${stars}</p></div>`;
-                });
-            } catch (e) { cont.innerHTML = `<p class="text-red-500 text-sm">❌ خطأ في التحميل</p>`; }
-        }
+        // ✅ الإصلاح: حفظ اسم المدينة والانتقال مع تمرير الاسم في الرابط
+        window.openCity = function(cityName) {
+            localStorage.setItem('currentCity', cityName);
+            window.location.href = `city.html?city=${encodeURIComponent(cityName)}`;
+        };
 
         loadCities();
-        loadRecent();
     </script>
 </body>
 </html>
