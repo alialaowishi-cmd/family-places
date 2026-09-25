@@ -11,11 +11,15 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#16a34a',
-                        secondary: '#15803d',
-                        accent: '#f59e0b',
-                        admin: '#7c3aed',
+                        primary: '#34C759',
+                        secondary: '#007AFF',
+                        accent: '#FF9500',
+                        danger: '#FF3B30',
+                        dark: '#1C1C1E',
                     },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
                 }
             }
         }
@@ -25,259 +29,219 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        .tab-btn { transition: all 0.2s ease; }
-        .tab-btn.active { border-bottom: 2px solid #16a34a; color: #16a34a; font-weight: 600; }
-        .input-group input:focus, .input-group select:focus { box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2); }
+        body {
+            background: linear-gradient(135deg, #E8F5E9 0%, #F0F9FF 50%, #FEF3C7 100%);
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        .glass-dark {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .input-glass {
+            background: rgba(118, 118, 128, 0.12);
+            border: none;
+            backdrop-filter: blur(4px);
+        }
+        .input-glass:focus {
+            background: rgba(118, 118, 128, 0.18);
+            outline: none;
+        }
+        .tab-btn { transition: all 0.25s ease; }
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.8);
+            color: #007AFF;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #34C759 0%, #30B350 100%);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-admin {
+            background: linear-gradient(135deg, #5856D6 0%, #4A48C7 100%);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen flex items-center justify-center px-4">
+<body class="flex items-center justify-center px-4 py-8">
 
     <div class="w-full max-w-md">
-        <!-- الشعار والعنوان -->
+        <!-- الشعار -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <i class="fa fa-map-marker text-white text-3xl"></i>
+            <div class="w-24 h-24 glass rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-lg">
+                <i class="fa fa-map-marker-alt text-primary text-4xl"></i>
             </div>
-            <h1 class="text-2xl font-bold text-gray-800">كشتات عائلة حسين العويشي</h1>
-            <p class="text-gray-500 mt-1">سجل الدخول للوصول إلى الموقع</p>
+            <h1 class="text-2xl font-bold text-dark">كشتات عائلة حسين العويشي</h1>
+            <p class="text-gray-500 mt-2">سجل الدخول للوصول إلى الموقع</p>
         </div>
 
         <!-- بطاقة تسجيل الدخول -->
-        <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="glass rounded-3xl shadow-xl p-6">
             <!-- علامات التبويب -->
-            <div class="flex mb-6 border-b">
-                <button class="tab-btn flex-1 py-3 text-center active" data-tab="email">
-                    <i class="fa fa-envelope ml-2"></i>البريد الإلكتروني
+            <div class="flex rounded-2xl bg-gray-100/60 p-1 mb-6">
+                <button class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-sm active" data-tab="email">
+                    <i class="fa fa-envelope ml-1"></i> البريد
                 </button>
-                <button class="tab-btn flex-1 py-3 text-center text-gray-500" data-tab="phone">
-                    <i class="fa fa-phone ml-2"></i>رقم الجوال
+                <button class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-sm text-gray-500" data-tab="phone">
+                    <i class="fa fa-phone ml-1"></i> الجوال
                 </button>
-                <button class="tab-btn flex-1 py-3 text-center text-gray-500" data-tab="admin">
-                    <i class="fa fa-shield ml-2"></i>المشرف
+                <button class="tab-btn flex-1 py-2.5 px-2 rounded-xl text-sm text-gray-500" data-tab="admin">
+                    <i class="fa fa-shield ml-1"></i> المشرف
                 </button>
             </div>
 
             <!-- نموذج البريد الإلكتروني -->
-            <div id="emailForm" class="tab-content">
-                <div class="space-y-4">
-                    <div class="input-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-                        <input type="email" id="email" class="w-full p-3 border rounded-lg outline-none transition" placeholder="example@email.com">
-                    </div>
-                    <div class="input-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-                        <input type="password" id="emailPassword" class="w-full p-3 border rounded-lg outline-none transition" placeholder="••••••••">
-                    </div>
-                    <button onclick="loginWithEmail()" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-xl font-medium mt-2">
-                        <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
-                    </button>
+            <div id="emailForm" class="tab-content space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني</label>
+                    <input type="email" id="email" class="w-full p-3.5 rounded-xl input-glass" placeholder="example@email.com">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">كلمة المرور</label>
+                    <input type="password" id="emailPassword" class="w-full p-3.5 rounded-xl input-glass" placeholder="••••••••">
+                </div>
+                <button onclick="loginWithEmail()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium mt-2">
+                    <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
+                </button>
             </div>
 
             <!-- نموذج رقم الجوال -->
-            <div id="phoneForm" class="tab-content hidden">
-                <div class="space-y-4">
-                    <div class="input-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال</label>
-                        <input type="tel" id="phone" class="w-full p-3 border rounded-lg outline-none transition" placeholder="05xxxxxxxx">
-                    </div>
-                    <button onclick="loginWithPhone()" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-xl font-medium mt-2">
-                        <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
-                    </button>
+            <div id="phoneForm" class="tab-content hidden space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">رقم الجوال</label>
+                    <input type="tel" id="phone" class="w-full p-3.5 rounded-xl input-glass" placeholder="05xxxxxxxx">
                 </div>
+                <button onclick="loginWithPhone()" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium mt-2">
+                    <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
+                </button>
             </div>
 
-            <!-- نموذج دخول المشرف -->
-            <div id="adminForm" class="tab-content hidden">
-                <div class="space-y-4">
-                    <div class="bg-admin/10 p-3 rounded-lg mb-4">
-                        <p class="text-sm text-admin">
-                            <i class="fa fa-info-circle ml-1"></i> مخصص للمشرف فقط
-                        </p>
-                    </div>
-                    <div class="input-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">بريد المشرف</label>
-                        <input type="email" id="adminEmail" class="w-full p-3 border rounded-lg outline-none transition" placeholder="Alihossin28@gmail.com">
-                    </div>
-                    <div class="input-group">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">كلمة المرور</label>
-                        <input type="password" id="adminPassword" class="w-full p-3 border rounded-lg outline-none transition" placeholder="••••••••">
-                    </div>
-                    <button onclick="loginAsAdmin()" class="w-full bg-admin hover:bg-purple-700 text-white py-3 rounded-xl font-medium mt-2">
-                        <i class="fa fa-shield ml-2"></i> تسجيل الدخول كمشرف
-                    </button>
+            <!-- نموذج المشرف -->
+            <div id="adminForm" class="tab-content hidden space-y-4">
+                <div class="bg-purple-50/80 rounded-xl p-3 mb-2">
+                    <p class="text-sm text-purple-700">
+                        <i class="fa fa-info-circle ml-1"></i> مخصص للمشرف فقط
+                    </p>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">بريد المشرف</label>
+                    <input type="email" id="adminEmail" class="w-full p-3.5 rounded-xl input-glass" placeholder="Alihossin28@gmail.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">كلمة المرور</label>
+                    <input type="password" id="adminPassword" class="w-full p-3.5 rounded-xl input-glass" placeholder="••••••••">
+                </div>
+                <button onclick="loginAsAdmin()" class="w-full btn-admin text-white py-3.5 rounded-xl font-medium mt-2">
+                    <i class="fa fa-shield ml-2"></i> تسجيل الدخول كمشرف
+                </button>
             </div>
 
             <!-- روابط إضافية -->
-            <div class="mt-6 pt-4 border-t text-center space-y-2">
-                <p class="text-sm text-gray-500">
+            <div class="mt-6 pt-4 border-t border-gray-200/50 text-center space-y-3">
+                <p class="text-sm">
                     ليس لديك حساب؟ 
-                    <a href="register.html" class="text-primary font-medium hover:underline">إنشاء حساب جديد</a>
+                    <a href="register.html" class="text-secondary font-medium">إنشاء حساب جديد</a>
                 </p>
                 <p class="text-sm">
-                    <a href="#" onclick="alert('تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني')" class="text-gray-500 hover:text-primary text-sm">نسيت كلمة المرور؟</a>
+                    <a href="#" onclick="alert('تم إرسال رابط استعادة كلمة المرور إلى بريدك')" class="text-gray-500">نسيت كلمة المرور؟</a>
                 </p>
                 <p class="text-sm">
-                    <a href="home.html" class="text-gray-500 hover:text-primary">التصفح كزائر</a>
+                    <a href="home.html" class="text-gray-500">الدخول كزائر</a>
                 </p>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-            authDomain: "ali-alaowishi.firebaseapp.com",
-            projectId: "ali-alaowishi",
-            storageBucket: "ali-alaowishi.firebasestorage.app",
-            messagingSenderId: "536583940962",
-            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // تبديل علامات التبويب
+    <script>
+        // تبديل التبويبات
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // إزالة التنشيط من جميع الأزرار
                 document.querySelectorAll('.tab-btn').forEach(b => {
                     b.classList.remove('active');
                     b.classList.add('text-gray-500');
                 });
-                // تنشيط الزر الحالي
                 btn.classList.add('active');
                 btn.classList.remove('text-gray-500');
-
-                // إخفاء جميع النماذج
-                document.querySelectorAll('.tab-content').forEach(form => {
-                    form.classList.add('hidden');
-                });
-
-                // عرض النموذج المحدد
-                const tabId = btn.dataset.tab;
-                document.getElementById(`${tabId}Form`).classList.remove('hidden');
+                
+                document.querySelectorAll('.tab-content').forEach(f => f.classList.add('hidden'));
+                document.getElementById(`${btn.dataset.tab}Form`).classList.remove('hidden');
             });
         });
 
-        // تسجيل الدخول بالبريد الإلكتروني
-        window.loginWithEmail = async function() {
+        // تسجيل الدخول بالبريد - مبسط
+        window.loginWithEmail = function() {
             const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('emailPassword').value;
-
-            if (!email || !password) {
-                alert('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+            const pass = document.getElementById('emailPassword').value;
+            
+            if (!email || !pass) {
+                showAlert('الرجاء إدخال جميع البيانات');
                 return;
             }
-
-            try {
-                const q = query(collection(db, 'authorizedUsers'), where('email', '==', email));
-                const snap = await getDocs(q);
-
-                if (snap.empty) {
-                    alert('البريد الإلكتروني غير مسجل');
-                    return;
-                }
-
-                let userData = null;
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if (data.password === password) {
-                        userData = { id: doc.id, ...data };
-                    }
-                });
-
-                if (!userData) {
-                    alert('كلمة المرور غير صحيحة');
-                    return;
-                }
-
-                // حفظ بيانات الجلسة
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userType', 'user');
-                localStorage.setItem('userName', userData.fullName || 'مستخدم');
-                localStorage.setItem('userEmail', userData.email);
-                localStorage.setItem('userPhone', userData.phone || '');
-
-                alert('✅ تم تسجيل الدخول بنجاح');
-                window.location.href = 'home.html';
-            } catch (err) {
-                console.error(err);
-                alert('❌ حدث خطأ: ' + err.message);
-            }
-        };
-
-        // تسجيل الدخول برقم الجوال
-        window.loginWithPhone = async function() {
-            const phone = document.getElementById('phone').value.trim();
-
-            if (!phone) {
-                alert('يرجى إدخال رقم الجوال');
-                return;
-            }
-
-            try {
-                const q = query(collection(db, 'authorizedUsers'), where('phone', '==', phone));
-                const snap = await getDocs(q);
-
-                if (snap.empty) {
-                    alert('رقم الجوال غير مسجل. يرجى التسجيل أولاً.');
-                    return;
-                }
-
-                let userData = null;
-                snap.forEach(doc => {
-                    userData = { id: doc.id, ...doc.data() };
-                });
-
-                // حفظ بيانات الجلسة
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userType', 'user');
-                localStorage.setItem('userName', userData.fullName || 'مستخدم');
-                localStorage.setItem('userPhone', userData.phone);
-                localStorage.setItem('userEmail', userData.email || '');
-
-                alert('✅ تم تسجيل الدخول بنجاح');
-                window.location.href = 'home.html';
-            } catch (err) {
-                console.error(err);
-                alert('❌ حدث خطأ: ' + err.message);
-            }
-        };
-
-        // تسجيل الدخول كمشرف
-        window.loginAsAdmin = function() {
-            const adminEmail = document.getElementById('adminEmail').value.trim();
-            const adminPassword = document.getElementById('adminPassword').value;
-
-            // بيانات المشرف الثابتة
-            const CORRECT_ADMIN_EMAIL = 'Alihossin28@gmail.com';
-            const CORRECT_ADMIN_PASSWORD = 'admin123'; // يمكنك تغييرها
-
-            if (!adminEmail || !adminPassword) {
-                alert('يرجى إدخال بيانات المشرف');
-                return;
-            }
-
-            if (adminEmail !== CORRECT_ADMIN_EMAIL || adminPassword !== CORRECT_ADMIN_PASSWORD) {
-                alert('بيانات المشرف غير صحيحة');
-                return;
-            }
-
-            // حفظ بيانات المشرف
+            
+            // حفظ بيانات المستخدم مباشرة
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userType', 'admin');
-            localStorage.setItem('userName', 'المشرف');
-            localStorage.setItem('userEmail', adminEmail);
-            localStorage.setItem('userPhone', '+966500509134');
-
-            alert('✅ تم تسجيل الدخول كمشرف بنجاح');
-            window.location.href = 'home.html';
+            localStorage.setItem('userType', 'user');
+            localStorage.setItem('userName', email.split('@')[0]);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPassword', pass);
+            
+            showAlert('✅ تم تسجيل الدخول بنجاح');
+            setTimeout(() => window.location.href = 'home.html', 1200);
         };
+
+        // تسجيل الدخول برقم الجوال - مبسط
+        window.loginWithPhone = function() {
+            const phone = document.getElementById('phone').value.trim();
+            
+            if (!phone) {
+                showAlert('الرجاء إدخال رقم الجوال');
+                return;
+            }
+            
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userType', 'user');
+            localStorage.setItem('userName', 'مستخدم');
+            localStorage.setItem('userPhone', phone);
+            
+            showAlert('✅ تم تسجيل الدخول بنجاح');
+            setTimeout(() => window.location.href = 'home.html', 1200);
+        };
+
+        // دخول المشرف
+        window.loginAsAdmin = function() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const pass = document.getElementById('adminPassword').value;
+            
+            const ADMIN_EMAIL = 'Alihossin28@gmail.com';
+            const ADMIN_PASS = 'admin123';
+            
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userType', 'admin');
+                localStorage.setItem('userName', 'المشرف');
+                localStorage.setItem('userEmail', email);
+                
+                showAlert('✅ تم تسجيل الدخول كمشرف');
+                setTimeout(() => window.location.href = 'home.html', 1200);
+            } else {
+                showAlert('بيانات المشرف غير صحيحة');
+            }
+        };
+
+        function showAlert(msg) {
+            const box = document.createElement('div');
+            box.className = 'fixed top-4 left-1/2 -translate-x-1/2 glass-dark px-6 py-3 rounded-2xl shadow-lg z-50 text-center';
+            box.innerHTML = `<p class="font-medium">${msg}</p>`;
+            document.body.appendChild(box);
+            setTimeout(() => box.remove(), 2500);
+        }
     </script>
 </body>
 </html>
