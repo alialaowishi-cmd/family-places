@@ -51,10 +51,13 @@
                     <i class="fa fa-sign-in ml-2"></i> تسجيل الدخول
                 </button>
                 <p id="pendingNote" class="hidden text-sm text-warning text-center bg-warning/10 p-2 rounded-lg">
-                    <i class="fa fa-clock-o ml-1"></i> رقمك بانتظار موافقة المشرف
+                    <i class="fa fa-clock-o ml-1"></i> رقمك بانتظار موافقة المشرف ⏳
                 </p>
                 <p id="rejectedNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
                     <i class="fa fa-times-circle ml-1"></i> تم رفض هذا الرقم من المشرف
+                </p>
+                <p id="errorNote" class="hidden text-sm text-danger text-center bg-red-50 p-2 rounded-lg">
+                    <i class="fa fa-exclamation-triangle ml-1"></i> هذا الرقم غير مسجل لدينا<br>يرجى تقديم طلب تسجيل أولاً
                 </p>
                 <p class="text-xs text-gray-400 text-center">لا تحتاج لكلمة مرور فقط أدخل رقمك الموافق عليه ✅</p>
             </div>
@@ -93,8 +96,7 @@
 
     <script>
         // منع الدخول إذا كان مسجلاً بالفعل
-        const existingUser = localStorage.getItem('user');
-        if (existingUser) {
+        if (localStorage.getItem('user')) {
             location.href = 'home.html';
         }
 
@@ -112,28 +114,42 @@
                     btn.classList.add('bg-white','shadow-sm','text-primary');
                 }
                 document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
-                document.getElementById('pendingNote').classList.add('hidden');
-                document.getElementById('rejectedNote').classList.add('hidden');
+                hideAllNotes();
             });
         });
 
-        function loginEmail() {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('emailPass').value;
-            if (!email || !pass) return alert('أدخل البريد وكلمة المرور');
-            localStorage.setItem('user', JSON.stringify({email, phone: '', name: email.split('@')[0], type: 'user', status: 'approved', avatar: ''}));
-            alert('✅ تم الدخول، أهلاً بك!');
-            location.href = 'home.html';
+        function hideAllNotes() {
+            document.getElementById('pendingNote').classList.add('hidden');
+            document.getElementById('rejectedNote').classList.add('hidden');
+            document.getElementById('errorNote').classList.add('hidden');
+        }
+
+        function normalizePhone(phone) {
+            return phone.replace(/\s/g, '').replace(/^\+966/, '0').trim();
         }
 
         function loginPhone() {
-            const phone = document.getElementById('phone').value.trim();
-            if (!phone) return alert('أدخل رقم الجوال');
+            let phone = document.getElementById('phone').value.trim();
+            phone = normalizePhone(phone);
+            hideAllNotes();
+            
+            if (!phone || phone.length < 9) {
+                alert('أدخل رقم جوال صحيح');
+                return;
+            }
             
             const users = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-            const found = users.find(u => u.phone === phone);
+            console.log('جميع المستخدمين:', users); // للتصحيح
             
-            if (!found) return alert('❌ هذا الرقم غير مسجل لدينا. يرجى تقديم طلب تسجيل أولاً');
+            // البحث في جميع المستخدمين
+            const found = users.find(u => normalizePhone(u.phone) === phone);
+            
+            if (!found) {
+                document.getElementById('errorNote').classList.remove('hidden');
+                return;
+            }
+            
+            console.log('الحالة:', found.status); // للتصحيح
             
             if (found.status === 'pending') {
                 document.getElementById('pendingNote').classList.remove('hidden');
@@ -155,7 +171,18 @@
                 }));
                 alert('✅ تم الدخول بنجاح، أهلاً بك يا ' + found.name);
                 location.href = 'home.html';
+            } else {
+                alert('❌ حالة الحساب غير معروفة: ' + found.status);
             }
+        }
+
+        function loginEmail() {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('emailPass').value;
+            if (!email || !pass) return alert('أدخل البريد وكلمة المرور');
+            localStorage.setItem('user', JSON.stringify({email, phone: '', name: email.split('@')[0], type: 'user', status: 'approved', avatar: ''}));
+            alert('✅ تم الدخول، أهلاً بك!');
+            location.href = 'home.html';
         }
 
         function loginAdmin() {
