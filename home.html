@@ -30,7 +30,11 @@
         .scroll-container { overflow-x: auto; scrollbar-width: thin; }
         .scroll-container::-webkit-scrollbar { height: 4px; }
         .scroll-container::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
-        .page-transition { transition: all 0.3s ease; }
+        .multi-menu { animation: scaleIn 0.2s ease; }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
         .modal-city { animation: slideUp 0.3s ease; }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -46,10 +50,6 @@
             <div class="flex items-center justify-between">
                 <h1 class="text-xl font-bold">كشتات عائلة حسين العويشي</h1>
                 <div class="flex items-center gap-3">
-                    <!-- زر المشرف ← عاد في مكانه الطبيعي -->
-                    <button id="adminBtn" class="bg-amber-400/90 hover:bg-amber-400 px-3 py-1.5 rounded-lg text-sm font-medium hidden">
-                        <i class="fa fa-cog ml-1"></i>المشرف
-                    </button>
                     <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-full transition">
                         <i class="fa fa-user-circle text-lg"></i>
                     </button>
@@ -61,10 +61,29 @@
         </div>
     </header>
 
-    <!-- 🔘 زر إضافة مكان جديد ثابت -->
-    <div class="fixed bottom-6 left-6 z-40">
-        <button id="addPlaceFAB" class="bg-gradient-to-r from-accent to-amber-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-xl hover:scale-110 transition-all">
-            <i class="fa fa-plus"></i>
+    <!-- ➕ الزر المتعدد الوظائف -->
+    <div class="fixed bottom-6 left-6 z-50">
+        <!-- القائمة المنبثقة -->
+        <div id="multiActionMenu" class="absolute bottom-full left-0 mb-3 hidden">
+            <div class="multi-menu bg-white rounded-2xl shadow-2xl p-3 w-52">
+                <button id="menuAddCity" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-green-50 text-gray-700 transition mb-1">
+                    <span class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm"><i class="fa fa-building"></i></span>
+                    <span class="font-medium">إضافة مدينة</span>
+                </button>
+                <button id="menuAddPlace" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-amber-50 text-gray-700 transition mb-1">
+                    <span class="w-8 h-8 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-sm"><i class="fa fa-map-marker"></i></span>
+                    <span class="font-medium">إضافة مكان</span>
+                </button>
+                <div id="menuAdminDivider" class="border-t border-gray-100 my-1 hidden"></div>
+                <button id="menuAdminPanel" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-purple-50 text-gray-700 transition hidden">
+                    <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm"><i class="fa fa-cog"></i></span>
+                    <span class="font-medium">لوحة المشرف</span>
+                </button>
+            </div>
+        </div>
+        <!-- الزر الرئيسي -->
+        <button id="multiActionBtn" class="bg-gradient-to-r from-accent to-amber-500 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-xl hover:scale-110 transition-all z-10">
+            <i class="fa fa-plus" id="multiActionIcon"></i>
         </button>
     </div>
 
@@ -98,11 +117,11 @@
         <section class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa fa-bolt text-accent"></i> أحدث الأماكن المضافة
+                <i class="fa fa-bolt text-accent"></i> أحدث الأماكن المضافة
                 </h2>
             </div>
             <div id="recentPlacesScroll" class="scroll-container flex gap-4 pb-2">
-                <div class="text-gray-500 text-sm py-4">جاري التحميل...</div>
+            <div class="text-gray-500 text-sm py-4">جاري التحميل...</div>
             </div>
         </section>
 
@@ -114,9 +133,6 @@
                 <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <i class="fa fa-folder-open text-primary"></i> المدن
                 </h2>
-                <button id="addCityBtn" class="text-sm bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 hidden">
-                    <i class="fa fa-plus ml-1"></i>إضافة مدينة
-                </button>
             </div>
             <div id="citiesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <div class="text-center py-8 text-gray-500 col-span-full">جاري التحميل...</div>
@@ -152,18 +168,10 @@
                     <i class="fa fa-arrow-right text-lg"></i>
                 </button>
                 
-                <!-- أزرار تعديل المدينة للمشرف -->
-                <div id="cityAdminActions" class="absolute top-4 left-4 flex gap-2 hidden">
-                    <button id="editCityPhotoBtn" class="bg-white/90 text-gray-700 p-2 rounded-lg hover:bg-white transition text-sm" title="تغيير صورة المدينة">
-                        <i class="fa fa-camera"></i>
-                    </button>
-                    <button id="editCityInfoBtn" class="bg-white/90 text-gray-700 p-2 rounded-lg hover:bg-white transition text-sm" title="تعديل اسم المدينة">
-                        <i class="fa fa-pencil"></i>
-                    </button>
-                    <button id="deleteCityBtn" class="bg-white/90 text-danger p-2 rounded-lg hover:bg-white transition text-sm" title="حذف المدينة">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </div>
+                <!-- تعديل اسم المدينة - لجميع المستخدمين ✅ -->
+                <button id="editCityNameMainBtn" class="absolute top-4 left-4 bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-white transition text-sm flex items-center gap-1.5">
+                    <i class="fa fa-pencil"></i> تعديل اسم المدينة
+                </button>
                 
                 <div class="absolute bottom-4 right-4 text-white">
                     <h2 id="cityPageTitle" class="text-2xl font-bold"></h2>
@@ -186,6 +194,52 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ➕ نافذة إضافة مدينة جديدة -->
+    <div id="addCityModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[80] hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">إضافة مدينة جديدة</h3>
+            <form id="addCityForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">اسم المدينة</label>
+                    <input type="text" id="newCityName" class="w-full p-2.5 border rounded-lg" placeholder="أدخل اسم المدينة" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">رابط صورة المدينة (اختياري)</label>
+                    <input type="url" id="newCityPhoto" class="w-full p-2.5 border rounded-lg" placeholder="https://...">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="cancelAddCity" class="flex-1 bg-gray-100 hover:bg-gray-200 py-2 rounded-lg">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">إضافة المدينة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ✏️ نافذة تعديل اسم المدينة -->
+    <div id="editCityNameModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[80] hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">تعديل اسم المدينة</h3>
+            <form id="editCityNameForm" class="space-y-4">
+                <input type="hidden" id="editCityId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الحالي</label>
+                    <input type="text" id="editCityCurrentName" class="w-full p-2.5 border rounded-lg bg-gray-50" readonly>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الجديد</label>
+                    <input type="text" id="editCityNewName" class="w-full p-2.5 border rounded-lg" placeholder="أدخل الاسم الجديد" required>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
+                    <i class="fa fa-info-circle ml-1"></i>سيتم تحديث اسم المدينة في جميع الأماكن التابعة لها تلقائياً
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="cancelEditCityName" class="flex-1 bg-gray-100 hover:bg-gray-200 py-2 rounded-lg">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">حفظ التغيير</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -268,30 +322,10 @@
         </div>
     </div>
 
-    <!-- 🖼️ نافذة تغيير صورة المدينة -->
-    <div id="changeCityPhotoModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[80] hidden">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">تغيير صورة المدينة</h3>
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center mb-4 cursor-pointer hover:border-primary" id="cityPhotoTrigger">
-                <input type="file" id="cityPhotoUpload" accept="image/*" class="hidden">
-                <i class="fa fa-image text-3xl text-primary mb-2"></i>
-                <p class="text-sm text-gray-600">اضغط لاختيار صورة</p>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm text-gray-600 mb-1">أو أدخل رابط الصورة:</label>
-                <input type="url" id="cityPhotoUrl" class="w-full p-2 border rounded-lg text-sm" placeholder="https://...">
-            </div>
-            <div class="flex gap-3">
-                <button id="cancelCityPhoto" class="flex-1 bg-gray-100 hover:bg-gray-200 py-2 rounded-lg">إلغاء</button>
-                <button id="saveCityPhoto" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-secondary">حفظ</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, limit, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -314,17 +348,18 @@
         let currentCityData = null;
         let currentDeletePlaceId = null;
         let tempNewImages = [];
+        let isMenuOpen = false;
 
         // عناصر الصفحة
         const userMenuBtn = document.getElementById('userMenuBtn');
         const userDropdown = document.getElementById('userDropdown');
         const loginRegisterBtn = document.getElementById('loginRegisterBtn');
         const logoutBtn = document.getElementById('logoutBtn');
-        const adminBtn = document.getElementById('adminBtn');
         const myPlacesBtn = document.getElementById('myPlacesBtn');
         const editProfileBtn = document.getElementById('editProfileBtn');
-        const addPlaceFAB = document.getElementById('addPlaceFAB');
-        const recentPlacesScroll = document.getElementById('recentPlacesScroll');
+        const multiActionBtn = document.getElementById('multiActionBtn');
+        const multiActionMenu = document.getElementById('multiActionMenu');
+        const multiActionIcon = document.getElementById('multiActionIcon');
         const citiesContainer = document.getElementById('citiesContainer');
         const myPlacesSection = document.getElementById('myPlacesSection');
         const myPlacesContainer = document.getElementById('myPlacesContainer');
@@ -335,16 +370,151 @@
         const cityCoverImage = document.getElementById('cityCoverImage');
         const cityPlaceCount = document.getElementById('cityPlaceCount');
         const cityPlacesContainer = document.getElementById('cityPlacesContainer');
-        const cityAdminActions = document.getElementById('cityAdminActions');
-        const addPlaceForCityBtn = document.getElementById('addPlaceInCityBtn');
 
         // تبديل قائمة المستخدم
         userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle('hidden');
+            multiActionMenu.classList.add('hidden');
+            isMenuOpen = false;
+            multiActionIcon.className = 'fa fa-plus';
         });
-        document.addEventListener('click', () => userDropdown.classList.add('hidden'));
+        document.addEventListener('click', () => {
+            userDropdown.classList.add('hidden');
+            multiActionMenu.classList.add('hidden');
+            isMenuOpen = false;
+            multiActionIcon.className = 'fa fa-plus';
+        });
         userDropdown.addEventListener('click', (e) => e.stopPropagation());
+        multiActionMenu.addEventListener('click', (e) => e.stopPropagation());
+
+        // ➕ الزر المتعدد الوظائف - فتح وإغلاق القائمة
+        multiActionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isMenuOpen = !isMenuOpen;
+            multiActionMenu.classList.toggle('hidden');
+            multiActionIcon.className = isMenuOpen ? 'fa fa-times' : 'fa fa-plus';
+            userDropdown.classList.add('hidden');
+        });
+
+        // 🟢 وظيفة 1: إضافة مدينة
+        document.getElementById('menuAddCity').addEventListener('click', () => {
+            if (!currentUser) {
+                alert('يرجى تسجيل الدخول أولاً');
+                window.location.href = 'login.html';
+                return;
+            }
+            multiActionMenu.classList.add('hidden');
+            isMenuOpen = false;
+            multiActionIcon.className = 'fa fa-plus';
+            document.getElementById('addCityModal').classList.remove('hidden');
+        });
+
+        // 🟡 وظيفة 2: إضافة مكان
+        document.getElementById('menuAddPlace').addEventListener('click', () => {
+            if (!currentUser) {
+                alert('يرجى تسجيل الدخول أولاً');
+                window.location.href = 'login.html';
+                return;
+            }
+            multiActionMenu.classList.add('hidden');
+            isMenuOpen = false;
+            multiActionIcon.className = 'fa fa-plus';
+            window.location.href = 'add-place.html';
+        });
+
+        // 🟣 وظيفة 3: لوحة المشرف
+        document.getElementById('menuAdminPanel').addEventListener('click, () => {
+            multiActionMenu.classList.add('hidden');
+            isMenuOpen = false;
+            multiActionIcon.className = 'fa fa-plus';
+            window.location.href = 'admin-settings.html';
+        });
+
+        // ✏️ تعديل اسم المدينة - لجميع المستخدمين
+        document.getElementById('editCityNameMainBtn').addEventListener('click', () => {
+            if (!currentCityData) return;
+            document.getElementById('editCityId').value = currentCityData.id;
+            document.getElementById('editCityCurrentName').value = currentCityData.name;
+            document.getElementById('editCityNewName').value = '';
+            document.getElementById('editCityNameModal').classList.remove('hidden');
+        });
+
+        // نموذج إضافة مدينة
+        document.getElementById('addCityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newCityName').value.trim();
+            const photo = document.getElementById('newCityPhoto').value.trim();
+            
+            if (!name) return;
+            
+            try {
+                const cityRef = doc(collection(db, 'cities'));
+                await setDoc(cityRef, {
+                    name: name,
+                    photo: photo || '',
+                    createdAt: serverTimestamp(),
+                    createdBy: currentUser.uid
+                });
+                document.getElementById('addCityModal').classList.add('hidden');
+                document.getElementById('addCityForm').reset();
+                await loadAllData();
+                alert('✅ تم إضافة المدينة بنجاح');
+            } catch (err) {
+                console.error(err);
+                alert('❌ خطأ في إضافة المدينة');
+            }
+        });
+        document.getElementById('cancelAddCity').addEventListener('click', () => {
+            document.getElementById('addCityModal').classList.add('hidden');
+            document.getElementById('addCityForm').reset();
+        });
+
+        // نموذج تعديل اسم المدينة
+        document.getElementById('editCityNameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cityId = document.getElementById('editCityId').value;
+            const oldName = document.getElementById('editCityCurrentName').value;
+            const newName = document.getElementById('editCityNewName').value.trim();
+            
+            if (!newName || newName === oldName) return;
+            
+            if (!confirm(`هل أنت متأكد من تغيير اسم المدينة إلى "${newName}"؟ سيتم تحديث جميع الأماكن المرتبطة بها.`)) return;
+            
+            try {
+                // تحديث اسم المدينة
+                await updateDoc(doc(db, 'cities', cityId), {
+                    name: newName,
+                    updatedAt: serverTimestamp()
+                });
+                
+                // تحديث جميع الأماكن التابعة لهذه المدينة ✅
+                const placesQuery = query(collection(db, 'places'), where('city', '==', oldName));
+                const placesSnap = await getDocs(placesQuery);
+                
+                const updatePromises = placesSnap.docs.map(placeDoc => 
+                    updateDoc(doc(db, 'places', placeDoc.id), { city: newName })
+                );
+                await Promise.all(updatePromises);
+                
+                document.getElementById('editCityNameModal').classList.add('hidden');
+                document.getElementById('editCityNameForm').reset();
+                
+                // تحديث البيانات المحلية
+                currentCityData.name = newName;
+                cityPageTitle.textContent = newName;
+                await loadAllData();
+                
+                alert(`✅ تم تغيير اسم المدينة إلى "${newName}" وتم تحديث ${placesSnap.size} مكان`);
+            } catch (err) {
+                console.error(err);
+                alert('❌ خطأ في تعديل اسم المدينة');
+            }
+        });
+        document.getElementById('cancelEditCityName').addEventListener('click', () => {
+            document.getElementById('editCityNameModal').classList.add('hidden');
+            document.getElementById('editCityNameForm').reset();
+        });
 
         // التحقق من حالة تسجيل الدخول
         onAuthStateChanged(auth, (user) => {
@@ -357,9 +527,13 @@
                 logoutBtn.classList.remove('hidden');
                 myPlacesBtn.classList.remove('hidden');
                 editProfileBtn.classList.remove('hidden');
+                // إظهار لوحة المشرف فقط لصاحب البريد ✅
                 if (isAdmin) {
-                    adminBtn.classList.remove('hidden');
-                    document.getElementById('addCityBtn').classList.remove('hidden');
+                    document.getElementById('menuAdminDivider').classList.remove('hidden');
+                    document.getElementById('menuAdminPanel').classList.remove('hidden');
+                } else {
+                    document.getElementById('menuAdminDivider').classList.add('hidden');
+                    document.getElementById('menuAdminPanel').classList.add('hidden');
                 }
             } else {
                 isAdmin = false;
@@ -369,7 +543,8 @@
                 logoutBtn.classList.add('hidden');
                 myPlacesBtn.classList.add('hidden');
                 editProfileBtn.classList.add('hidden');
-                adminBtn.classList.add('hidden');
+                document.getElementById('menuAdminDivider').classList.add('hidden');
+                document.getElementById('menuAdminPanel').classList.add('hidden');
                 myPlacesSection.classList.add('hidden');
             }
             loadAllData();
@@ -379,21 +554,6 @@
         logoutBtn.addEventListener('click', async () => {
             await signOut(auth);
             userDropdown.classList.add('hidden');
-        });
-
-        // زر المشرف
-        adminBtn.addEventListener('click', () => {
-            window.location.href = 'admin-settings.html';
-        });
-
-        // زر إضافة مكان جديد
-        addPlaceFAB.addEventListener('click', () => {
-            if (!currentUser) {
-                alert('يرجى تسجيل الدخول أولاً');
-                window.location.href = 'login.html';
-                return;
-            }
-            window.location.href = 'add-place.html';
         });
 
         // عرض أماكني المضافة
@@ -425,7 +585,7 @@
         });
 
         // إضافة مكان من داخل صفحة المدينة
-        addPlaceForCityBtn.addEventListener('click', () => {
+        document.getElementById('addPlaceInCityBtn').addEventListener('click', () => {
             if (!currentUser) {
                 alert('يرجى تسجيل الدخول أولاً');
                 window.location.href = 'login.html';
@@ -440,53 +600,6 @@
                 return;
             }
             window.location.href = `add-place.html?city=${encodeURIComponent(currentCityData.name)}`;
-        });
-
-        // تغيير صورة المدينة
-        document.getElementById('editCityPhotoBtn').addEventListener('click', () => {
-            document.getElementById('changeCityPhotoModal').classList.remove('hidden');
-        });
-        document.getElementById('cancelCityPhoto').addEventListener('click', () => {
-            document.getElementById('changeCityPhotoModal').classList.add('hidden');
-        });
-        document.getElementById('cityPhotoTrigger').addEventListener('click', () => {
-            document.getElementById('cityPhotoUpload').click();
-        });
-        document.getElementById('cityPhotoUpload').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                cityCoverImage.src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-        document.getElementById('saveCityPhoto').addEventListener('click', async () => {
-            const urlInput = document.getElementById('cityPhotoUrl').value.trim();
-            let newPhotoUrl = null;
-            
-            if (urlInput) {
-                newPhotoUrl = urlInput;
-                cityCoverImage.src = urlInput;
-            } else {
-                newPhotoUrl = cityCoverImage.src;
-            }
-            
-            if (!newPhotoUrl || newPhotoUrl === currentCityData.photo) {
-                document.getElementById('changeCityPhotoModal').classList.add('hidden');
-                return;
-            }
-            
-            try {
-                await updateDoc(doc(db, 'cities', currentCityData.id), { photo: newPhotoUrl });
-                currentCityData.photo = newPhotoUrl;
-                document.getElementById('changeCityPhotoModal').classList.add('hidden');
-                await loadAllData();
-                alert('✅ تم تحديث صورة المدينة');
-            } catch (err) {
-                console.error(err);
-                alert('❌ خطأ في حفظ الصورة');
-            }
         });
 
         // تحميل جميع البيانات
@@ -505,11 +618,11 @@
                 const places = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 
                 if (places.length === 0) {
-                    recentPlacesScroll.innerHTML = '<div class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</div>';
+                    document.getElementById('recentPlacesScroll').innerHTML = '<div class="text-gray-500 text-sm py-4">لا توجد أماكن مضافة بعد</div>';
                     return;
                 }
 
-                recentPlacesScroll.innerHTML = places.map(p => `
+                document.getElementById('recentPlacesScroll').innerHTML = places.map(p => `
                     <div class="flex-shrink-0 w-56 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="h-32 bg-gray-100 overflow-hidden">
                             ${p.images && p.images.length > 0 
@@ -528,7 +641,7 @@
                 `).join('');
             } catch (err) {
                 console.error(err);
-                recentPlacesScroll.innerHTML = '<div class="text-red-500 text-sm py-4">خطأ في التحميل</div>';
+                document.getElementById('recentPlacesScroll').innerHTML = '<div class="text-red-500 text-sm py-4">خطأ في التحميل</div>';
             }
         }
 
@@ -551,7 +664,14 @@
 
         function renderCityFolders() {
             if (allCities.length === 0) {
-                citiesContainer.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">لا توجد مدن مضافة بعد</div>';
+                citiesContainer.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">لا توجد مدن مضافة بعد<br><button id="addFirstCityBtn" class="mt-3 bg-primary text-white px-4 py-2 rounded-lg text-sm">إضافة أول مدينة</button></div>';
+                setTimeout(() => {
+                    document.getElementById('addFirstCityBtn')?.addEventListener('click', () => {
+                        multiActionMenu.classList.remove('hidden');
+                        isMenuOpen = true;
+                        multiActionIcon.className = 'fa fa-times';
+                    });
+                }, 0);
                 return;
             }
 
@@ -594,12 +714,6 @@
             
             const cityPlaces = allPlaces.filter(p => p.city === cityName);
             cityPlaceCount.textContent = `${cityPlaces.length} مكان`;
-            
-            if (isAdmin) {
-                cityAdminActions.classList.remove('hidden');
-            } else {
-                cityAdminActions.classList.add('hidden');
-            }
             
             renderCityPlaces(cityPlaces);
             cityPageModal.classList.remove('hidden');
@@ -752,113 +866,4 @@
             document.getElementById('editPlaceModal').classList.add('hidden');
         });
         document.getElementById('editPlaceForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const placeId = document.getElementById('editPlaceId').value;
-            try {
-                await updateDoc(doc(db, 'places', placeId), {
-                    name: document.getElementById('editPlaceName').value.trim(),
-                    city: document.getElementById('editPlaceCity').value.trim(),
-                    category: document.getElementById('editPlaceCategory').value.trim(),
-                    price: document.getElementById('editPlacePrice').value.trim(),
-                    phone: document.getElementById('editPlacePhone').value.trim(),
-                    location: document.getElementById('editPlaceLocation').value.trim(),
-                    description: document.getElementById('editPlaceDescription').value.trim(),
-                    updatedAt: serverTimestamp()
-                });
-                document.getElementById('editPlaceModal').classList.add('hidden');
-                await loadAllData();
-                if (currentCityData) {
-                    const cityPlaces = allPlaces.filter(p => p.city === currentCityData.name);
-                    renderCityPlaces(cityPlaces);
-                }
-                if (!myPlacesSection.classList.contains('hidden')) loadMyPlaces();
-                alert('✅ تم التحديث بنجاح');
-            } catch (err) {
-                console.error(err);
-                alert('❌ خطأ في التحديث');
-            }
-        });
-
-        // نافذة إضافة الصور
-        document.getElementById('modalUploadTrigger').addEventListener('click', () => {
-            document.getElementById('modalImageUpload').click();
-        });
-        document.getElementById('modalImageUpload').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
- files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    tempNewImages.push(ev.target.result);
-                    const preview = document.getElementById('modalImagePreview');
-                    preview.innerHTML += `<img src="${ev.target.result}" class="w-full h-20 object-cover rounded-lg">`;
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-        document.getElementById('modalAddUrlBtn').addEventListener('click', () => {
-            const url = document.getElementById('modalImageUrl').value.trim();
-            if (!url) return;
-            tempNewImages.push(url);
-            const preview = document.getElementById('modalImagePreview');
-            preview.innerHTML += `<img src="${url}" class="w-full h-20 object-cover rounded-lg" onerror="this.style.display='none'">`;
-            document.getElementById('modalImageUrl').value = '';
-        });
-        document.getElementById('saveImagesBtn').addEventListener('click', async () => {
-            const placeId = document.getElementById('imagePlaceId').value;
-            if (tempNewImages.length === 0) {
-                alert('لم تقم باختيار أي صور');
-                return;
-            }
-            try {
-                const placeRef = doc(db, 'places', placeId);
-                const place = allPlaces.find(p => p.id === placeId);
-                const currentImages = place?.images || [];
-                await updateDoc(placeRef, {
-                    images: [...currentImages, ...tempNewImages],
-                    updatedAt: serverTimestamp()
-                });
-                document.getElementById('addImagesModal').classList.add('hidden');
-                tempNewImages = [];
-                document.getElementById('modalImagePreview').innerHTML = '';
-                await loadAllData();
-                if (currentCityData) {
-                    const cityPlaces = allPlaces.filter(p => p.city === currentCityData.name);
-                    renderCityPlaces(cityPlaces);
-                }
-                alert('✅ تم حفظ الصور بنجاح');
-            } catch (err) {
-                console.error(err);
-                alert('❌ خطأ في حفظ الصور');
-            }
-        });
-        document.getElementById('closeImagesModal').addEventListener('click', () => {
-            document.getElementById('addImagesModal').classList.add('hidden');
-            tempNewImages = [];
-        });
-
-        // تأكيد الحذف
-        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-            document.getElementById('deleteConfirmModal').classList.add('hidden');
-            currentDeletePlaceId = null;
-        });
-        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-            if (!currentDeletePlaceId) return;
-            try {
-                await deleteDoc(doc(db, 'places', currentDeletePlaceId));
-                document.getElementById('deleteConfirmModal').classList.add('hidden');
-                currentDeletePlaceId = null;
-                await loadAllData();
-                if (currentCityData) {
-                    const cityPlaces = allPlaces.filter(p => p.city === currentCityData.name);
-                    renderCityPlaces(cityPlaces);
-                }
-                if (!myPlacesSection.classList.contains('hidden')) loadMyPlaces();
-                alert('✅ تم الحذف بنجاح');
-            } catch (err) {
-                console.error(err);
-                alert('❌ خطأ في الحذف');
-            }
-        });
-    </script>
-</body>
-</html>
+            e.preventDefault
