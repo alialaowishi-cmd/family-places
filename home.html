@@ -89,10 +89,18 @@
                 <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
                     <i class="fa fa-map-marker text-primary"></i> اختر المدينة
                 </h2>
-                <button id="addCityBtn" class="text-primary hover:text-secondary text-sm flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full">
+            </div>
+            
+            <!-- أزرار الإضافة الجديدة -->
+            <div class="flex flex-col gap-2 mb-5">
+                <button id="addCityBtn" class="text-primary hover:text-secondary text-sm flex items-center justify-center gap-2 bg-primary/10 px-4 py-2.5 rounded-full border border-primary/20">
                     <i class="fa fa-plus"></i> إضافة مدينة
                 </button>
+                <a href="add-place.html" id="addPlaceMainBtn" class="text-white bg-primary hover:bg-secondary text-sm flex items-center justify-center gap-2 px-4 py-2.5 rounded-full">
+                    <i class="fa fa-map-marker"></i> إضافة مكان جديد
+                </a>
             </div>
+            
             <div id="citiesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 <div class="col-span-full text-center py-10 text-gray-500">
                     <i class="fa fa-spinner fa-spin text-2xl mb-2"></i>
@@ -210,7 +218,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, orderBy, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -237,6 +245,7 @@
         const userDropdown = document.getElementById('userDropdown');
         const authModal = document.getElementById('authModal');
         const addCityBtn = document.getElementById('addCityBtn');
+        const addPlaceMainBtn = document.getElementById('addPlaceMainBtn');
         const addCityModal = document.getElementById('addCityModal');
         const searchInput = document.getElementById('searchInput');
 
@@ -249,6 +258,7 @@
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('myPlacesSection').classList.remove('hidden');
                 addCityBtn.style.display = 'flex';
+                addPlaceMainBtn.style.display = 'flex';
                 loadMyPlaces();
                 
                 // إظهار زر المشرف
@@ -261,11 +271,12 @@
                 document.getElementById('adminBtn').classList.add('hidden');
                 document.getElementById('myPlacesSection').classList.add('hidden');
                 addCityBtn.style.display = 'none';
+                addPlaceMainBtn.style.display = 'none';
             }
             loadCities();
         });
 
-        // ✅ زر المستخدم - فتح وإغلاق القائمة
+        // زر المستخدم - فتح وإغلاق القائمة
         userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!currentUser) {
@@ -282,7 +293,7 @@
             }
         });
 
-        // ✅ زر إضافة مدينة - فتح النافذة
+        // زر إضافة مدينة - فتح النافذة
         addCityBtn.addEventListener('click', () => {
             if (!currentUser) {
                 authModal.classList.remove('hidden');
@@ -298,7 +309,7 @@
             addCityModal.classList.add('hidden');
         });
 
-        // ✅ حفظ المدينة الجديدة
+        // حفظ المدينة الجديدة
         document.getElementById('saveAddCity').addEventListener('click', async () => {
             const name = document.getElementById('newCityInput').value.trim();
             const msgEl = document.getElementById('addCityMsg');
@@ -340,11 +351,14 @@
             }
         });
 
-        // ✅ تحميل المدن
+        // تحميل المدن - تم تبسيط الاستعلام لحل مشكلة الفهرس مؤقتاً
         async function loadCities() {
             try {
-                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('sortOrder', 'asc'), orderBy('name', 'asc')));
+                // نحمل كل المدن أولاً بدون ترتيب مزدوج لتجنب مشكلة الفهرس
+                const citiesSnap = await getDocs(collection(db, 'cities'));
                 allCities = citiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // نرتبها يدوياً
+                allCities.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
                 renderCities(allCities);
             } catch (error) {
                 console.error(error);
@@ -397,7 +411,7 @@
                 renderPlaces(allPlaces);
             } catch (error) {
                 console.error(error);
-                document.getElementById('placesContainer').innerHTML = `<div class="col-span-full text-center py-10 text-red-500"><p>خطأ في تحميل الأماكن</p></div>`;
+                document.getElementById('placesContainer').innerHTML = `<div class="col-span-full text-center py-10 text-red-500"><p>خطأ في تحميل الأماكن: ${error.message}</p></div>`;
             }
         }
 
@@ -449,12 +463,14 @@
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             if (!currentCity) {
-                renderCities(allCities.filter(c => c.name.toLowerCase().includes(term)) || allCities);
+                const filtered = allCities.filter(c => c.name && c.name.toLowerCase().includes(term));
+                renderCities(filtered);
             } else {
-                renderPlaces(allPlaces.filter(p => 
+                const filtered = allPlaces.filter(p => 
                     (p.name && p.name.toLowerCase().includes(term)) ||
                     (p.description && p.description.toLowerCase().includes(term))
-                ));
+                );
+                renderPlaces(filtered);
             }
         });
 
@@ -501,6 +517,7 @@
         });
         document.getElementById('showLogin').addEventListener('click', () => {
             document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('loginForm').classList.remove('hidden');
             document.getElementById('authError').classList.add('hidden');
         });
