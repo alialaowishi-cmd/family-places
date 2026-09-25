@@ -20,6 +20,8 @@
             }
         }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
@@ -34,6 +36,10 @@
             font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             border: 2px solid rgba(255,255,255,0.8);
         }
+        .recent-place-card { transition: all 0.2s ease; border-radius: 16px; }
+        .recent-place-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .star-rating .fa-star { color: #d1d5db; font-size: 12px; }
+        .star-rating .fa-star.filled { color: #f59e0b; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -67,17 +73,16 @@
                 <i class="fa fa-building text-city"></i> إضافة مدينة جديدة
             </a>
             <a href="#" id="adminPanelLink" class="hidden flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100">
-                <i class="fa fa-cog text-purple-600"></i> لوحة المشرف
+                <i class="fa fa-shield text-purple-600"></i> لوحة المشرف
             </a>
             <hr class="my-2">
-            <a href="#" id="logoutLink" class="flex items-center gap-3 p-2 rounded-lg hover:bg-red-50 text-red-500">
+            <a href="#" id="logoutLink" class="flex items-center gap-3 p-2 rounded-lg hover:bg-red-50 text-red-600">
                 <i class="fa fa-sign-out"></i> تسجيل الخروج
             </a>
         </nav>
     </div>
     <div id="menuOverlay" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
-    <!-- المحتوى الرئيسي -->
     <main class="container mx-auto px-4 py-6">
         <!-- شريط البحث -->
         <div class="mb-6">
@@ -88,9 +93,25 @@
             </div>
         </div>
 
+        <!-- ✅ شريط أحدث الأماكن المضافة -->
+        <section class="mb-8">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa fa-clock-o text-accent"></i> أحدث الأماكن المضافة
+            </h2>
+            <div id="recentPlaces" class="flex overflow-x-auto gap-4 pb-3 -mx-1 px-1">
+                <div class="flex-shrink-0 w-64 text-center py-6 text-gray-500">
+                    <i class="fa fa-spinner fa-spin text-2xl text-primary"></i>
+                    <p class="mt-2">جاري التحميل...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- خط فاصل -->
+        <hr class="my-6 border-gray-200">
+
         <!-- قسم المدن -->
         <section>
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <i class="fa fa-folder-open text-primary"></i> المدن
             </h2>
             <div id="citiesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,7 +154,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -144,7 +165,7 @@
             appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
         };
 
-        const app = initializeApp(firebaseConfig  );
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -246,6 +267,51 @@
             }
         });
 
+        // === ✅ تحميل أحدث الأماكن المضافة ===
+        const recentPlacesContainer = document.getElementById('recentPlaces');
+        async function loadRecentPlaces() {
+            try {
+                const q = query(collection(db, 'places'), orderBy('createdAt', 'desc'), limit(6));
+                const snap = await getDocs(q);
+                
+                if (snap.empty) {
+                    recentPlacesContainer.innerHTML = `
+                        <div class="flex-shrink-0 w-64 text-center py-4 text-gray-500">
+                            <i class="fa fa-info-circle text-xl text-gray-300"></i>
+                            <p class="mt-1 text-sm">لا توجد أماكن مضافة حتى الآن</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                recentPlacesContainer.innerHTML = '';
+                snap.forEach(doc => {
+                    const place = doc.data();
+                    const rating = Math.round(place.rating || 0);
+                    const stars = Array(5).fill(0).map((_, i) => 
+                        `<i class="fa fa-star ${i < rating ? 'filled' : ''}"></i>`
+                    ).join('');
+
+                    recentPlacesContainer.innerHTML += `
+                        <div class="recent-place-card flex-shrink-0 w-60 bg-white shadow-sm border border-gray-100 p-4">
+                            <h4 class="font-bold text-gray-800 truncate">${place.name || 'مكان'}</h4>
+                            <p class="text-xs text-gray-500 mt-1">${place.category || 'أخرى'}</p>
+                            <div class="star-rating mt-1">${stars}</div>
+                            ${place.price ? `<p class="text-xs text-amber-600 mt-1">💰 ${place.price}</p>` : ''}
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                recentPlacesContainer.innerHTML = `
+                    <div class="flex-shrink-0 w-64 text-center py-4 text-gray-500">
+                        <i class="fa fa-exclamation-circle text-xl text-red-300"></i>
+                        <p class="mt-1 text-sm">تعذر تحميل الأماكن</p>
+                    </div>
+                `;
+            }
+        }
+
         // === تحميل المدن ===
         const citiesContainer = document.getElementById('citiesContainer');
         async function loadCities() {
@@ -297,7 +363,9 @@
             }
         }
         window.openCity = (id) => window.location.href = `city.html?id=${id}`;
+        
         loadCities();
+        loadRecentPlaces();
     </script>
 </body>
 </html>
