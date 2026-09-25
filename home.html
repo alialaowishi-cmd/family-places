@@ -53,7 +53,7 @@
         <div class="container mx-auto px-3 py-3">
             <div class="flex items-center justify-between">
                 <!-- زر المشرف - اليمين -->
-                <div class="order-1">
+                <div>
                     <a id="adminBtn" href="admin-settings.html" class="bg-amber-500 hover:bg-amber-600 px-3 py-2 rounded-lg flex items-center gap-2 transition hidden">
                         <i class="fa fa-cog"></i>
                         <span class="hidden sm:inline">لوحة المشرف</span>
@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- العنوان - المنتصف -->
-                <div class="order-2 flex-1 text-center">
+                <div class="flex-1 text-center">
                     <h1 class="text-xl font-bold inline-flex items-center gap-2">
                         <i class="fa fa-leaf"></i>
                         <span id="headerTitle">كشكات</span>
@@ -69,8 +69,8 @@
                 </div>
 
                 <!-- زر المستخدم - اليسار -->
-                <div class="order-3">
-                    <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition">
+                <div>
+                    <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition cursor-pointer">
                         <i class="fa fa-user-circle-o text-xl"></i>
                     </button>
                 </div>
@@ -195,10 +195,10 @@
                     <label class="block text-gray-700 text-sm font-medium mb-1">كلمة المرور</label>
                     <input type="password" id="passwordInput" class="w-full p-2.5 border border-gray-300 rounded-lg">
                 </div>
-                <button id="loginSubmit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium">تسجيل الدخول</button>
+                <button id="loginSubmit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium cursor-pointer">تسجيل الدخول</button>
                 <p class="text-center mt-3 text-sm text-gray-600">
                     ليس لديك حساب؟ 
-                    <button id="showRegister" class="text-primary hover:underline">إنشاء حساب جديد</button>
+                    <button id="showRegister" class="text-primary hover:underline cursor-pointer">إنشاء حساب جديد</button>
                 </p>
             </div>
             <div id="registerForm" class="hidden">
@@ -214,14 +214,14 @@
                     <label class="block text-gray-700 text-sm font-medium mb-1">كلمة المرور</label>
                     <input type="password" id="regPasswordInput" class="w-full p-2.5 border border-gray-300 rounded-lg">
                 </div>
-                <button id="registerSubmit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium">إنشاء حساب</button>
+                <button id="registerSubmit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium cursor-pointer">إنشاء حساب</button>
                 <p class="text-center mt-3 text-sm text-gray-600">
                     لديك حساب؟ 
-                    <button id="showLogin" class="text-primary hover:underline">تسجيل الدخول</button>
+                    <button id="showLogin" class="text-primary hover:underline cursor-pointer">تسجيل الدخول</button>
                 </p>
             </div>
             <div id="authError" class="mt-3 text-red-500 text-sm text-center hidden"></div>
-            <button id="closeAuthModal" class="mt-3 w-full text-gray-500 text-sm">إغلاق</button>
+            <button id="closeAuthModal" class="mt-3 w-full text-gray-500 text-sm cursor-pointer">إغلاق</button>
         </div>
     </div>
 
@@ -237,8 +237,8 @@
                 <input type="text" id="newCityInput" class="w-full p-2.5 border border-gray-300 rounded-lg" placeholder="مثال: جدة، مكة، الرياض...">
             </div>
             <div class="flex gap-3">
-                <button id="cancelAddCity" class="flex-1 bg-gray-200 py-2.5 rounded-lg">إلغاء</button>
-                <button id="saveAddCity" class="flex-1 bg-primary text-white py-2.5 rounded-lg">إضافة المدينة</button>
+                <button id="cancelAddCity" class="flex-1 bg-gray-200 py-2.5 rounded-lg cursor-pointer">إلغاء</button>
+                <button id="saveAddCity" class="flex-1 bg-primary text-white py-2.5 rounded-lg cursor-pointer">إضافة المدينة</button>
             </div>
             <div id="addCityMsg" class="mt-3 text-sm hidden"></div>
         </div>
@@ -255,8 +255,8 @@
                 <input type="text" id="editCityInput" class="w-full p-2.5 border border-gray-300 rounded-lg">
             </div>
             <div class="flex gap-3">
-                <button id="cancelEditCity" class="flex-1 bg-gray-200 py-2.5 rounded-lg">إلغاء</button>
-                <button id="saveEditCity" class="flex-1 bg-primary text-white py-2.5 rounded-lg">حفظ التغيير</button>
+                <button id="cancelEditCity" class="flex-1 bg-gray-200 py-2.5 rounded-lg cursor-pointer">إلغاء</button>
+                <button id="saveEditCity" class="flex-1 bg-primary text-white py-2.5 rounded-lg cursor-pointer">حفظ التغيير</button>
             </div>
             <div id="editCityMsg" class="mt-3 text-sm hidden"></div>
         </div>
@@ -293,7 +293,6 @@
         const userDropdown = document.getElementById('userDropdown');
         const authModal = document.getElementById('authModal');
         const addCityBtn = document.getElementById('addCityBtn');
-        const addPlaceMainBtn = document.getElementById('addPlaceMainBtn');
         const addCityModal = document.getElementById('addCityModal');
         const editCityModal = document.getElementById('editCityModal');
         const searchInput = document.getElementById('searchInput');
@@ -301,9 +300,10 @@
         const editCityNameBtn = document.getElementById('editCityNameBtn');
 
         // ======================================
-        // ✅ دالة onAuthStateChanged كاملة
+        // ✅ دالة onAuthStateChanged مُصححة
         // ======================================
         onAuthStateChanged(auth, (user) => {
+            console.log("✅ حالة المستخدم تغيرت:", user ? user.email : "غير مسجل");
             currentUser = user;
             
             if (user) {
@@ -311,13 +311,15 @@
                 document.getElementById('logoutBtn').classList.remove('hidden');
                 document.getElementById('myPlacesSection').classList.remove('hidden');
                 addCityBtn.style.display = 'flex';
-                addPlaceMainBtn.style.display = 'flex';
+                document.getElementById('addPlaceMainBtn').style.display = 'flex';
                 myPlacesLink.style.display = 'block';
                 
                 if (user.email === ADMIN_EMAIL) {
+                    console.log("✅ المشرف مسجل الدخول - إظهار زر المشرف");
                     document.getElementById('adminBtn').classList.remove('hidden');
                     document.getElementById('adminSettingsLink').classList.remove('hidden');
                 } else {
+                    console.log("✅ مستخدم عادي - إخفاء زر المشرف");
                     document.getElementById('adminBtn').classList.add('hidden');
                     document.getElementById('adminSettingsLink').classList.add('hidden');
                 }
@@ -330,7 +332,7 @@
                 document.getElementById('adminSettingsLink').classList.add('hidden');
                 document.getElementById('myPlacesSection').classList.add('hidden');
                 addCityBtn.style.display = 'none';
-                addPlaceMainBtn.style.display = 'none';
+                document.getElementById('addPlaceMainBtn').style.display = 'none';
                 myPlacesLink.style.display = 'none';
                 editCityNameBtn.classList.add('hidden');
             }
@@ -338,8 +340,12 @@
             loadCities();
         });
 
+        // ======================================
+        // ✅ زر المستخدم مُصحح
+        // ======================================
         userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            console.log("✅ تم النقر على زر المستخدم");
             if (!currentUser) {
                 authModal.classList.remove('hidden');
                 return;
@@ -358,7 +364,11 @@
             document.getElementById('myPlacesSection').scrollIntoView({ behavior: 'smooth' });
         });
 
+        // ======================================
+        // ✅ زر إضافة مدينة مُصحح
+        // ======================================
         addCityBtn.addEventListener('click', () => {
+            console.log("✅ تم النقر على زر إضافة مدينة");
             if (!currentUser) {
                 authModal.classList.remove('hidden');
                 return;
@@ -407,7 +417,8 @@
                     msgEl.classList.add('hidden');
                 }, 1500);
             } catch (err) {
-                msgEl.textContent = '❌ حدث خطأ، حاول مرة أخرى';
+                console.error("❌ خطأ في إضافة المدينة:", err);
+                msgEl.textContent = '❌ حدث خطأ، تحقق من اتصالك بالإنترنت وصلاحيات Firestore';
                 msgEl.classList.remove('hidden', 'text-green-600');
                 msgEl.classList.add('text-red-500');
             }
@@ -441,13 +452,11 @@
             }
 
             try {
-                // تحديث اسم المدينة
                 await updateDoc(doc(db, 'cities', currentCityDocId), {
                     name: newName,
                     updatedAt: new Date()
                 });
 
-                // تحديث جميع الأماكن التابعة لهذه المدينة
                 const q = query(collection(db, 'places'), where('city', '==', currentCity));
                 const snapshot = await getDocs(q);
                 const batch = writeBatch(db);
@@ -474,21 +483,36 @@
             }
         });
 
+        // ======================================
+        // ✅ تحميل المدن مُصحح مع رسائل خطأ واضحة
+        // ======================================
         async function loadCities() {
+            console.log("🔄 جاري تحميل المدن...");
             try {
                 const citiesSnap = await getDocs(collection(db, 'cities'));
                 allCities = citiesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("✅ تم تحميل المدن:", allCities);
                 allCities.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
                 renderCities(allCities);
             } catch (error) {
-                console.error(error);
-                document.getElementById('citiesContainer').innerHTML = `<div class="col-span-full text-center py-10 text-red-500"><p>خطأ في تحميل المدن: ${error.message}</p></div>`;
+                console.error("❌ خطأ في تحميل المدن:", error);
+                document.getElementById('citiesContainer').innerHTML = `
+                    <div class="col-span-full text-center py-10 text-red-500">
+                        <p class="font-bold">❌ خطأ في تحميل المدن</p>
+                        <p class="text-sm mt-2">${error.message}</p>
+                        <p class="text-xs mt-2 text-gray-600">تأكد من إعداد قواعد الأمان في Firestore</p>
+                        <button onclick="loadCities()" class="mt-3 bg-primary text-white px-4 py-2 rounded-lg cursor-pointer">إعادة المحاولة</button>
+                    </div>`;
             }
         }
 
         function renderCities(cities) {
             if (cities.length === 0) {
-                document.getElementById('citiesContainer').innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><p>لا توجد مدن مضافة بعد. كن الأول وأضف مدينة!</p></div>`;
+                document.getElementById('citiesContainer').innerHTML = `
+                    <div class="col-span-full text-center py-10 text-gray-500">
+                        <p>لا توجد مدن مضافة بعد.</p>
+                        <p class="text-sm mt-1">${currentUser ? 'كن الأول وأضف مدينة!' : 'سجل الدخول أولاً لإضافة مدينة جديدة'}</p>
+                    </div>`;
                 return;
             }
             document.getElementById('citiesContainer').innerHTML = cities.map(city => `
@@ -507,7 +531,6 @@
                     currentCityDocId = card.dataset.cityId;
                     document.getElementById('currentCityName').textContent = cityName;
                     
-                    // إظهار زر تعديل المدينة للمشرف فقط
                     if (currentUser && currentUser.email === ADMIN_EMAIL) {
                         editCityNameBtn.classList.remove('hidden');
                     } else {
@@ -585,18 +608,15 @@
             return date.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
-        function copyShareLink(placeId) {
+        window.copyShareLink = function(placeId) {
             const link = `${window.location.origin}/place-detail.html?id=${placeId}`;
             navigator.clipboard.writeText(link).then(() => {
                 alert('✅ تم نسخ الرابط! يمكنك مشاركته الآن');
             }).catch(() => {
                 alert('❌ لم يتم نسخ الرابط، حاول مرة أخرى');
             });
-        }
+        };
 
-        // ======================================
-        // ✅ دالة renderPlaces المحدثة
-        // ======================================
         function renderPlaces(places, filter = 'all') {
             let filtered = filter === 'all' ? places : places.filter(p => p.category === filter);
             
@@ -605,14 +625,14 @@
                 return;
             }
             
-            document.getElementById('placesContainer").innerHTML = filtered.map(place => `
+            document.getElementById('placesContainer').innerHTML = filtered.map(place => `
                 <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
                     <a href="place-detail.html?id=${place.id}" class="block">
                         <div class="h-40 bg-gray-100 flex items-center justify-center relative overflow-hidden">
                             ${place.imageUrl 
                                 ? `<img src="${place.imageUrl}" alt="${place.name}" 
                                     class="w-full h-full object-cover transition-opacity duration-500 opacity-0"
-                                    onload="this.classList.remove('opacity-0'); this.previousElementSibling?.classList.add('hidden')"
+                                    onload="this.classList.remove('opacity-0'); this.nextElementSibling?.classList.add('hidden')"
                                     onerror="this.parentElement.innerHTML='<i class=\\'fa fa-image text-3xl text-gray-400\\'></i>'">
                                     <div class="absolute inset-0 img-loading flex items-center justify-center">
                                         <i class="fa fa-spinner fa-spin text-primary text-2xl"></i>
@@ -624,7 +644,7 @@
                     <div class="p-3">
                         <div class="flex items-start justify-between mb-1">
                             <a href="place-detail.html?id=${place.id}" class="font-bold text-lg text-gray-800 hover:text-primary">${place.name || 'بدون اسم'}</a>
-                            <button onclick="copyShareLink('${place.id}')" class="text-gray-400 hover:text-primary transition" title="مشاركة">
+                            <button onclick="copyShareLink('${place.id}')" class="text-gray-400 hover:text-primary transition cursor-pointer" title="مشاركة">
                                 <i class="fa fa-share-alt"></i>
                             </button>
                         </div>
@@ -669,9 +689,6 @@
             }
         });
 
-        // ======================================
-        // ✅ دالة أماكني المحدثة
-        // ======================================
         async function loadMyPlaces() {
             if (!currentUser) return;
             try {
@@ -709,7 +726,7 @@
                     <div class="p-3">
                         <div class="flex items-start justify-between mb-1">
                             <a href="place-detail.html?id=${place.id}" class="font-bold text-lg text-gray-800 hover:text-primary">${place.name || 'بدون اسم'}</a>
-                            <button onclick="copyShareLink('${place.id}')" class="text-gray-400 hover:text-primary transition" title="مشاركة">
+                            <button onclick="copyShareLink('${place.id}')" class="text-gray-400 hover:text-primary transition cursor-pointer" title="مشاركة">
                                 <i class="fa fa-share-alt"></i>
                             </button>
                         </div>
@@ -726,7 +743,6 @@
             `).join('');
         }
 
-        // تسجيل الدخول
         document.getElementById('closeAuthModal').addEventListener('click', () => {
             authModal.classList.add('hidden');
         });
@@ -748,7 +764,8 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 authModal.classList.add('hidden');
-            } catch {
+            } catch (err) {
+                console.error(err);
                 document.getElementById('authError').textContent = 'بريد أو كلمة مرور غير صحيحة';
                 document.getElementById('authError').classList.remove('hidden');
             }
@@ -760,9 +777,9 @@
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 authModal.classList.add('hidden');
-            } catch {
-                document.getElementById('authError').textContent = 'حدث خطأ أثناء التسجيل';
-                document.getElementById('authError').classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('authError').textContent = 'حدث خطأ أثناء التسجيل: ' + err.message;
                 document.getElementById('authError').classList.remove('hidden');
             }
         });
@@ -775,9 +792,6 @@
             document.getElementById('placesSection').classList.add('hidden');
             document.getElementById('citiesSection').classList.remove('hidden');
         });
-
-        // جعل دالة المشاركة متاحة عالمياً
-        window.copyShareLink = copyShareLink;
     </script>
 </body>
 </html>
