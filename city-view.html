@@ -27,7 +27,6 @@
     </style>
 </head>
 <body>
-    <!-- رأس الصفحة -->
     <header class="px-4 pt-6 pb-4">
         <div class="flex items-center justify-between mb-6">
             <button onclick="goBack()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
@@ -37,7 +36,7 @@
             <div class="w-10"></div>
         </div>
 
-        <!-- أزرار الإضافة والعودة -->
+        <!-- ✅ الرابط صحيح -->
         <button onclick="window.location.href='add-place.html'" class="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold mb-3 shadow-md">
             <i class="fa fa-plus ml-2"></i> إضافة مكان جديد
         </button>
@@ -52,7 +51,6 @@
             الأماكن في <span id="citySubtitle">المدينة</span>
         </h2>
 
-        <!-- قائمة الأماكن -->
         <div id="placesList" class="space-y-4">
             <div class="text-center py-16 text-gray-400">
                 <i class="fa fa-map-o text-5xl mb-4"></i>
@@ -62,7 +60,6 @@
         </div>
     </main>
 
-    <!-- نافذة تفاصيل المكان -->
     <div id="placeDetailModal" class="modal fixed inset-0 bg-black/50 z-50 items-end justify-center">
         <div class="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-6">
@@ -120,7 +117,6 @@
     </div>
 
     <script>
-        // ✅ إصلاح: قراءة اسم المدينة من الرابط أو الـ localStorage
         function getCityName() {
             const params = new URLSearchParams(window.location.search);
             const cityFromUrl = params.get('city');
@@ -136,12 +132,10 @@
         let currentPlace = null;
         const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
-        // تحديث العنوان
         document.getElementById('cityNameHeader').textContent = currentCity;
         document.getElementById('citySubtitle').textContent = currentCity;
         document.title = `${currentCity} — كشتات العويشي`;
 
-        // تحميل الأماكن
         function loadPlaces() {
             const places = JSON.parse(localStorage.getItem('places') || '[]');
             allPlaces = places.filter(p => p.city === currentCity);
@@ -150,7 +144,6 @@
 
         function renderPlaces() {
             const container = document.getElementById('placesList');
-            
             if (allPlaces.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-16 text-gray-400">
@@ -161,23 +154,17 @@
                 `;
                 return;
             }
-
             container.innerHTML = '';
             allPlaces.forEach((place, index) => {
                 const stars = '★'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0));
                 const mainImage = place.images && place.images.length > 0 ? place.images[0] : null;
-                
                 container.innerHTML += `
                     <div class="place-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4" 
                          onclick="openDetailModal(${index})">
                         <div class="flex gap-3">
-                            ${mainImage ? `
-                                <img src="${mainImage}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
-                            ` : `
-                                <div class="w-20 h-20 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-                                    <i class="fa fa-map-marker text-green-500 text-xl"></i>
-                                </div>
-                            `}
+                            ${mainImage ? `<img src="${mainImage}" class="w-20 h-20 rounded-xl object-cover">` 
+                                : `<div class="w-20 h-20 rounded-xl bg-green-50 flex items-center justify-center"><i class="fa fa-map-marker text-green-500 text-xl"></i></div>`
+                            }
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-lg truncate">${place.name || 'بدون اسم'}</h3>
                                 <p class="text-sm text-sky-600">${place.category || 'أخرى'}</p>
@@ -196,7 +183,6 @@
             
             document.getElementById('modalPlaceName').textContent = currentPlace.name || 'بدون اسم';
             document.getElementById('modalCategory').textContent = currentPlace.category || 'أخرى';
-            
             const stars = '★'.repeat(currentPlace.rating || 0) + '☆'.repeat(5 - (currentPlace.rating || 0));
             document.getElementById('modalStars').textContent = stars;
             
@@ -237,9 +223,7 @@
                 mainImg.classList.remove('hidden');
                 gallery.innerHTML = '';
                 currentPlace.images.forEach((img, i) => {
-                    if (i > 0) {
-                        gallery.innerHTML += `<img src="${img}" class="w-full h-20 object-cover rounded-lg">`;
-                    }
+                    if (i > 0) gallery.innerHTML += `<img src="${img}" class="w-full h-20 object-cover rounded-lg">`;
                 });
                 if (currentPlace.images.length <= 1) gallery.innerHTML = '';
             } else {
@@ -259,8 +243,7 @@
         };
 
         window.closeDetailModal = function() {
-            const modal = document.getElementById('placeDetailModal');
-            modal.classList.remove('active', 'flex');
+            document.getElementById('placeDetailModal').classList.remove('active', 'flex');
             document.body.style.overflow = 'auto';
             currentPlace = null;
         };
@@ -269,13 +252,13 @@
             if (!currentPlace) return;
             localStorage.setItem('editPlaceData', JSON.stringify(currentPlace));
             localStorage.setItem('editPlaceCity', currentCity);
+            // ✅ الرابط صحيح
             window.location.href = `add-place.html?edit=${encodeURIComponent(currentPlace.id || '')}&city=${encodeURIComponent(currentCity)}`;
         };
 
         window.deleteCurrentPlace = function() {
             if (!currentPlace) return;
             if (!confirm(`⚠️ هل أنت متأكد من حذف "${currentPlace.name}"؟ لا يمكن التراجع!`)) return;
-            
             let places = JSON.parse(localStorage.getItem('places') || '[]');
             places = places.filter(p => p.id !== currentPlace.id);
             localStorage.setItem('places', JSON.stringify(places));
@@ -285,6 +268,7 @@
         };
 
         window.goBack = function() {
+            // ✅ الرابط صحيح
             window.location.href = 'home.html';
         };
 
@@ -296,4 +280,3 @@
     </script>
 </body>
 </html>
-.
