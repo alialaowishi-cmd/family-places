@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المشرف - كشتات</title>
+    <title>لوحة تحكم المشرف - كشتات عائلة حسين العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -14,10 +14,6 @@
                         primary: '#16a34a',
                         secondary: '#15803d',
                         accent: '#f59e0b',
-                        dark: '#14532d',
-                    },
-                    fontFamily: {
-                        sans: ['Tajawal', 'sans-serif'],
                     },
                 }
             }
@@ -29,222 +25,127 @@
     <style>
         * { font-family: 'Tajawal', sans-serif; }
         body { padding-top: 80px; background-color: #fafafa; }
-        .admin-card { transition: all 0.3s ease; }
-        .admin-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22, 163, 74, 0.12); }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
-        <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center justify-between">
-                <button onclick="window.location.href='home.html'" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
-                    <i class="fa fa-arrow-right"></i>
-                </button>
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    <i class="fa fa-cog text-accent"></i> لوحة تحكم المشرف
-                </h1>
-                <div class="w-10"></div>
+    <!-- 🔐 نافذة التحقق من كلمة المرور -->
+    <div id="authModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[90]">
+        <div class="bg-white rounded-2xl p-7 w-full max-w-sm mx-4 shadow-2xl">
+            <div class="text-center mb-5">
+                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa fa-shield text-amber-500 text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">وصول المشرف فقط</h2>
+                <p class="text-sm text-gray-500 mt-1">أدخل كلمة المرور للمتابعة</p>
+            </div>
+            <input type="password" id="adminPassInput" class="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="كلمة المرور">
+            <p id="errorMsg" class="text-red-500 text-sm mb-3 hidden text-center">❌ كلمة المرور غير صحيحة</p>
+            <div class="flex gap-3">
+                <button id="goBackBtn" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl">العودة</button>
+                <button id="confirmBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-medium">دخول</button>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="container mx-auto px-4 py-6 max-w-2xl">
-        <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4 mb-6">
-            <div class="flex items-start gap-3">
-                <i class="fa fa-shield text-amber-500 text-xl mt-1"></i>
-                <div>
-                    <h3 class="font-bold text-amber-800">وضع المشرف</h3>
-                    <p class="text-sm text-amber-600">لديك صلاحيات كاملة: تعديل، حذف، إضافة، وتغيير إعدادات الموقع</p>
+    <!-- ⚙️ محتوى لوحة التحكم -->
+    <div id="adminContent" class="hidden">
+        <header class="bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg fixed top-0 left-0 right-0 z-40">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <button id="backHomeBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition">
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+                    <h1 class="text-lg font-bold">لوحة تحكم المشرف</h1>
+                    <div class="w-8"></div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- إعدادات الموقع العامة -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 admin-card">
-            <h2 class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-                <i class="fa fa-globe text-primary"></i> إعدادات الموقع العامة
-            </h2>
-            
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">اسم الموقع</label>
-                <input type="text" id="siteNameInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="مثال: كشتات عائلة حسين العويشي">
-            </div>
-            
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">عنوان البنر الرئيسي</label>
-                <input type="text" id="bannerTitleInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="مثال: مرحباً بكم في كشتات">
-            </div>
-            
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">نص البنر الفرعي</label>
-                <textarea id="bannerSubtitleInput" rows="2" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="اكتشفوا أجمل الأماكن والمواقع المميزة"></textarea>
+        <main class="container mx-auto px-4 py-6">
+            <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-font text-primary"></i> تعديل نص البنر الرئيسي
+                </h3>
+                <input type="text" id="bannerTextInput" class="w-full p-3 border border-gray-200 rounded-xl mb-3" placeholder="كشتات عائلة حسين العويشي">
+                <button class="bg-primary text-white px-5 py-2 rounded-lg hover:bg-secondary">حفظ النص</button>
             </div>
 
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">صورة البنر الرئيسي (رابط)</label>
-                <input type="url" id="bannerImageInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="أدخل رابط الصورة">
-                <div class="mt-2">
-                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="showBannerInput" class="w-4 h-4 text-primary">
-                        <span class="text-sm text-gray-600">إظهار البنر في الصفحة الرئيسية</span>
+            <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-picture-o text-primary"></i> صورة الموقع الرئيسية
+                </h3>
+                <input type="file" accept="image/*" class="mb-3">
+                <button class="bg-primary text-white px-5 py-2 rounded-lg hover:bg-secondary">رفع الصورة</button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-list text-primary"></i> إدارة المدن والترتيب
+                </h3>
+                <p class="text-sm text-gray-500 mb-3">قريباً: تعديل ترتيب وحذف المدن</p>
+                <div class="space-y-2 text-sm text-gray-400">
+                    <div class="p-2 bg-gray-50 rounded-lg">✅ التحكم متاح قريباً</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fa fa-cog text-primary"></i> إعدادات إضافية
+                </h3>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="checkbox" checked class="rounded text-primary"> السماح بالتعليقات
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="checkbox" checked class="rounded text-primary"> طلب موافقة قبل النشر
+                    </label>
+                    <label class="flex items-center gap-2 text-gray-700">
+                        <input type="checkbox" class="rounded text-primary"> إخفاء أرقام الهواتف للزوار
                     </label>
                 </div>
+                <button class="mt-4 bg-primary text-white px-5 py-2 rounded-lg hover:bg-secondary">حفظ الإعدادات</button>
             </div>
+        </main>
+    </div>
 
-            <button id="saveSettingsBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:shadow-md transition-all">
-                <i class="fa fa-save ml-2"></i> حفظ الإعدادات
-            </button>
-            <div id="settingsMsg" class="mt-3 text-sm hidden"></div>
-        </div>
+    <script>
+        const CORRECT_PASSWORD = "admin123";
+        let isAuthenticated = false;
 
-        <!-- معلومات الاتصال -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 admin-card">
-            <h2 class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-                <i class="fa fa-info-circle text-accent"></i> معلومات إضافية للموقع
-            </h2>
-            
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">وصف الموقع</label>
-                <textarea id="siteDescriptionInput" rows="3" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="اكتب وصفاً قصيراً عن الموقع..."></textarea>
-            </div>
-            
-            <div class="mb-5">
-                <label class="block text-gray-700 text-sm font-medium mb-1.5">بريد التواصل</label>
-                <input type="email" id="contactEmailInput" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="info@example.com">
-            </div>
+        const authModal = document.getElementById('authModal');
+        const adminContent = document.getElementById('adminContent');
+        const adminPassInput = document.getElementById('adminPassInput');
+        const errorMsg = document.getElementById('errorMsg');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const goBackBtn = document.getElementById('goBackBtn');
+        const backHomeBtn = document.getElementById('backHomeBtn');
 
-            <button id="saveInfoBtn" class="w-full bg-gradient-to-r from-accent to-amber-500 text-white py-3 rounded-xl font-medium hover:shadow-md transition-all">
-                <i class="fa fa-pencil ml-2"></i> حفظ المعلومات
-            </button>
-            <div id="infoMsg" class="mt-3 text-sm hidden"></div>
-        </div>
-
-        <!-- إدارة الحساب -->
-        <div class="bg-white rounded-2xl shadow-sm p-6 admin-card">
-            <h2 class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
-                <i class="fa fa-user-circle text-primary"></i> حساب المشرف
-            </h2>
-            
-            <div class="p-4 bg-gray-50 rounded-xl mb-4">
-                <p class="text-sm text-gray-500 mb-1">البريد الإلكتروني</p>
-                <p id="adminEmailDisplay" class="font-medium text-gray-800">Alihossin28@gmail.com</p>
-            </div>
-
-            <button id="logoutAdminBtn" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-all">
-                <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
-            </button>
-        </div>
-    </main>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-            authDomain: "ali-alaowishi.firebaseapp.com",
-            projectId: "ali-alaowishi",
-            storageBucket: "ali-alaowishi.firebasestorage.app",
-            messagingSenderId: "536583940962",
-            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const ADMIN_EMAIL = "Alihossin28@gmail.com";
-        let currentUser = null;
-
-        // التحقق من صلاحية المشرف
-        onAuthStateChanged(auth, async (user) => {
-            if (!user || user.email !== ADMIN_EMAIL) {
-                alert("❌ غير مصرح لك بالوصول إلى هذه الصفحة");
-                window.location.href = "home.html";
-                return;
-            }
-            currentUser = user;
-            document.getElementById("adminEmailDisplay").textContent = user.email;
-            await loadSettings();
-        });
-
-        // تحميل الإعدادات الحالية
-        async function loadSettings() {
-            try {
-                const docRef = doc(db, "settings", "site");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const s = docSnap.data();
-                    document.getElementById("siteNameInput").value = s.siteName || "";
-                    document.getElementById("bannerTitleInput").value = s.bannerTitle || "";
-                    document.getElementById("bannerSubtitleInput").value = s.bannerSubtitle || "";
-                    document.getElementById("bannerImageInput").value = s.bannerImage || "";
-                    document.getElementById("showBannerInput").checked = s.showBanner || false;
-                    document.getElementById("siteDescriptionInput").value = s.siteDescription || "";
-                    document.getElementById("contactEmailInput").value = s.contactEmail || "";
-                }
-            } catch (err) {
-                console.log("لا توجد إعدادات سابقة");
+        // التحقق من كلمة المرور
+        function checkPassword() {
+            if (adminPassInput.value === CORRECT_PASSWORD) {
+                isAuthenticated = true;
+                authModal.classList.add('hidden');
+                adminContent.classList.remove('hidden');
+                errorMsg.classList.add('hidden');
+            } else {
+                errorMsg.classList.remove('hidden');
+                adminPassInput.value = '';
             }
         }
 
-        // حفظ إعدادات الموقع
-        document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
-            const msgEl = document.getElementById("settingsMsg");
-            msgEl.classList.add("hidden");
-            
-            const siteName = document.getElementById("siteNameInput").value.trim();
-            const bannerTitle = document.getElementById("bannerTitleInput").value.trim();
-            const bannerSubtitle = document.getElementById("bannerSubtitleInput").value.trim();
-            const bannerImage = document.getElementById("bannerImageInput").value.trim();
-            const showBanner = document.getElementById("showBannerInput").checked;
-
-            try {
-                await setDoc(doc(db, "settings", "site"), {
-                    siteName, bannerTitle, bannerSubtitle, bannerImage, showBanner,
-                    updatedAt: new Date(), updatedBy: currentUser.uid
-                }, { merge: true });
-                
-                msgEl.textContent = "✅ تم حفظ إعدادات الموقع بنجاح!";
-                msgEl.classList.remove("hidden", "text-red-500", "bg-red-50");
-                msgEl.classList.add("text-green-600", "bg-green-50", "p-2", "rounded-lg");
-            } catch (err) {
-                msgEl.textContent = "❌ حدث خطأ أثناء الحفظ، تحقق من اتصالك بالإنترنت";
-                msgEl.classList.remove("hidden", "text-green-600", "bg-green-50");
-                msgEl.classList.add("text-red-500", "bg-red-50", "p-2", "rounded-lg");
-            }
+        // أحداث النقر
+        confirmBtn.addEventListener('click', checkPassword);
+        adminPassInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
         });
 
-        // حفظ معلومات إضافية
-        document.getElementById("saveInfoBtn").addEventListener("click", async () => {
-            const msgEl = document.getElementById("infoMsg");
-            msgEl.classList.add("hidden");
-            
-            const siteDescription = document.getElementById("siteDescriptionInput").value.trim();
-            const contactEmail = document.getElementById("contactEmailInput").value.trim();
-
-            try {
-                await setDoc(doc(db, "settings", "site"), {
-                    siteDescription, contactEmail,
-                    updatedAt: new Date(), updatedBy: currentUser.uid
-                }, { merge: true });
-                
-                msgEl.textContent = "✅ تم حفظ المعلومات بنجاح!";
-                msgEl.classList.remove("hidden", "text-red-500", "bg-red-50");
-                msgEl.classList.add("text-green-600", "bg-green-50", "p-2", "rounded-lg");
-            } catch (err) {
-                msgEl.textContent = "❌ حدث خطأ أثناء الحفظ";
-                msgEl.classList.remove("hidden", "text-green-600", "bg-green-50");
-                msgEl.classList.add("text-red-500", "bg-red-50", "p-2", "rounded-lg");
-            }
+        goBackBtn.addEventListener('click', () => {
+            window.location.href = 'home.html';
         });
 
-        // تسجيل الخروج
-        document.getElementById("logoutAdminBtn").addEventListener("click", async () => {
-            await signOut(auth);
-            window.location.href = "home.html";
+        backHomeBtn.addEventListener('click', () => {
+            window.location.href = 'home.html';
         });
     </script>
 </body>
