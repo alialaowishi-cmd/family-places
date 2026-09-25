@@ -3,122 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة مكان جديد — كشكات</title>
+    <title>إضافة مكان جديد - كشتات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#22c55e', secondary: '#15803d' }
+                    colors: {
+                        primary: '#16a34a',
+                        secondary: '#15803d',
+                        accent: '#f59e0b',
+                        dark: '#14532d',
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'sans-serif'],
+                    },
                 }
             }
         }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { padding-top: 80px; background-color: #fafafa; }
+        .input-focus:focus { box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg sticky top-0 z-40">
-        <div class="container mx-auto px-3 py-3 flex items-center">
-            <a href="home.html" class="text-white mr-2"><i class="fa fa-arrow-left text-lg"></i></a>
-            <h1 class="text-lg font-bold">إضافة مكان جديد</h1>
+
+    <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <button onclick="history.back()" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
+                    <i class="fa fa-arrow-right"></i>
+                </button>
+                <h1 id="pageTitle" class="text-xl font-bold">إضافة مكان جديد</h1>
+                <div class="w-10"></div>
+            </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-3 py-6 max-w-lg">
-        <div class="bg-white rounded-2xl shadow-sm p-5">
-            <form id="addPlaceForm" class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">اسم المكان *</label>
-                    <input type="text" id="placeName" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">المدينة *</label>
-                    <select id="placeCity" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                        <option value="">اختر المدينة</option>
+    <main class="container mx-auto px-4 py-6 max-w-lg">
+        <form id="placeForm" class="bg-white rounded-2xl shadow-sm p-6">
+            <!-- اسم المكان -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">اسم المكان <span class="text-red-500">*</span></label>
+                <input type="text" id="placeName" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="أدخل اسم المكان">
+            </div>
+
+            <!-- المدينة -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">المدينة</label>
+                <div class="flex gap-2">
+                    <select id="placeCitySelect" class="flex-1 p-3 border border-gray-300 rounded-xl input-focus outline-none transition">
+                        <option value="">-- اختر المدينة --</option>
                     </select>
+                    <input type="text" id="placeCityManual" class="flex-1 p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="أو اكتب اسم المدينة">
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">التصنيف *</label>
-                    <select id="placeCategory" required class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                        <option value="">اختر التصنيف</option>
+                <p class="text-xs text-gray-400 mt-1">اختر من القائمة أو اكتب اسم المدينة يدوياً</p>
+            </div>
+
+            <!-- التصنيف -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">التصنيف</label>
+                <div class="flex gap-2">
+                    <select id="placeCategorySelect" class="flex-1 p-3 border border-gray-300 rounded-xl input-focus outline-none transition">
+                        <option value="">-- اختر التصنيف --</option>
                         <option value="مطاعم">مطاعم</option>
                         <option value="مقاهي">مقاهي</option>
                         <option value="حدائق">حدائق</option>
                         <option value="مراكز ترفيه">مراكز ترفيه</option>
                         <option value="معالم سياحية">معالم سياحية</option>
                     </select>
+                    <input type="text" id="placeCategoryManual" class="flex-1 p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="أو اكتب تصنيفاً جديداً">
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">رقم الجوال</label>
-                    <input type="tel" id="placePhone" placeholder="05xxxxxxxx" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">التقييم (من 5)</label>
-                    <select id="placeRating" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                        <option value="5">⭐⭐⭐⭐⭐ 5 من 5</option>
-                        <option value="4">⭐⭐⭐⭐ 4 من 5</option>
-                        <option value="3" selected>⭐⭐⭐ 3 من 5</option>
-                        <option value="2">⭐⭐ 2 من 5</option>
-                        <option value="1">⭐ 1 من 5</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">رابط الموقع على الخريطة</label>
-                    <input type="url" id="placeMapLink" placeholder="رابط من Google Maps" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                </div>
-                
-                <!-- قسم رفع الصور -->
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-2">صورة المكان</label>
-                    
-                    <!-- معاينة الصورة -->
-                    <div id="imagePreviewContainer" class="mb-3 hidden">
-                        <img id="imagePreview" class="w-full h-40 object-cover rounded-lg border">
-                        <button type="button" id="removeImage" class="mt-2 text-red-500 text-sm flex items-center gap-1">
-                            <i class="fa fa-times-circle"></i> إزالة الصورة
-                        </button>
-                    </div>
-                    
-                    <!-- زر رفع الصورة -->
-                    <label class="block w-full cursor-pointer">
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary transition bg-gray-50">
-                            <i class="fa fa-cloud-upload text-2xl text-gray-400 mb-2"></i>
-                            <p class="text-sm text-gray-500">اضغط لاختيار صورة من هاتفك</p>
-                            <p class="text-xs text-gray-400 mt-1">أو أدخل رابط الصورة أدناه</p>
-                        </div>
-                        <input type="file" id="imageUpload" accept="image/*" class="hidden">
-                    </label>
-                    
-                    <div class="mt-3">
-                        <label class="block text-gray-600 text-xs mb-1">أو أدخل رابط الصورة مباشرة:</label>
-                        <input type="url" id="placeImageUrl" placeholder="https://example.com/image.jpg" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm">
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">💡 نصيحة: انسخ رابط الصورة من الإنترنت والصقه في المربع أعلاه، أو اختر صورة من هاتفك</p>
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-1">الوصف</label>
-                    <textarea id="placeDescription" rows="3" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium text-sm">
-                    <i class="fa fa-plus ml-1"></i> إضافة المكان
-                </button>
-            </form>
-            <div id="successMessage" class="mt-4 p-3 bg-green-50 text-green-700 rounded-lg hidden text-sm">
-                <i class="fa fa-check-circle ml-1"></i> تم الإضافة بنجاح! <a href="home.html" class="text-primary font-medium">العودة للرئيسية</a>
             </div>
-            <div id="errorMessage" class="mt-3 p-3 bg-red-50 text-red-600 rounded-lg hidden text-sm"></div>
-        </div>
+
+            <!-- وصف المكان -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">وصف المكان</label>
+                <textarea id="placeDescription" rows="3" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="اكتب وصفاً مختصراً عن المكان..."></textarea>
+            </div>
+
+            <!-- رقم الجوال -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">رقم الجوال</label>
+                <input type="tel" id="placePhone" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="05XXXXXXXX">
+            </div>
+
+            <!-- السعر -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">نطاق السعر</label>
+                <select id="placePrice" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition">
+                    <option value="">-- اختر --</option>
+                    <option value="اقتصادي">اقتصادي</option>
+                    <option value="متوسط">متوسط</option>
+                    <option value="مرتفع">مرتفع</option>
+                    <option value="فاخر">فاخر</option>
+                </select>
+            </div>
+
+            <!-- موقع جوجل مابس -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">رابط الموقع في جوجل مابس</label>
+                <input type="url" id="placeMapLink" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="https://goo.gl/maps/xxxxxxx">
+            </div>
+
+            <!-- رابط الصورة -->
+            <div class="mb-5">
+                <label class="block text-gray-700 text-sm font-medium mb-1.5">رابط صورة المكان</label>
+                <input type="url" id="placeImageUrl" class="w-full p-3 border border-gray-300 rounded-xl input-focus outline-none transition" placeholder="أدخل رابط الصورة">
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:shadow-md transition-all">
+                <i class="fa fa-save ml-2"></i> حفظ المكان
+            </button>
+            <div id="formMsg" class="mt-4 text-sm hidden text-center"></div>
+        </form>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -133,105 +143,133 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const placeId = new URLSearchParams(window.location.search).get('id');
+        const cityParam = new URLSearchParams(window.location.search).get('city');
         let currentUser = null;
-        let imageBase64 = "";
+        let allCities = [];
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                alert('يرجى تسجيل الدخول أولاً');
-                window.location.href = "home.html";
+                window.location.href = 'home.html';
                 return;
             }
             currentUser = user;
-            loadCities();
+            await loadCities();
+            
+            if (placeId) {
+                document.getElementById('pageTitle').textContent = 'تعديل المكان';
+                document.getElementById('submitBtn').innerHTML = '<i class="fa fa-save ml-2"></i> تحديث البيانات';
+                await loadPlaceData();
+            } else {
+                document.getElementById('pageTitle').textContent = 'إضافة مكان جديد';
+                if (cityParam) {
+                    document.getElementById('placeCityManual').value = decodeURIComponent(cityParam);
+                }
+            }
         });
 
-        // تحميل قائمة المدن
         async function loadCities() {
             try {
-                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name', 'asc')));
-                const cities = citiesSnap.docs.map(doc => doc.data());
-                const select = document.getElementById('placeCity');
-                select.innerHTML = '<option value="">اختر المدينة</option>' + 
-                    cities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            } catch {
-                console.log('لم يتم تحميل المدن');
+                const snap = await getDocs(collection(db, 'cities'));
+                allCities = snap.docs.map(d => d.data().name).filter(n => n);
+                allCities.sort((a, b) => a.localeCompare(b, 'ar'));
+                const select = document.getElementById('placeCitySelect');
+                allCities.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city;
+                    opt.textContent = city;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.log('خطأ في تحميل المدن');
             }
         }
 
-        // معالجة رفع الصورة من الهاتف
-        const imageUpload = document.getElementById('imageUpload');
-        const imageUrlInput = document.getElementById('placeImageUrl');
-        const previewContainer = document.getElementById('imagePreviewContainer');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeImageBtn = document.getElementById('removeImage');
-
-        imageUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                imageBase64 = event.target.result;
-                imagePreview.src = imageBase64;
-                previewContainer.classList.remove('hidden');
-                imageUrlInput.value = '';
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // عند إدخال رابط صورة - عرض المعاينة
-        imageUrlInput.addEventListener('input', () => {
-            if (imageUrlInput.value.trim()) {
-                imagePreview.src = imageUrlInput.value;
-                previewContainer.classList.remove('hidden');
-                imageBase64 = '';
-                imageUpload.value = '';
-            } else {
-                previewContainer.classList.add('hidden');
+        async function loadPlaceData() {
+            try {
+                const docRef = doc(db, 'places', placeId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const d = docSnap.data();
+                    document.getElementById('placeName').value = d.name || '';
+                    document.getElementById('placeCitySelect').value = d.city || '';
+                    document.getElementById('placeCategorySelect').value = d.category || '';
+                    document.getElementById('placeDescription').value = d.description || '';
+                    placePhone.value = d.phone || '';
+                    placePrice.value = d.price || '';
+                    placeMapLink.value = d.mapLink || '';
+                    placeImageUrl.value = d.imageUrl || '';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('❌ خطأ في تحميل بيانات المكان');
             }
-        });
+        }
 
-        // إزالة الصورة المختارة
-        removeImageBtn.addEventListener('click', () => {
-            previewContainer.classList.add('hidden');
-            imagePreview.src = '';
-            imageUpload.value = '';
-            imageUrlInput.value = '';
-            imageBase64 = '';
-        });
-
-        // إرسال النموذج
-        document.getElementById('addPlaceForm').addEventListener('submit', async (e) => {
+        document.getElementById('placeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            let finalImageUrl = imageUrlInput.value.trim() || imageBase64 || '';
-            
-            const placeData = {
-                name: document.getElementById('placeName').value,
-                city: document.getElementById('placeCity').value,
-                category: document.getElementById('placeCategory').value,
-                phone: document.getElementById('placePhone').value,
-                rating: parseInt(document.getElementById('placeRating').value),
-                mapLink: document.getElementById('placeMapLink').value,
-                imageUrl: finalImageUrl,
-                description: document.getElementById('placeDescription').value,
-                createdBy: currentUser.uid,
-                userEmail: currentUser.email,
-                createdAt: new Date()
+            const msgEl = document.getElementById('formMsg');
+            msgEl.classList.add('hidden');
+
+            const name = document.getElementById('placeName').value.trim();
+            const citySelect = document.getElementById('placeCitySelect').value;
+            const cityManual = document.getElementById('placeCityManual').value.trim();
+            const categorySelect = document.getElementById('placeCategorySelect').value;
+            const categoryManual = document.getElementById('placeCategoryManual').value.trim();
+            const description = document.getElementById('placeDescription').value.trim();
+            const phone = document.getElementById('placePhone').value.trim();
+            const price = document.getElementById('placePrice').value;
+            const mapLink = document.getElementById('placeMapLink').value.trim();
+            const imageUrl = document.getElementById('placeImageUrl').value.trim();
+
+            const city = cityManual || citySelect;
+            const category = categoryManual || categorySelect;
+
+            if (!name) {
+                msgEl.textContent = '❌ أدخل اسم المكان';
+                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
+                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
+                return;
+            }
+            if (!city) {
+                msgEl.textContent = '❌ أدخل اسم المدينة';
+                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
+                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
+                return;
+            }
+
+            const data = {
+                name, city, category, description, phone, price, mapLink, imageUrl,
+                updatedAt: new Date()
             };
 
             try {
-                await addDoc(collection(db, 'places'), placeData);
-                document.getElementById('successMessage').classList.remove('hidden');
-                document.getElementById('errorMessage').classList.add('hidden');
-                document.getElementById('addPlaceForm').reset();
-                previewContainer.classList.add('hidden');
-                imageBase64 = '';
+                if (placeId) {
+                    await updateDoc(doc(db, 'places', placeId), data);
+                    msgEl.textContent = '✅ تم تحديث بيانات المكان بنجاح!';
+                } else {
+                    data.createdBy = currentUser.uid;
+                    data.createdAt = new Date();
+                    data.averageRating = 0;
+                    data.totalReviews = 0;
+                    await addDoc(collection(db, 'places'), data);
+                    msgEl.textContent = '✅ تم إضافة المكان بنجاح!';
+                    e.target.reset();
+                }
+                msgEl.classList.remove('hidden', 'text-red-500', 'bg-red-50');
+                msgEl.classList.add('text-green-600', 'bg-green-50', 'p-2', 'rounded-lg');
+                setTimeout(() => {
+                    if (city) {
+                        window.location.href = `home.html?city=${encodeURIComponent(city)}`;
+                    } else {
+                        history.back();
+                    }
+                }, 1500);
             } catch (err) {
-                document.getElementById('errorMessage').textContent = '❌ حدث خطأ أثناء الإضافة، حاول مرة أخرى';
-                document.getElementById('errorMessage').classList.remove('hidden');
                 console.error(err);
+                msgEl.textContent = '❌ حدث خطأ، تحقق من اتصالك بالإنترنت';
+                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
+                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
             }
         });
     </script>
