@@ -19,7 +19,7 @@
     <style>
         * { font-family: 'Tajawal', sans-serif; }
         body { background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); min-height: 100vh; padding-bottom: 40px; }
-        .star { cursor: pointer; font-size: 24px; color: #D1D5DB; transition: color 0.2s; }
+        .star { cursor: pointer; font-size: 30px; color: #D1D5DB; transition: color 0.2s; }
         .star.active { color: #FBBF24; }
         .preview-img { width: 80px; height: 80px; object-cover: rounded-lg; }
     </style>
@@ -31,7 +31,9 @@
                 <i class="fa fa-arrow-right text-gray-600"></i>
             </button>
             <h1 class="text-xl font-bold" id="pageTitle">إضافة مكان جديد</h1>
-            <div class="w-10"></div>
+            <button onclick="logout()" class="text-gray-500 hover:text-danger text-sm">
+                <i class="fa fa-sign-out"></i>
+            </button>
         </div>
     </header>
 
@@ -71,11 +73,11 @@
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">التقييم</label>
             <div id="starsContainer" class="flex gap-1">
-                <span class="star" data-value="1">★</span>
-                <span class="star" data-value="2">★</span>
-                <span class="star" data-value="3">★</span>
-                <span class="star" data-value="4">★</span>
-                <span class="star" data-value="5">★</span>
+                <span class="star" data-value="1" onclick="setRating(1)">★</span>
+                <span class="star" data-value="2" onclick="setRating(2)">★</span>
+                <span class="star" data-value="3" onclick="setRating(3)">★</span>
+                <span class="star" data-value="4" onclick="setRating(4)">★</span>
+                <span class="star" data-value="5" onclick="setRating(5)">★</span>
             </div>
             <input type="hidden" id="rating" value="0">
         </div>
@@ -135,4 +137,233 @@
 
         function addNotification(place, type = 'new') {
             initNotifications();
-            const notifications = JSON.parse(localStorage.getItem('notifications
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            let title, message;
+            if (type === 'new') {
+                title = '📍 مكان جديد مضاف';
+                message = `أُضيف "${place.name}" في ${place.city || 'مدينة غير محددة'}`;
+            } else if (type === 'updated') {
+                title = '✏️ تم تحديث مكان';
+                message = `تم تحديث "${place.name}" في ${place.city || 'مدينة غير محددة'}`;
+            }
+            const newNotification = {
+                id: Date.now(),
+                title: title,
+                message: message,
+                placeId: place.id,
+                placeName: place.name,
+                city: place.city,
+                type: type,
+                read: false,
+                createdAt: new Date().toISOString()
+            };
+            notifications.unshift(newNotification);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        // متغيرات
+        let selectedRating = 0;
+        let uploadedImages = [];
+        let isEditMode = false;
+        let editPlaceId = null;
+        let previousCity = '';
+
+        // ✅ دالة النجوم — أصلحتها تماماً
+        function setRating(rating) {
+            selectedRating = rating;
+            document.getElementById('rating').value = rating;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // ✅ دالة الرجوع
+        function goBack() {
+            const params = new URLSearchParams(window.location.search);
+            const cityParam = params.get('city');
+            if (cityParam) {
+                window.location.href = `city-view.html?city=${encodeURIComponent(cityParam)}`;
+            } else {
+                window.location.href = 'home.html';
+            }
+        }
+
+        // ✅ دالة تسجيل الخروج
+        function logout() {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // تحميل عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCitiesToSelect();
+            checkEditMode();
+        });
+
+        function loadCitiesToSelect() {
+            const cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const select = document.getElementById('citySelect');
+            select.innerHTML = '<option value="">-- اختر المدينة --</option>';
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.name;
+                option.textContent = city.name;
+                select.appendChild(option);
+            });
+        }
+
+        function toggleManualCity() {
+            const manualInput = document.getElementById('manualCity');
+            const citySelect = document.getElementById('citySelect');
+            manualInput.classList.toggle('hidden');
+            if (!manualInput.classList.contains('hidden')) {
+                citySelect.value = '';
+            }
+        }
+
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    renderImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+            uploadedImages.forEach((imgSrc, index) => {
+                container.innerHTML += `
+                    <div class="relative">
+                        <img src="${imgSrc}" class="preview-img rounded-lg">
+                        <button type="button" onclick="removeImage(${index})" 
+                            class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">×</button>
+                    </div>
+                `;
+            });
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderImagePreviews();
+        }
+
+        function checkEditMode() {
+            const params = new URLSearchParams(window.location.search);
+            const editId = params.get('edit');
+            const cityParam = params.get('city');
+            
+            if (cityParam) {
+                document.getElementById('citySelect').value = cityParam;
+                previousCity = cityParam;
+            }
+            
+            if (editId) {
+                isEditMode = true;
+                editPlaceId = editId;
+                document.getElementById('pageTitle').textContent = 'تعديل المكان';
+                const editData = JSON.parse(localStorage.getItem('editPlaceData') || '{}');
+                fillFormData(editData);
+            }
+        }
+
+        function fillFormData(place) {
+            document.getElementById('placeName').value = place.name || '';
+            document.getElementById('citySelect').value = place.city || '';
+            document.getElementById('category').value = place.category || '';
+            document.getElementById('price').value = place.price || '';
+            document.getElementById('phone').value = place.phone || '';
+            document.getElementById('mapUrl').value = place.mapUrl || '';
+            document.getElementById('notes').value = place.notes || '';
+            selectedRating = place.rating || 0;
+            document.getElementById('rating').value = selectedRating;
+            setRating(selectedRating);
+            uploadedImages = place.images || [];
+            renderImagePreviews();
+        }
+
+        // حفظ البيانات
+        document.getElementById('placeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let city = document.getElementById('citySelect').value;
+            const manualCity = document.getElementById('manualCity').value.trim();
+            if (manualCity) {
+                city = manualCity;
+                addNewCityToList(city);
+            }
+            
+            if (!city) {
+                alert('⚠️ الرجاء اختيار أو كتابة اسم المدينة');
+                return;
+            }
+            
+            const placeName = document.getElementById('placeName').value.trim();
+            if (!placeName) {
+                alert('⚠️ الرجاء إدخال اسم المكان');
+                return;
+            }
+
+            const places = JSON.parse(localStorage.getItem('places') || '[]');
+            
+            const placeData = {
+                id: isEditMode ? editPlaceId : 'place_' + Date.now(),
+                name: placeName,
+                city: city,
+                category: document.getElementById('category').value,
+                rating: parseInt(document.getElementById('rating').value) || 0,
+                price: document.getElementById('price').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                mapUrl: document.getElementById('mapUrl').value.trim(),
+                notes: document.getElementById('notes').value.trim(),
+                images: uploadedImages,
+                createdBy: currentUser ? currentUser.name || currentUser.email : 'مستخدم مجهول',
+                createdByPhone: currentUser ? currentUser.phone : '',
+                addedAt: isEditMode ? undefined : new Date().toISOString(),
+                updatedAt: isEditMode ? new Date().toISOString() : undefined
+            };
+
+            if (isEditMode) {
+                const idx = places.findIndex(p => p.id === editPlaceId);
+                if (idx !== -1) {
+                    placeData.addedAt = places[idx].addedAt;
+                    places[idx] = placeData;
+                }
+                localStorage.setItem('places', JSON.stringify(places));
+                addNotification(placeData, 'updated');
+                alert('✅ تم تحديث المكان بنجاح');
+            } else {
+                places.unshift(placeData);
+                localStorage.setItem('places', JSON.stringify(places));
+                addNotification(placeData, 'new');
+                alert('✅ تم إضافة المكان بنجاح');
+            }
+
+            // ✅ العودة لصفحة المدينة بشكل صحيح
+            window.location.href = `city-view.html?city=${encodeURIComponent(city)}`;
+        });
+
+        function addNewCityToList(cityName) {
+            let cities = JSON.parse(localStorage.getItem('cities') || '[]');
+            const exists = cities.find(c => c.name.trim() === cityName.trim());
+            if (!exists) {
+                cities.push({ name: cityName, createdAt: new Date().toISOString() });
+                localStorage.setItem('cities', JSON.stringify(cities));
+                loadCitiesToSelect();
+            }
+        }
+    </script>
+</body>
+</html>
