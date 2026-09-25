@@ -31,73 +31,7 @@
         * { font-family: 'Tajawal', sans-serif; }
         .star-active { color: #f59e0b; }
         .star-inactive { color: #d1d5db; }
-        body { padding-top: 110px; background-color: #fafafa; }
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e5e7eb 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: inherit;
-        }
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .city-nav {
-            position: fixed;
-            top: 72px;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-            border-bottom: 1px solid #bbf7d0;
-            z-index: 30;
-            padding: 10px 0;
-            overflow-x: auto;
-            box-shadow: 0 2px 12px rgba(22, 163, 74, 0.08);
-        }
-        .city-nav::-webkit-scrollbar { height: 5px; }
-        .city-nav::-webkit-scrollbar-thumb {
-            background: linear-gradient(90deg, #16a34a, #f59e0b);
-            border-radius: 10px;
-        }
-        .city-nav::-webkit-scrollbar-track {
-            background: #dcfce7;
-            border-radius: 10px;
-        }
-        .city-nav-item {
-            flex-shrink: 0;
-            padding: 10px 22px;
-            margin: 0 6px;
-            border-radius: 50px;
-            font-size: 14.5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-            background: #ffffff;
-            color: #374151;
-            border:  1.5px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .city-nav-item:hover {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #15803d;
-            border-color: #16a34a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
-        }
-        .city-nav-item.active {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            color: white;
-            font-weight: 700;
-            border-color: transparent;
-            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
-        }
-        .city-nav-title {
-            background: linear-gradient(90deg, #16a34a, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
+        body { padding-top: 72px; background-color: #fafafa; }
         .place-image-container {
             position: relative;
             overflow: hidden;
@@ -133,9 +67,20 @@
             justify-content: center;
             background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
         }
+        .admin-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+
+    <!-- 🖼️ البنر الرئيسي -->
+    <div id="heroBanner" class="hidden pt-16 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/20">
+        <div class="container mx-auto px-4 py-8 text-center">
+            <h2 id="bannerTitle" class="text-2xl font-bold text-dark mb-2">مرحباً بكم في كشتات</h2>
+            <p id="bannerSubtitle" class="text-gray-600">اكتشفوا أجمل الأماكن والمواقع المميزة</p>
+        </div>
+    </div>
 
     <!-- 🔐 شاشة تسجيل الدخول -->
     <div id="authScreen" class="auth-screen fixed inset-0 z-[60]">
@@ -144,7 +89,7 @@
                 <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fa fa-leaf text-white text-4xl"></i>
                 </div>
-                <h1 class="text-3xl font-bold text-white mb-2">كشتات</h1>
+                <h1 id="siteTitle" class="text-3xl font-bold text-white mb-2">كشتات</h1>
                 <p class="text-green-100 text-lg">عائلة حسين العويشي</p>
             </div>
             <div class="bg-white rounded-2xl p-6 shadow-2xl">
@@ -204,30 +149,12 @@
 
     <!-- 📦 محتوى الموقع -->
     <div id="mainContent" class="hidden">
-        <nav class="city-nav" id="cityNavigation">
-            <div class="container mx-auto px-4">
-                <div class="flex items-center gap-3" id="cityNavContainer">
-                    <span class="city-nav-title flex items-center gap-1.5 whitespace-nowrap">
-                        <i class="fa fa-map-marker"></i> المدن
-                    </span>
-                    <div class="flex" id="cityNavItems">
-                        <span class="text-gray-400 text-sm px-2">جاري التحميل...</span>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
         <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
             <div class="container mx-auto px-4 py-3">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <a id="adminBtn" href="admin-settings.html" class="hidden bg-amber-500 hover:bg-amber-400 px-3 py-2 rounded-xl flex items-center gap-2 transition shadow-md">
-                            <i class="fa fa-cog"></i>
-                            <span class="hidden sm:inline font-medium">لوحة المشرف</span>
-                        </a>
-                    </div>
+                    <div class="w-10"></div>
                     <div class="flex-1 text-center">
-                        <h1 class="text-xl font-bold inline-flex items-center gap-2">
+                        <h1 id="headerSiteTitle" class="text-xl font-bold inline-flex items-center gap-2">
                             <i class="fa fa-leaf text-accent"></i>
                             <span class="hidden sm:inline">كشتات عائلة حسين العويشي</span>
                             <span class="sm:hidden">كشتات</span>
@@ -249,6 +176,9 @@
                     <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b">
                         <p class="text-sm text-gray-500">البريد الإلكتروني</p>
                         <p id="userEmailDisplay" class="font-semibold text-gray-800 text-sm truncate"></p>
+                        <span id="adminBadge" class="hidden inline-block mt-2 admin-badge text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            <i class="fa fa-star ml-1"></i> حساب المشرف
+                        </span>
                     </div>
                     <div class="p-2">
                         <a href="add-place.html" class="block px-4 py-2.5 text-gray-700 hover:bg-green-50 rounded-lg">
@@ -258,7 +188,7 @@
                             <i class="fa fa-bookmark text-primary ml-2"></i> أماكني
                         </button>
                         <a href="admin-settings.html" id="adminSettingsLink" class="hidden block px-4 py-2.5 text-amber-700 hover:bg-amber-50 rounded-lg">
-                            <i class="fa fa-shield ml-2"></i> إعدادات الموقع
+                            <i class="fa fa-cog ml-2"></i> لوحة تحكم المشرف
                         </a>
                         <hr class="my-2">
                         <button id="logoutBtn" class="w-full text-right px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">
@@ -302,10 +232,16 @@
                         <i class="fa fa-map-o text-primary"></i>
                         <span id="currentCityName">الأماكن</span>
                     </h2>
-                    <div class="flex gap-2">
-                        <button id="editCityNameBtn" class="hidden text-amber-600 bg-amber-50 hover:bg-amber-100 p-2.5 rounded-xl transition-all">
+                    <div class="flex gap-2 flex-wrap">
+                        <button id="editCityNameBtn" class="hidden text-amber-600 bg-amber-50 hover:bg-amber-100 p-2.5 rounded-xl transition-all" title="تعديل اسم المدينة">
                             <i class="fa fa-pencil"></i>
                         </button>
+                        <button id="deleteCityBtn" class="hidden text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-xl transition-all" title="حذف المدينة">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                        <a id="addPlaceInCityBtn" href="add-place.html" class="text-white bg-gradient-to-r from-primary to-secondary hover:shadow-md flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all">
+                            <i class="fa fa-plus"></i> إضافة مكان
+                        </a>
                         <button id="backToCities" class="text-primary hover:text-secondary flex items-center gap-1.5 text-sm bg-primary/10 px-4 py-2 rounded-xl hover:bg-primary/20 transition-all">
                             <i class="fa fa-arrow-right"></i> العودة للمدن
                         </button>
@@ -371,10 +307,23 @@
         </div>
     </div>
 
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <i class="fa fa-exclamation-triangle text-red-500"></i> تأكيد الحذف
+            </h3>
+            <p id="deleteConfirmText" class="text-gray-600 mb-5">هل أنت متأكد من الحذف؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="flex gap-3">
+                <button id="cancelDelete" class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl">إلغاء</button>
+                <button id="confirmDelete" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-medium">نعم، احذف</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, addDoc, doc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, addDoc, doc, updateDoc, deleteDoc, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -394,13 +343,31 @@
         let currentCity = null, currentCityDocId = null;
         let allCities = [], allPlaces = [], myPlaces = [], currentUser = null;
         let activeCategory = 'all';
+        let deleteTargetType = null, deleteTargetId = null;
 
         const authScreen = document.getElementById('authScreen');
         const mainContent = document.getElementById('mainContent');
         const userMenuBtn = document.getElementById('userMenuBtn');
         const userDropdown = document.getElementById('userDropdown');
         const searchInput = document.getElementById('searchInput');
-        const cityNavItems = document.getElementById('cityNavItems');
+
+        // تحميل إعدادات الموقع
+        async function loadSiteSettings() {
+            try {
+                const docRef = doc(db, 'settings', 'site');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    document.getElementById('siteTitle').textContent = settings.siteName || 'كشتات';
+                    document.getElementById('headerSiteTitle').innerHTML = `<i class="fa fa-leaf text-accent"></i> <span class="hidden sm:inline">${settings.siteName || 'كشتات عائلة حسين العويشي'}</span><span class="sm:hidden">${(settings.siteName || 'كشتات').split(' ')[0]}</span>`;
+                    if (settings.bannerTitle) document.getElementById('bannerTitle').textContent = settings.bannerTitle;
+                    if (settings.bannerSubtitle) document.getElementById('bannerSubtitle').textContent = settings.bannerSubtitle;
+                    if (settings.showBanner) document.getElementById('heroBanner').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.log('إعدادات الموقع غير متوفرة بعد');
+            }
+        }
 
         // تسجيل الدخول كمشرف سريع
         document.getElementById('adminQuickLoginMain').addEventListener('click', () => {
@@ -469,18 +436,25 @@
         });
 
         // حالة المصادقة
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             if (user) {
+                await loadSiteSettings();
                 authScreen.classList.add('hidden');
                 mainContent.classList.remove('hidden');
                 document.getElementById('userEmailDisplay').textContent = user.email;
                 document.getElementById('myPlacesSection').classList.remove('hidden');
                 document.getElementById('addCityBtn').style.display = 'block';
+                
+                // ✅ إظهار لوحة المشرف وبياناته إذا كان مشرفاً
                 if (user.email === ADMIN_EMAIL) {
-                    document.getElementById('adminBtn').classList.remove('hidden');
+                    document.getElementById('adminBadge').classList.remove('hidden');
                     document.getElementById('adminSettingsLink').classList.remove('hidden');
+                } else {
+                    document.getElementById('adminBadge').classList.add('hidden');
+                    document.getElementById('adminSettingsLink').classList.add('hidden');
                 }
+                
                 loadMyPlaces();
                 loadCities();
             } else {
@@ -547,7 +521,7 @@
                 msgEl.classList.remove('hidden', 'text-red-500', 'text-amber-500', 'bg-red-50', 'bg-amber-50');
                 msgEl.classList.add('text-green-600', 'bg-green-50');
                 await loadCities();
-                setTimeout(() => { document.getElementById('addCityModal').classList.add('hidden'); msgEl.classList.add('hidden'); }, 1500);
+                setTimeout(() => { document.getElementById('addCityModal').classList.add('hidden'); msgEl.classList.add('hidden'); document.getElementById('newCityInput').value = ''; }, 1500);
             } catch (err) {
                 msgEl.textContent = '❌ حدث خطأ، تحقق من اتصالك بالإنترنت';
                 msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
@@ -598,6 +572,51 @@
             }
         });
 
+        // حذف مدينة
+        document.getElementById('deleteCityBtn').addEventListener('click', () => {
+            deleteTargetType = 'city';
+            document.getElementById('deleteConfirmText').textContent = `هل أنت متأكد من حذف مدينة "${currentCity}"؟ سيتم حذف جميع الأماكن داخلها أيضاً. لا يمكن التراجع.`;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        });
+
+        // إلغاء الحذف
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            deleteTargetType = null;
+            deleteTargetId = null;
+        });
+
+        // تأكيد الحذف
+        document.getElementById('confirmDelete').addEventListener('click', async () => {
+            try {
+                if (deleteTargetType === 'city') {
+                    // حذف جميع الأماكن في هذه المدينة أولاً
+                    const q = query(collection(db, 'places'), where('city', '==', currentCity));
+                    const snapshot = await getDocs(q);
+                    const batch = writeBatch(db);
+                    snapshot.docs.forEach(d => batch.delete(doc(db, 'places', d.id)));
+                    await batch.commit();
+                    // ثم حذف المدينة نفسها
+                    await deleteDoc(doc(db, 'cities', currentCityDocId));
+                    document.getElementById('deleteConfirmModal').classList.add('hidden');
+                    document.getElementById('placesSection').classList.add('hidden');
+                    document.getElementById('citiesSection').classList.remove('hidden');
+                    currentCity = null;
+                    await loadCities();
+                } else if (deleteTargetType === 'place' && deleteTargetId) {
+                    await deleteDoc(doc(db, 'places', deleteTargetId));
+                    document.getElementById('deleteConfirmModal').classList.add('hidden');
+                    await loadPlaces(currentCity);
+                    await loadMyPlaces();
+                }
+            } catch (err) {
+                console.error('خطأ في الحذف:', err);
+                alert('❌ حدث خطأ أثناء الحذف');
+            }
+            deleteTargetType = null;
+            deleteTargetId = null;
+        });
+
         // تحميل المدن
         async function loadCities() {
             try {
@@ -605,38 +624,9 @@
                 allCities = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 allCities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
                 renderCities(allCities);
-                renderCityNavigation();
             } catch {
                 document.getElementById('citiesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-red-500"><p>❌ خطأ في تحميل المدن</p></div>';
             }
-        }
-
-        function renderCityNavigation() {
-            if (!allCities.length) {
-                cityNavItems.innerHTML = '<span class="text-gray-400 text-sm px-2">لا توجد مدن</span>';
-                return;
-            }
-            cityNavItems.innerHTML = allCities.map(c => `
-                <span class="city-nav-item ${currentCity === c.name ? 'active' : ''}" data-city="${c.name}" data-id="${c.id}">
-                    ${c.name}
-                </span>
-            `).join('');
-            document.querySelectorAll('.city-nav-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    currentCity = item.dataset.city;
-                    currentCityDocId = item.dataset.id;
-                    document.getElementById('currentCityName').textContent = currentCity;
-                    document.querySelectorAll('.city-nav-item').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    if (currentUser?.email === ADMIN_EMAIL) {
-                        document.getElementById('editCityNameBtn').classList.remove('hidden');
-                    }
-                    loadPlaces(currentCity);
-                    document.getElementById('citiesSection').classList.add('hidden');
-                    document.getElementById('placesSection').classList.remove('hidden');
-                    searchInput.value = '';
-                });
-            });
         }
 
         function renderCities(cities) {
@@ -657,9 +647,16 @@
                     currentCity = card.dataset.cityName;
                     currentCityDocId = card.dataset.cityId;
                     document.getElementById('currentCityName').textContent = currentCity;
+                    // ✅ إظهار أزرار التعديل والحذف فقط للمشرف
                     if (currentUser?.email === ADMIN_EMAIL) {
                         document.getElementById('editCityNameBtn').classList.remove('hidden');
+                        document.getElementById('deleteCityBtn').classList.remove('hidden');
+                    } else {
+                        document.getElementById('editCityNameBtn').classList.add('hidden');
+                        document.getElementById('deleteCityBtn').classList.add('hidden');
                     }
+                    // تمرير اسم المدينة لزر إضافة مكان
+                    document.getElementById('addPlaceInCityBtn').href = `add-place.html?city=${encodeURIComponent(currentCity)}`;
                     loadPlaces(currentCity);
                     document.getElementById('citiesSection').classList.add('hidden');
                     document.getElementById('placesSection').classList.remove('hidden');
@@ -673,7 +670,7 @@
             document.getElementById('citiesSection').classList.remove('hidden');
             currentCity = null;
             document.getElementById('editCityNameBtn').classList.add('hidden');
-            document.querySelectorAll('.city-nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('deleteCityBtn').classList.add('hidden');
             searchInput.value = '';
         });
 
@@ -708,30 +705,58 @@
                 );
             }
             if (!filtered.length) {
-                document.getElementById('placesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-gray-500"><p>لا توجد أماكن مطابقة</p></div>';
+                document.getElementById('placesContainer').innerHTML = '<div class="col-span-full text-center py-12 text-gray-500"><p>لا توجد أماكن مطابقة في هذه المدينة</p><a href="add-place.html?city=' + encodeURIComponent(currentCity) + '" class="mt-3 inline-block bg-primary text-white px-4 py-2 rounded-lg">أضف مكاناً جديداً</a></div>';
                 return;
             }
-            document.getElementById('placesContainer').innerHTML = filtered.map(p => `
-                <a href="place-detail.html?id=${p.id}" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover block">
-                    <div class="place-image-container h-48">
-                        ${p.imageUrl 
-                            ? `<img src="${p.imageUrl}" alt="${p.name}" class="place-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                               <div class="img-fallback" style="display:none;"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                            : `<div class="img-fallback"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                        }
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">${p.name || 'بدون اسم'}</h3>
-                        <p class="text-sm text-gray-500 mb-2">
-                            <i class="fa fa-tag ml-1"></i> ${p.category || 'غير مصنف'}
-                        </p>
-                        <div class="flex items-center justify-between">
-                            <div>${renderStars(p.averageRating)}</div>
-                            <span class="text-xs text-gray-400">${p.totalReviews || 0} تقييم</span>
+            document.getElementById('placesContainer').innerHTML = filtered.map(p => {
+                // ✅ صلاحية التعديل والحذف: لصاحب المكان أو المشرف فقط
+                const canModify = currentUser && (currentUser.uid === p.createdBy || currentUser.email === ADMIN_EMAIL);
+                return `
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                    <a href="place-detail.html?id=${p.id}" class="block">
+                        <div class="place-image-container h-48">
+                            ${p.imageUrl 
+                                ? `<img src="${p.imageUrl}" alt="${p.name}" class="place-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
+                                   <div class="img-fallback" style="display:none;"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
+                                : `<div class="img-fallback"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
+                            }
                         </div>
+                    </a>
+                    <div class="p-4">
+                        <a href="place-detail.html?id=${p.id}" class="block">
+                            <h3 class="font-bold text-lg text-gray-800 mb-2">${p.name || 'بدون اسم'}</h3>
+                            <p class="text-sm text-gray-500 mb-2">
+                                <i class="fa fa-tag ml-1"></i> ${p.category || 'غير مصنف'}
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>${renderStars(p.averageRating)}</div>
+                                <span class="text-xs text-gray-400">${p.totalReviews || 0} تقييم</span>
+                            </div>
+                        </a>
+                        ${canModify ? `
+                        <div class="flex gap-2 mt-2 pt-2 border-t">
+                            <a href="add-place.html?id=${p.id}" class="flex-1 text-center py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100">
+                                <i class="fa fa-pencil ml-1"></i> تعديل
+                            </a>
+                            <button data-place-id="${p.id}" class="delete-place-btn flex-1 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
+                                <i class="fa fa-trash ml-1"></i> حذف
+                            </button>
+                        </div>
+                        ` : ''}
                     </div>
-                </a>
-            `).join('');
+                </div>
+            `}).join('');
+            
+            // ربط أحداث الحذف
+            document.querySelectorAll('.delete-place-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    deleteTargetType = 'place';
+                    deleteTargetId = btn.dataset.placeId;
+                    document.getElementById('deleteConfirmText').textContent = 'هل أنت متأكد من حذف هذا المكان؟ لا يمكن التراجع.';
+                    document.getElementById('deleteConfirmModal').classList.remove('hidden');
+                });
+            });
         }
 
         // التصنيفات
@@ -762,23 +787,5 @@
                     document.getElementById('myPlacesContainer').innerHTML = '<div class="col-span-full text-center py-8 text-gray-500"><p>لم تقم بإضافة أي أماكن بعد</p><a href="add-place.html" class="mt-3 inline-block bg-primary text-white px-4 py-2 rounded-lg">أضف مكاناً الآن</a></div>';
                     return;
                 }
-                document.getElementById('myPlacesContainer').innerHTML = myPlaces.map(p => `
-                    <a href="place-detail.html?id=${p.id}" class="bg-white rounded-xl overflow-hidden shadow-sm card-hover block">
-                        <div class="place-image-container h-40">
-                            ${p.imageUrl 
-                                ? `<img src="${p.imageUrl}" alt="${p.name}" class="place-image" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
-                                   <div class="img-fallback" style="display:none;"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                                : `<div class="img-fallback"><i class="fa fa-image text-3xl text-primary/40"></i></div>`
-                            }
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-gray-800">${p.name || 'بدون اسم'}</h3>
-                            <p class="text-sm text-gray-500">${p.city || ''} — ${p.category || ''}</p>
-                        </div>
-                    </a>
-                `).join('');
-            } catch {}
-        }
-    </script>
-</body>
-</html>
+                document.getElementById('myPlacesContainer').innerHTML = myPlaces.map(p => {
+                    const canModify = currentUser && (current
