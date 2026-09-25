@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المستخدمين - لوحة المشرف</title>
+    <title>لوحة تحكم المشرف</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -12,7 +12,9 @@
                 extend: {
                     colors: {
                         primary: '#16a34a',
+                        secondary: '#15803d',
                         danger: '#dc2626',
+                        warning: '#f59e0b',
                         admin: '#7c3aed',
                     },
                 }
@@ -22,74 +24,119 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
+        .modal-backdrop { background: rgba(0,0,0,0.5); }
+        .user-card { transition: all 0.2s ease; }
+        .user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-action { transition: all 0.15s ease; }
+        .btn-action:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- رأس الصفحة -->
+    <!-- الهيدر -->
     <header class="bg-gradient-to-r from-admin to-purple-700 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <button id="backBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition">
-                        <i class="fa fa-arrow-right"></i>
-                    </button>
-                    <div>
-                        <h1 class="text-lg font-bold">لوحة المشرف</h1>
-                        <p class="text-sm text-white/80">إدارة المستخدمين المصرح لهم بالدخول</p>
-                    </div>
-                </div>
-                <button id="logoutBtn" class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm">
-                    <i class="fa fa-sign-out ml-1"></i> تسجيل الخروج
-                </button>
-            </div>
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="home.html" class="bg-white/20 hover:bg-white/30 p-2 rounded-full transition">
+                <i class="fa fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold flex items-center gap-2">
+                <i class="fa fa-shield"></i> لوحة تحكم المشرف
+            </h1>
+            <div class="w-8"></div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-6 max-w-2xl">
-        
-        <!-- ✅ نموذج إضافة مستخدم جديد -->
-        <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fa fa-user-plus text-admin"></i> إضافة مستخدم جديد
-            </h2>
-            <form id="addUserForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل</label>
-                    <input type="text" id="fullName" class="w-full p-2.5 border rounded-lg" placeholder="أدخل الاسم الكامل" required>
+    <main class="container mx-auto px-4 py-6">
+        <!-- بطاقة معلومات المشرف -->
+        <div class="bg-gradient-to-r from-admin/10 to-purple-50 rounded-2xl p-5 mb-6 border border-admin/20">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-admin rounded-full flex items-center justify-center text-white text-xl">
+                    <i class="fa fa-user-shield"></i>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">+966</span>
-                        <input type="tel" id="userPhone" maxlength="9" inputmode="numeric" 
-                            class="w-full pr-12 pl-4 p-2.5 border rounded-lg" placeholder="5XXXXXXXX" required>
-                    </div>
+                    <h2 id="adminName" class="font-bold text-lg">المشرف</h2>
+                    <p id="adminEmail" class="text-sm text-gray-600">Alihossin28@gmail.com</p>
                 </div>
-                <button type="submit" class="bg-admin text-white px-5 py-2.5 rounded-lg hover:bg-purple-700 transition">
-                    <i class="fa fa-plus ml-1"></i> إضافة المستخدم
-                </button>
-            </form>
+            </div>
         </div>
 
-        <!-- 📋 قائمة المستخدمين -->
-        <div class="bg-white rounded-xl shadow-sm p-5">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center justify-between">
-                <span class="flex items-center gap-2">
-                    <i class="fa fa-users text-admin"></i> قائمة المستخدمين
-                </span>
-                <span id="userCount" class="text-sm font-normal text-gray-500">(0 مستخدم)</span>
-            </h2>
-            
-            <div id="usersList" class="space-y-3">
-                <div class="text-center py-6 text-gray-500">جاري التحميل...</div>
+        <!-- زر إضافة مستخدم جديد -->
+        <button id="addUserBtn" class="w-full bg-admin hover:bg-purple-700 text-white py-3 rounded-xl font-medium mb-6 flex items-center justify-center gap-2 btn-action">
+            <i class="fa fa-user-plus"></i> إضافة مستخدم جديد
+        </button>
+
+        <!-- قائمة المستخدمين -->
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="font-bold text-gray-800 text-lg">قائمة المستخدمين</h3>
+            <span id="userCount" class="text-sm text-gray-500">0 مستخدم</span>
+        </div>
+
+        <div id="usersContainer" class="space-y-4">
+            <div class="text-center py-10 text-gray-500">
+                <i class="fa fa-spinner fa-spin text-2xl text-admin"></i>
+                <p class="mt-2">جاري التحميل...</p>
             </div>
         </div>
     </main>
 
+    <!-- نافذة إضافة/تعديل مستخدم -->
+    <div id="userModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" id="modalBackdrop"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <h3 id="modalTitle" class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <i class="fa fa-user-plus text-admin"></i> إضافة مستخدم جديد
+                </h3>
+                <form id="userForm" class="space-y-4">
+                    <input type="hidden" id="editUserId">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل *</label>
+                        <input type="text" id="userFullName" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-admin/20 outline-none" placeholder="أدخل الاسم الكامل" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">رقم الجوال *</label>
+                        <input type="tel" id="userPhone" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-admin/20 outline-none" placeholder="+966500000000" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ملاحظات (اختياري)</label>
+                        <textarea id="userNotes" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-admin/20 outline-none" rows="2" placeholder="أي ملاحظات حول المستخدم"></textarea>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" id="cancelModal" class="flex-1 py-2.5 border rounded-lg hover:bg-gray-50">إلغاء</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-admin text-white rounded-lg hover:bg-purple-700">
+                            <span id="modalSubmitText">حفظ</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الحذف -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" id="deleteBackdrop"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-exclamation-triangle text-danger text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold mb-2">تأكيد الحذف</h3>
+                <p class="text-gray-600 mb-6">هل أنت متأكد من حذف هذا المستخدم؟<br>لا يمكن التراجع عن هذا الإجراء.</p>
+                <div class="flex gap-3">
+                    <button id="cancelDelete" class="flex-1 py-2.5 border rounded-lg hover:bg-gray-50">إلغاء</button>
+                    <button id="confirmDelete" class="flex-1 py-2.5 bg-danger text-white rounded-lg hover:bg-red-700">حذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -104,109 +151,196 @@
         const db = getFirestore(app);
 
         // التحقق من صلاحيات المشرف
-        const checkAuth = () => {
-            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const userType = localStorage.getItem('userType');
-            if (!isLoggedIn || userType !== 'admin') {
-                alert('غير مصرح لك بالدخول لهذه الصفحة');
-                window.location.href = 'login.html';
-                return false;
-            }
-            return true;
-        };
-        if (!checkAuth()) throw new Error('غير مصرح');
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userType = localStorage.getItem('userType') || 'guest';
+        
+        if (!isLoggedIn || userType !== 'admin') {
+            alert('غير مسموح بالوصول لهذه الصفحة');
+            window.location.href = 'home.html';
+        }
 
-        const ADMIN_PHONE = "+966500509134";
-        const addUserForm = document.getElementById('addUserForm');
-        const usersList = document.getElementById('usersList');
+        // عناصر الصفحة
+        const usersContainer = document.getElementById('usersContainer');
         const userCount = document.getElementById('userCount');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const userModal = document.getElementById('userModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const userForm = document.getElementById('userForm');
+        
+        let allUsers = [];
+        let deleteTargetId = null;
 
-        // تحميل قائمة المستخدمين
+        // فتح نافذة إضافة مستخدم جديد
+        addUserBtn.addEventListener('click', () => {
+            document.getElementById('modalTitle').innerHTML = '<i class="fa fa-user-plus text-admin"></i> إضافة مستخدم جديد';
+            document.getElementById('modalSubmitText').textContent = 'حفظ';
+            document.getElementById('editUserId').value = '';
+            document.getElementById('userForm').reset();
+            userModal.classList.remove('hidden');
+        });
+
+        // إغلاق النوافذ
+        document.getElementById('cancelModal').addEventListener('click', () => {
+            userModal.classList.add('hidden');
+        });
+        document.getElementById('modalBackdrop').addEventListener('click', () => {
+            userModal.classList.add('hidden');
+        });
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+            deleteTargetId = null;
+        });
+        document.getElementById('deleteBackdrop').addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+            deleteTargetId = null;
+        });
+
+        // حفظ مستخدم (إضافة أو تعديل)
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userFullName').value.trim();
+            const phone = document.getElementById('userPhone').value.trim();
+            const notes = document.getElementById('userNotes').value.trim();
+            const editId = document.getElementById('editUserId').value;
+
+            if (!name || !phone) return;
+
+            try {
+                if (editId) {
+                    // تعديل مستخدم موجود
+                    await updateDoc(doc(db, 'authorizedUsers', editId), {
+                        fullName: name,
+                        phone: phone,
+                        notes: notes,
+                        updatedAt: new Date()
+                    });
+                    alert('✅ تم تحديث بيانات المستخدم بنجاح');
+                } else {
+                    // إضافة مستخدم جديد
+                    await addDoc(collection(db, 'authorizedUsers'), {
+                        fullName: name,
+                        phone: phone,
+                        notes: notes,
+                        createdAt: new Date(),
+                        createdBy: 'admin'
+                    });
+                    alert('✅ تمت إضافة المستخدم بنجاح');
+                }
+                userModal.classList.add('hidden');
+                loadUsers();
+            } catch (err) {
+                console.error(err);
+                alert('❌ حدث خطأ أثناء الحفظ');
+            }
+        });
+
+        // فتح نافذة التعديل
+        window.editUser = function(id, name, phone, notes) {
+            document.getElementById('modalTitle').innerHTML = '<i class="fa fa-edit text-admin"></i> تعديل بيانات المستخدم';
+            document.getElementById('modalSubmitText').textContent = 'تحديث';
+            document.getElementById('editUserId').value = id;
+            document.getElementById('userFullName').value = name;
+            document.getElementById('userPhone').value = phone;
+            document.getElementById('userNotes').value = notes || '';
+            userModal.classList.remove('hidden');
+        };
+
+        // فتح نافذة تأكيد الحذف
+        window.deleteUser = function(id) {
+            deleteTargetId = id;
+            deleteModal.classList.remove('hidden');
+        };
+
+        // تنفيذ الحذف
+        document.getElementById('confirmDelete').addEventListener('click', async () => {
+            if (!deleteTargetId) return;
+            try {
+                await deleteDoc(doc(db, 'authorizedUsers', deleteTargetId));
+                alert('✅ تم حذف المستخدم بنجاح');
+                deleteModal.classList.add('hidden');
+                deleteTargetId = null;
+                loadUsers();
+            } catch (err) {
+                console.error(err);
+                alert('❌ حدث خطأ أثناء الحذف');
+            }
+        });
+
+        // تحميل وعرض جميع المستخدمين
         async function loadUsers() {
             try {
                 const q = query(collection(db, 'authorizedUsers'), orderBy('createdAt', 'desc'));
                 const snap = await getDocs(q);
-                const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                userCount.textContent = `(${users.length} مستخدم)`;
-
-                if (users.length === 0) {
-                    usersList.innerHTML = '<div class="text-center py-6 text-gray-500">لا يوجد مستخدمين مضافين بعد</div>';
+                allUsers = [];
+                
+                if (snap.empty) {
+                    usersContainer.innerHTML = `
+                        <div class="text-center py-10">
+                            <i class="fa fa-users text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">لا يوجد مستخدمين مضافين حتى الآن</p>
+                            <p class="text-sm text-gray-400 mt-1">استخدم الزر أعلاه لإضافة أول مستخدم</p>
+                        </div>
+                    `;
+                    userCount.textContent = '0 مستخدم';
                     return;
                 }
 
-                usersList.innerHTML = users.map(u => {
-                    const isAdmin = u.phone === ADMIN_PHONE;
-                    return `
-                        <div class="flex items-center justify-between p-3 border rounded-lg ${isAdmin ? 'bg-purple-50 border-purple-200' : ''}">
-                            <div>
-                                <h4 class="font-semibold text-gray-800">${u.fullName}</h4>
-                                <p class="text-sm text-gray-500">${u.phone}</p>
-                                ${isAdmin ? '<span class="text-xs text-admin font-medium">مدير النظام</span>' : ''}
+                usersContainer.innerHTML = '';
+                let count = 0;
+                snap.forEach(doc => {
+                    const user = doc.data();
+                    allUsers.push({ id: doc.id, ...user });
+                    count++;
+                    
+                    const userName = user.fullName || 'بدون اسم';
+                    const userPhone = user.phone || 'بدون رقم';
+                    const userNotes = user.notes || '';
+                    const isAdmin = userPhone === '+966500509134';
+                    
+                    usersContainer.innerHTML += `
+                        <div class="user-card bg-white rounded-xl shadow-sm p-4 border ${isAdmin ? 'border-admin/30 bg-admin/5' : 'border-gray-100'}">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full ${isAdmin ? 'bg-admin text-white' : 'bg-gray-100 text-gray-600'} flex items-center justify-center text-xl">
+                                        ${isAdmin ? '<i class="fa fa-shield"></i>' : '<i class="fa fa-user"></i>'}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">${userName}</h4>
+                                        <a href="tel:${userPhone}" class="text-sm text-primary hover:underline flex items-center gap-1 mt-1">
+                                            <i class="fa fa-phone text-xs"></i> ${userPhone}
+                                        </a>
+                                        ${userNotes ? `<p class="text-xs text-gray-500 mt-1">${userNotes}</p>` : ''}
+                                        ${isAdmin ? '<span class="inline-block mt-1 text-xs bg-admin/20 text-admin px-2 py-0.5 rounded-full">المشرف</span>' : ''}
+                                    </div>
+                                </div>
+                                ${!isAdmin ? `
+                                    <div class="flex flex-col gap-2">
+                                        <button onclick="editUser('${doc.id}', '${userName}', '${userPhone}', '${userNotes.replace(/'/g, "\\'")}')" 
+                                            class="p-2 text-warning hover:bg-warning/10 rounded-lg btn-action" title="تعديل">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                        <button onclick="deleteUser('${doc.id}')" 
+                                            class="p-2 text-danger hover:bg-danger/10 rounded-lg btn-action" title="حذف">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                ` : '<div class="text-xs text-gray-400">المدير</div>'}
                             </div>
-                            ${!isAdmin ? `
-                                <button data-id="${u.id}" class="delete-user-btn text-danger hover:bg-red-50 p-2 rounded-lg transition">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            ` : ''}
                         </div>
                     `;
-                }).join('');
-
-                // ربط أزرار الحذف
-                document.querySelectorAll('.delete-user-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const id = btn.dataset.id;
-                        if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-                            await deleteDoc(doc(db, 'authorizedUsers', id));
-                            await loadUsers();
-                        }
-                    });
                 });
+                userCount.textContent = `${count} مستخدم`;
             } catch (err) {
                 console.error(err);
-                usersList.innerHTML = '<div class="text-center py-6 text-red-500">❌ خطأ في تحميل البيانات</div>';
+                usersContainer.innerHTML = `
+                    <div class="text-center py-10 text-red-500">
+                        <i class="fa fa-exclamation-triangle text-2xl"></i>
+                        <p class="mt-2">تعذر تحميل المستخدمين</p>
+                        <button onclick="loadUsers()" class="mt-3 px-4 py-2 bg-admin text-white rounded-lg text-sm">إعادة المحاولة</button>
+                    </div>
+                `;
             }
         }
-
-        // إضافة مستخدم جديد
-        addUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('fullName').value.trim();
-            let phone = document.getElementById('userPhone').value.trim();
-
-            if (phone.length !== 9) {
-                alert('أدخل رقم الجوال مكون من 9 أرقام فقط');
-                return;
-            }
-
-            const fullPhone = "+966" + phone;
-
-            try {
-                await addDoc(collection(db, 'authorizedUsers'), {
-                    fullName: name,
-                    phone: fullPhone,
-                    createdAt: new Date()
-                });
-
-                addUserForm.reset();
-                await loadUsers();
-                alert(`✅ تم إضافة "${name}" بنجاح`);
-            } catch (err) {
-                console.error(err);
-                alert('❌ حدث خطأ أثناء الإضافة');
-            }
-        });
-
-        // أزرار التنقل
-        document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'home.html';
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        });
 
         loadUsers();
     </script>
