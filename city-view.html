@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اسم المدينة — الأماكن</title>
+    <title id="pageTitle">الطائف — كشتات العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#22C55E', secondary: '#3B82F6', accent: '#F59E0B' }
+                    colors: { 
+                        primary: '#22C55E', secondary: '#3B82F6', 
+                        admin: '#6366F1', danger: '#EF4444', 
+                        warning: '#F59E0B', success: '#10B981' 
+                    }
                 }
             }
         }
@@ -18,67 +22,120 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 100px; }
-        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
-        .place-card { background: rgba(255,255,255,0.9); border-radius: 16px; transition: all 0.25s ease; border: 1px solid rgba(0,0,0,0.05); }
-        .place-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-        .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
+        body { background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%); min-height: 100vh; padding-bottom: 100px; }
+        .place-card { transition: all 0.2s ease; cursor: pointer; }
+        .place-card:active { transform: scale(0.98); }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .stars { color: #FBBF24; }
+        .btn-call { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .btn-map { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+        .btn-edit { background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); }
+        .image-preview { border-radius: 12px; object-fit: cover; }
+        .category-tag { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: #E0F2FE; color: #0369A1; }
     </style>
 </head>
 <body>
-    <!-- حماية الصفحة -->
-    <script>
-        const userData = JSON.parse(localStorage.getItem('user') || 'null');
-        if (!userData) {
-            location.href = 'login.html';
-        }
-    </script>
-
-    <header class="glass sticky top-0 z-30 shadow-sm">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <!-- زر الرجوع -->
-            <button onclick="location.href='home.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border-0">
+    <!-- رأس الصفحة -->
+    <header class="px-4 pt-6 pb-4">
+        <div class="flex items-center justify-between mb-6">
+            <button onclick="goBack()" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
                 <i class="fa fa-arrow-right text-gray-600"></i>
             </button>
-            <h1 id="cityTitle" class="text-lg font-bold">اسم المدينة</h1>
+            <h1 class="text-xl font-bold text-dark" id="cityNameHeader">الطائف (أو اسم مدينتك)</h1>
             <div class="w-10"></div>
         </div>
+
+        <!-- أزرار الإضافة والعودة -->
+        <button onclick="window.location.href='add-place.html'" class="w-full bg-primary text-white py-4 rounded-xl text-lg font-bold mb-3 shadow-md">
+            <i class="fa fa-plus ml-2"></i> إضافة مكان جديد
+        </button>
+        <button onclick="window.location.href='home.html'" class="w-full bg-gray-100 text-gray-600 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
+            <i class="fa fa-home"></i> الرجوع للمدن
+        </button>
     </header>
 
-    <main class="container mx-auto px-4 py-5">
-        <!-- زران في الأعلى -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-6">
-            <button onclick="location.href='add-place.html'" class="flex-1 bg-primary text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2">
-                <i class="fa fa-plus"></i> إضافة مكان جديد
-            </button>
-            <button onclick="location.href='home.html'" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
-                <i class="fa fa-home"></i> الرجوع للمدن
-            </button>
-        </div>
+    <main class="px-4">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+            <i class="fa fa-map-marker text-primary"></i>
+            الأماكن في <span id="citySubtitle">الطائف</span>
+        </h2>
 
-        <hr class="my-4 border-gray-200/50">
-
-        <section>
-            <h2 class="text-md font-bold mb-4 flex items-center gap-2">
-                <i class="fa fa-map-marker text-secondary"></i> الأماكن في <span id="cityNameSub">المدينة</span>
-            </h2>
-            <div id="placesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full text-center py-12">
-                    <i class="fa fa-map-o text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-gray-500">لا توجد أماكن مضافة في هذه المدينة</p>
-                    <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مكان جديد" لأول مكان ✅</p>
-                </div>
+        <!-- قائمة الأماكن -->
+        <div id="placesList" class="space-y-4">
+            <!-- سيتم تحميل الأماكن هنا -->
+            <div class="text-center py-12 text-gray-400">
+                <i class="fa fa-map-o text-5xl mb-4"></i>
+                <p>لا توجد أماكن مضافة حتى الآن</p>
+                <p class="text-sm mt-1">كن أول من يضيف مكاناً جديداً! 🎉</p>
             </div>
-        </section>
+        </div>
     </main>
 
-    <button onclick="location.href='add-place.html'" class="btn-float bg-primary">
-        <i class="fa fa-plus text-lg"></i>
-    </button>
+    <!-- نافذة تفاصيل المكان -->
+    <div id="placeDetailModal" class="modal fixed inset-0 bg-black/50 z-50 items-end justify-center">
+        <div class="w-full max-w-lg bg-white rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold" id="modalPlaceName">اسم المكان</h2>
+                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="fa fa-times text-gray-500"></i>
+                </button>
+            </div>
+
+            <!-- الصور -->
+            <div id="modalImagesContainer" class="mb-4">
+                <img id="modalMainImage" src="" class="w-full h-48 object-cover rounded-xl mb-2 hidden">
+                <div id="modalGallery" class="grid grid-cols-3 gap-2 mt-2"></div>
+            </div>
+
+            <!-- المعلومات الأساسية -->
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="category-tag" id="modalCategory">تصنيف</span>
+                    <span class="text-yellow-500" id="modalStars">★★★★★</span>
+                </div>
+                
+                <div class="flex items-center gap-2 text-gray-600" id="modalPriceContainer">
+                    <i class="fa fa-tag text-sm"></i>
+                    <span>السعر: </span>
+                    <span class="font-medium" id="modalPrice">غير محدد</span>
+                </div>
+
+                <div class="text-gray-600" id="modalNotesContainer">
+                    <i class="fa fa-sticky-note-o ml-1"></i>
+                    <span id="modalNotes" class="text-sm"></span>
+                </div>
+            </div>
+
+            <!-- أزرار الاتصال والخريطة -->
+            <div class="grid grid-cols-2 gap-3 mb-6" id="actionButtons">
+                <a id="callBtn" href="#" class="btn-call text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
+                    <i class="fa fa-phone"></i>
+                    <span>اتصال مباشر</span>
+                </a>
+                <a id="mapBtn" href="#" target="_blank" class="btn-map text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium hidden">
+                    <i class="fa fa-map"></i>
+                    <span>فتح في الخريطة</span>
+                </a>
+            </div>
+
+            <!-- أزرار التعديل والحذف - تظهر فقط للمالك أو المشرف -->
+            <div id="manageButtons" class="grid grid-cols-2 gap-3 mt-4 hidden">
+                <button onclick="editCurrentPlace()" class="btn-edit text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium">
+                    <i class="fa fa-pencil"></i>
+                    <span>تعديل</span>
+                </button>
+                <button onclick="deleteCurrentPlace()" class="bg-danger/10 text-danger py-3 rounded-xl flex items-center justify-center gap-2 font-medium">
+                    <i class="fa fa-trash"></i>
+                    <span>حذف</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
@@ -91,42 +148,202 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // استلام اسم المدينة من الرابط
-        const params = new URLSearchParams(window.location.search);
-        const cityName = params.get('name') || 'مدينة غير معروفة';
-        document.getElementById('cityTitle').textContent = cityName;
-        document.getElementById('cityNameSub').textContent = cityName;
+        // بيانات المدينة الحالية
+        let currentCity = localStorage.getItem('currentCity') || 'الطائف';
+        let allPlaces = [];
+        let currentPlace = null;
+        const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
+        // تحديث العنوان
+        document.getElementById('cityNameHeader').textContent = currentCity;
+        document.getElementById('citySubtitle').textContent = currentCity;
+        document.title = `${currentCity} — كشتات العويشي`;
+
+        // تحميل الأماكن
         async function loadPlaces() {
-            const grid = document.getElementById('placesGrid');
             try {
-                const q = query(collection(db, 'places'), where('city', '==', cityName));
-                const snap = await getDocs(q);
-                if (snap.empty) {
-                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-map-o text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد أماكن مضافة في هذه المدينة</p><p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مكان جديد" لأول مكان ✅</p></div>`;
-                    return;
-                }
-                grid.innerHTML = '';
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
-                    grid.innerHTML += `
-                        <div class="place-card p-5">
-                            <h3 class="font-bold text-lg">${p.name}</h3>
-                            <p class="text-sm text-gray-500 mt-1">${p.category || 'بدون تصنيف'}</p>
-                            <p class="text-yellow-500 text-sm mt-1">${stars}</p>
-                            ${p.price ? `<p class="text-sm text-accent mt-1">💰 ${p.price}</p>` : ''}
-                            ${p.phone ? `<a href="tel:${p.phone}" class="text-sm text-secondary mt-2 inline-block"><i class="fa fa-phone ml-1"></i> ${p.phone}</a>` : ''}
-                            ${p.mapUrl ? `<div class="mt-2"><a href="${p.mapUrl}" target="_blank" class="text-sm text-primary"><i class="fa fa-map-marker ml-1"></i> عرض في الخريطة</a></div>` : ''}
-                            ${p.notes ? `<p class="text-sm text-gray-600 mt-2 border-t pt-2">${p.notes}</p>` : ''}
-                        </div>
-                    `;
+                const snap = await getDocs(collection(db, 'places'));
+                allPlaces = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.city === currentCity) {
+                        allPlaces.push({ id: d.id, ...data });
+                    }
                 });
+                renderPlaces();
             } catch (e) {
-                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل</p>`;
+                console.error('خطأ في تحميل الأماكن:', e);
+                document.getElementById('placesList').innerHTML = `
+                    <div class="text-center py-12 text-red-500">
+                        <i class="fa fa-exclamation-circle text-3xl mb-2"></i>
+                        <p>حدث خطأ في تحميل الأماكن</p>
+                    </div>
+                `;
             }
         }
 
+        function renderPlaces() {
+            const container = document.getElementById('placesList');
+            
+            if (allPlaces.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa fa-map-o text-5xl mb-4"></i>
+                        <p>لا توجد أماكن مضافة في ${currentCity} حتى الآن</p>
+                        <p class="text-sm mt-1">كن أول من يضيف مكاناً جديداً! 🎉</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            allPlaces.forEach((place, index) => {
+                const stars = '★'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0));
+                const mainImage = place.images && place.images.length > 0 ? place.images[0] : null;
+                
+                container.innerHTML += `
+                    <div class="place-card bg-white rounded-2xl shadow-sm border border-gray-100 p-4" 
+                         onclick="openDetailModal(${index})">
+                        <div class="flex gap-3">
+                            ${mainImage ? `
+                                <img src="${mainImage}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
+                            ` : `
+                                <div class="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa fa-map-marker text-primary text-xl"></i>
+                                </div>
+                            `}
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-lg truncate">${place.name || 'بدون اسم'}</h3>
+                                <p class="text-sm text-sky-600">${place.category || 'أخرى'}</p>
+                                <p class="text-yellow-500 text-sm">${stars}</p>
+                                ${place.phone ? `<p class="text-sm text-gray-500 mt-1">📱 ${place.phone}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // فتح نافذة التفاصيل
+        window.openDetailModal = function(index) {
+            currentPlace = allPlaces[index];
+            const modal = document.getElementById('placeDetailModal');
+            
+            // تعبئة البيانات
+            document.getElementById('modalPlaceName').textContent = currentPlace.name || 'بدون اسم';
+            document.getElementById('modalCategory').textContent = currentPlace.category || 'أخرى';
+            
+            // النجوم
+            const stars = '★'.repeat(currentPlace.rating || 0) + '☆'.repeat(5 - (currentPlace.rating || 0));
+            document.getElementById('modalStars').textContent = stars;
+            
+            // السعر
+            if (currentPlace.price) {
+                document.getElementById('modalPrice').textContent = currentPlace.price;
+                document.getElementById('modalPriceContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('modalPriceContainer').classList.add('hidden');
+            }
+            
+            // الملاحظات
+            if (currentPlace.notes) {
+                document.getElementById('modalNotes').textContent = currentPlace.notes;
+                document.getElementById('modalNotesContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('modalNotesContainer').classList.add('hidden');
+            }
+            
+            // رقم الجوال - زر الاتصال
+            const callBtn = document.getElementById('callBtn');
+            if (currentPlace.phone) {
+                callBtn.href = `tel:${currentPlace.phone}`;
+                callBtn.classList.remove('hidden');
+            } else {
+                callBtn.classList.add('hidden');
+            }
+            
+            // رابط الخريطة
+            const mapBtn = document.getElementById('mapBtn');
+            if (currentPlace.mapUrl) {
+                mapBtn.href = currentPlace.mapUrl;
+                mapBtn.classList.remove('hidden');
+            } else {
+                mapBtn.classList.add('hidden');
+            }
+            
+            // الصور
+            const mainImg = document.getElementById('modalMainImage');
+            const gallery = document.getElementById('modalGallery');
+            if (currentPlace.images && currentPlace.images.length > 0) {
+                mainImg.src = currentPlace.images[0];
+                mainImg.classList.remove('hidden');
+                gallery.innerHTML = '';
+                currentPlace.images.forEach((img, i) => {
+                    if (i > 0) {
+                        gallery.innerHTML += `<img src="${img}" class="w-full h-20 object-cover rounded-lg">`;
+                    }
+                });
+                if (currentPlace.images.length <= 1) gallery.innerHTML = '';
+            } else {
+                mainImg.classList.add('hidden');
+                gallery.innerHTML = '';
+            }
+            
+            // أزرار التعديل والحذف - فقط للمالك أو المشرف
+            const manageBtns = document.getElementById('manageButtons');
+            if (currentUser && (currentUser.type === 'admin' || currentUser.phone === currentPlace.createdByPhone)) {
+                manageBtns.classList.remove('hidden');
+            } else {
+                manageBtns.classList.add('hidden');
+            }
+            
+            modal.classList.add('active', 'flex');
+            document.body.style.overflow = 'hidden';
+        };
+
+        // إغلاق النافذة
+        window.closeDetailModal = function() {
+            const modal = document.getElementById('placeDetailModal');
+            modal.classList.remove('active', 'flex');
+            document.body.style.overflow = 'auto';
+            currentPlace = null;
+        };
+
+        // تعديل المكان
+        window.editCurrentPlace = function() {
+            if (!currentPlace) return;
+            localStorage.setItem('editPlaceData', JSON.stringify(currentPlace));
+            localStorage.setItem('editPlaceCity', currentCity);
+            window.location.href = 'add-place.html?edit=' + currentPlace.id;
+        };
+
+        // حذف المكان
+        window.deleteCurrentPlace = async function() {
+            if (!currentPlace) return;
+            if (!confirm(`⚠️ هل أنت متأكد من حذف "${currentPlace.name}"؟ لا يمكن التراجع!`)) return;
+            
+            try {
+                await deleteDoc(doc(db, 'places', currentPlace.id));
+                alert(`✅ تم حذف "${currentPlace.name}" بنجاح`);
+                closeDetailModal();
+                loadPlaces();
+            } catch (e) {
+                console.error(e);
+                alert('❌ حدث خطأ أثناء الحذف: ' + e.message);
+            }
+        };
+
+        // العودة للصفحة السابقة
+        window.goBack = function() {
+            window.location.href = 'home.html';
+        };
+
+        // إغلاق النافذة عند النقر خارجها
+        document.getElementById('placeDetailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'placeDetailModal') closeDetailModal();
+        });
+
+        // تحميل البيانات عند فتح الصفحة
         loadPlaces();
     </script>
 </body>
