@@ -3,618 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل المكان — كشتات عائلة حسين العويشي</title>
+    <title>إنشاء حساب جديد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#16a34a',
-                        secondary: '#15803d',
-                        accent: '#f59e0b',
-                        dark: '#14532d',
-                    },
-                    fontFamily: {
-                        sans: ['Tajawal', 'sans-serif'],
-                    },
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { primary: '#22C55E' } } }
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Tajawal', sans-serif; }
-        .star-active { color: #f59e0b; }
-        .star-inactive { color: #d1d5db; }
-        body { padding-top: 110px; background-color: #fafafa; }
-        .city-nav {
-            position: fixed;
-            top: 72px;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-            border-bottom: 1px solid #bbf7d0;
-            z-index: 30;
-            padding: 10px 0;
-            overflow-x: auto;
-            box-shadow: 0 2px 12px rgba(22, 163, 74, 0.08);
-        }
-        .city-nav::-webkit-scrollbar { height: 5px; }
-        .city-nav::-webkit-scrollbar-thumb {
-            background: linear-gradient(90deg, #16a34a, #f59e0b);
-            border-radius: 10px;
-        }
-        .city-nav::-webkit-scrollbar-track {
-            background: #dcfce7;
-            border-radius: 10px;
-        }
-        .city-nav-item {
-            flex-shrink: 0;
-            padding: 10px 22px;
-            margin: 0 6px;
-            border-radius: 50px;
-            font-size: 14.5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            background: #ffffff;
-            color: #374151;
-            border: 1.5px solid #e5e7eb;
-        }
-        .city-nav-item:hover {
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #15803d;
-            border-color: #16a34a;
-            transform: translateY(-2px);
-        }
-        .city-nav-item.active {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            color: white;
-            font-weight: 700;
-            border-color: transparent;
-        }
-        .city-nav-title {
-            background: linear-gradient(90deg, #16a34a, #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-        .main-image-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        }
-        .main-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        .main-image.loaded { opacity: 1; }
-        .fallback-image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            min-height: 280px;
-        }
-        .review-card {
-            transition: all 0.25s ease;
-        }
-        .review-card:hover {
-            background-color: #f9fafb;
-        }
-        .auth-banner {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-        }
+        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; }
+        .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
+        .btn-primary { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px dashed #ccc; cursor: pointer; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-
-    <!-- 🔐 حالة عدم تسجيل الدخول -->
-    <div id="authBanner" class="auth-banner text-white py-3 px-4 text-center fixed top-0 left-0 right-0 z-[70] hidden">
-        <i class="fa fa-info-circle ml-2"></i>
-        <span>يجب </span>
-        <a href="home.html" class="font-bold underline mx-1">تسجيل الدخول</a>
-        <span>لعرض تفاصيل هذا المكان</span>
+<body class="flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-6">
+            <h1 class="text-xl font-bold">إنشاء حساب جديد</h1>
+            <p class="text-gray-500 text-sm mt-1">أكمل بياناتك</p>
+        </div>
+        <div class="glass rounded-3xl shadow-lg p-6">
+            <form id="regForm" class="space-y-4">
+                <div class="text-center">
+                    <label for="avatarInput">
+                        <img id="avatarPreview" src="https://via.placeholder.com/80" class="avatar-preview mx-auto" alt="صورة شخصية">
+                        <p class="text-xs text-gray-500 mt-1">اضغط لاختيار صورة (اختياري)</p>
+                    </label>
+                    <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                </div>
+                <input type="text" id="name" placeholder="الاسم الكامل" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="tel" id="phone" placeholder="رقم الجوال * مثال: 05xxxxxxxx" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="email" id="email" placeholder="البريد الإلكتروني (اختياري)"
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <input type="password" id="password" placeholder="كلمة المرور *" required
+                    class="w-full p-3.5 rounded-xl bg-gray-50/70 border border-gray-200 outline-none">
+                <button type="submit" class="w-full btn-primary text-white py-3.5 rounded-xl font-medium">
+                    <i class="fa fa-check ml-2"></i> إنشاء الحساب
+                </button>
+            </form>
+            <p class="text-center text-sm mt-4">لديك حساب؟ <a href="login.html" class="text-primary font-medium">تسجيل الدخول</a></p>
+        </div>
     </div>
 
-    <!-- 📦 المحتوى الرئيسي -->
-    <div id="contentWrapper">
-        <nav class="city-nav" id="cityNavigation">
-            <div class="container mx-auto px-4">
-                <div class="flex items-center gap-3" id="cityNavContainer">
-                    <span class="city-nav-title flex items-center gap-1.5 whitespace-nowrap">
-                        <i class="fa fa-map-marker"></i> المدن
-                    </span>
-                    <div class="flex" id="cityNavItems">
-                        <span class="text-gray-400 text-sm px-2">جاري التحميل...</span>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <header class="bg-gradient-to-r from-primary via-secondary to-dark text-white shadow-lg fixed top-0 left-0 right-0 z-40">
-            <div class="container mx-auto px-4 py-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <a id="adminBtn" href="admin-settings.html" class="hidden bg-amber-500 hover:bg-amber-400 px-3 py-2 rounded-xl flex items-center gap-2 transition shadow-md">
-                            <i class="fa fa-cog"></i>
-                            <span class="hidden sm:inline font-medium">لوحة المشرف</span>
-                        </a>
-                    </div>
-                    <div class="flex-1 text-center">
-                        <h1 class="text-xl font-bold inline-flex items-center gap-2">
-                            <i class="fa fa-leaf text-accent"></i>
-                            <span class="hidden sm:inline">كشتات عائلة حسين العويشي</span>
-                            <span class="sm:hidden">كشتات</span>
-                        </h1>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="history.back()" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition" title="الرجوع">
-                            <i class="fa fa-arrow-right"></i>
-                        </button>
-                        <a href="home.html" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition" title="الرئيسية">
-                            <i class="fa fa-home"></i>
-                        </a>
-                        <button id="userMenuBtn" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition">
-                            <i class="fa fa-user-circle-o text-xl"></i>
-                        </button>
-                    </div>
-                </div>
-                <div id="userDropdown" class="absolute left-4 right-4 sm:left-auto sm:right-4 sm:w-72 mt-2 bg-white rounded-xl shadow-xl z-50 hidden overflow-hidden">
-                    <div class="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b">
-                        <p class="text-sm text-gray-500">البريد الإلكتروني</p>
-                        <p id="userEmailDisplay" class="font-semibold text-gray-800 text-sm truncate"></p>
-                    </div>
-                    <div class="p-2">
-                        <a href="add-place.html" class="block px-4 py-2.5 text-gray-700 hover:bg-green-50 rounded-lg">
-                            <i class="fa fa-plus-circle text-primary ml-2"></i> إضافة مكان
-                        </a>
-                        <a href="admin-settings.html" id="adminSettingsLink" class="hidden block px-4 py-2.5 text-amber-700 hover:bg-amber-50 rounded-lg">
-                            <i class="fa fa-shield ml-2"></i> إعدادات الموقع
-                        </a>
-                        <hr class="my-2">
-                        <button id="logoutBtn" class="w-full text-right px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg">
-                            <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="container mx-auto px-4 py-6">
-            <div id="loadingState" class="text-center py-16">
-                <i class="fa fa-spinner fa-spin text-4xl text-primary"></i>
-                <p class="mt-4 text-gray-500">جاري تحميل بيانات المكان...</p>
-            </div>
-
-            <div id="errorState" class="hidden text-center py-16">
-                <i class="fa fa-exclamation-triangle text-5xl text-amber-500"></i>
-                <h3 class="text-xl font-bold text-gray-800 mt-4">المكان غير موجود</h3>
-                <p class="text-gray-500 mt-2">قد يكون الرابط غير صالح أو تم حذف المكان</p>
-                <a href="home.html" class="inline-block mt-4 bg-gradient-to-r from-primary to-secondary text-white px-6 py-2.5 rounded-xl font-medium hover:shadow-md">
-                    العودة للرئيسية
-                </a>
-            </div>
-
-            <div id="placeContent" class="hidden">
-                <!-- الصورة الرئيسية -->
-                <div class="main-image-container mb-6 shadow-md">
-                    <img id="placeMainImage" class="main-image" alt="صورة المكان"
-                        onload="this.classList.add('loaded')"
-                        onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='flex';">
-                    <div id="imgFallback" class="fallback-image hidden">
-                        <div class="text-center">
-                            <i class="fa fa-map-marker text-5xl text-primary/40 mb-3"></i>
-                            <p class="text-gray-500">لا توجد صورة متاحة</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- معلومات المكان -->
-                <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-                    <h1 id="placeName" class="text-2xl font-bold text-gray-800 mb-2">اسم المكان</h1>
-                    
-                    <div class="flex flex-wrap items-center gap-3 mb-4">
-                        <span id="placeCity" class="inline-flex items-center gap-1 text-primary bg-primary/10 px-3 py-1 rounded-full text-sm font-medium">
-                            <i class="fa fa-map-marker"></i> المدينة
-                        </span>
-                        <span id="placeCategory" class="inline-flex items-center gap-1 text-accent bg-amber-50 px-3 py-1 rounded-full text-sm font-medium">
-                            <i class="fa fa-tag"></i> التصنيف
-                        </span>
-                    </div>
-
-                    <div class="flex items-center gap-3 mb-5 pb-5 border-b">
-                        <div id="placeStars" class="text-lg"></div>
-                        <span id="placeRatingText" class="text-gray-500 text-sm">0 تقييم</span>
-                    </div>
-
-                    <p id="placeDescription" class="text-gray-600 leading-relaxed mb-5">لا وصف متاح لهذا المكان.</p>
-
-                    <div class="flex flex-wrap gap-3">
-                        <button id="shareBtn" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700 transition">
-                            <i class="fa fa-share-alt"></i> مشاركة المكان
-                        </button>
-                        <a id="editPlaceBtn" href="#" class="hidden flex items-center gap-2 px-4 py-2.5 bg-amber-50 hover:bg-amber-100 rounded-xl text-amber-700 transition">
-                            <i class="fa fa-pencil"></i> تعديل
-                        </a>
-                    </div>
-                </div>
-
-                <!-- قسم التقييم -->
-                <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa fa-star text-accent"></i> أضف تقييمك
-                    </h2>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">التقييم</label>
-                        <div id="ratingStars" class="text-2xl cursor-pointer">
-                            <i class="fa fa-star star-inactive" data-value="1"></i>
-                            <i class="fa fa-star star-inactive" data-value="2"></i>
-                            <i class="fa fa-star star-inactive" data-value="3"></i>
-                            <i class="fa fa-star star-inactive" data-value="4"></i>
-                            <i class="fa fa-star star-inactive" data-value="5"></i>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">تعليقك</label>
-                        <textarea id="reviewText" rows="3" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="اكتب رأيك في هذا المكان..."></textarea>
-                    </div>
-                    <button id="submitReview" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-xl font-medium hover:shadow-md transition">
-                        نشر التقييم
-                    </button>
-                    <div id="reviewMsg" class="mt-3 text-sm hidden"></div>
-                </div>
-
-                <!-- التعليقات والتقييمات -->
-                <div class="bg-white rounded-2xl shadow-sm p-6">
-                    <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center justify-between">
-                        <span class="flex items-center gap-2">
-                            <i class="fa fa-comments text-primary"></i> التقييمات
-                        </span>
-                        <span id="reviewCount" class="text-sm font-normal text-gray-500">0 تقييم</span>
-                    </h2>
-                    <div id="reviewsContainer">
-                        <p class="text-center text-gray-500 py-4">لا توجد تقييمات حتى الآن. كن الأول في تقييم هذا المكان!</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-            authDomain: "ali-alaowishi.firebaseapp.com",
-            projectId: "ali-alaowishi",
-            storageBucket: "ali-alaowishi.firebasestorage.app",
-            messagingSenderId: "536583940962",
-            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const ADMIN_EMAIL = "Alihossin28@gmail.com";
-        const placeId = new URLSearchParams(window.location.search).get('id');
-        let currentUser = null;
-        let selectedRating = 0;
-        let placeData = null;
-        let allCities = [];
-
-        // عناصر الصفحة
-        const loadingState = document.getElementById('loadingState');
-        const errorState = document.getElementById('errorState');
-        const placeContent = document.getElementById('placeContent');
-        const authBanner = document.getElementById('authBanner');
-        const userMenuBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userDropdown');
-        const cityNavItems = document.getElementById('cityNavItems');
-
-        // التحقق من تسجيل الدخول
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            if (!user) {
-                authBanner.classList.remove('hidden');
-                loadingState.classList.add('hidden');
-                setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 3000);
-                return;
-            }
-            
-            authBanner.classList.add('hidden');
-            document.getElementById('userEmailDisplay').textContent = user.email;
-            document.getElementById('logoutBtn').classList.remove('hidden');
-            
-            if (user.email === ADMIN_EMAIL) {
-                document.getElementById('adminBtn').classList.remove('hidden');
-                document.getElementById('adminSettingsLink').classList.remove('hidden');
-            }
-
-            await loadCities();
-            await loadPlaceData();
-        });
-
-        // تحميل قائمة المدن للشريط العلوي
-        async function loadCities() {
-            try {
-                const snap = await getDocs(collection(db, 'cities'));
-                allCities = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                allCities.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ar'));
-                renderCityNavigation();
-            } catch (err) {
-                console.error('خطأ في تحميل المدن:', err);
-            }
-        }
-
-        function renderCityNavigation() {
-            if (!allCities.length) {
-                cityNavItems.innerHTML = '<span class="text-gray-400 text-sm px-2">لا توجد مدن</span>';
-                return;
-            }
-            cityNavItems.innerHTML = allCities.map(city => `
-                <span class="city-nav-item" data-city="${city.name}">
-                    ${city.name}
-                </span>
-            `).join('');
-            document.querySelectorAll('.city-nav-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    window.location.href = `home.html?city=${encodeURIComponent(item.dataset.city)}`;
-                });
-            });
-        }
-
-        // تحميل بيانات المكان
-        async function loadPlaceData() {
-            if (!placeId) {
-                showError();
-                return;
-            }
-            try {
-                const docRef = doc(db, 'places', placeId);
-                const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) {
-                    showError();
-                    return;
-                }
-                placeData = { id: docSnap.id, ...docSnap.data() };
-                renderPlaceData();
-                await loadReviews();
-            } catch (err) {
-                console.error('خطأ في تحميل بيانات المكان:', err);
-                showError();
-            }
-        }
-
-        function showError() {
-            loadingState.classList.add('hidden');
-            errorState.classList.remove('hidden');
-        }
-
-        function renderPlaceData() {
-            loadingState.classList.add('hidden');
-            placeContent.classList.remove('hidden');
-
-            document.getElementById('placeName').textContent = placeData.name || 'بدون اسم';
-            document.getElementById('placeCity').innerHTML = `<i class="fa fa-map-marker"></i> ${placeData.city || 'غير محدد'}`;
-            document.getElementById('placeCategory').innerHTML = `<i class="fa fa-tag"></i> ${placeData.category || 'غير مصنف'}`;
-            document.getElementById('placeDescription').textContent = placeData.description || 'لا وصف متاح لهذا المكان.';
-
-            // الصورة
-            const img = document.getElementById('placeMainImage');
-            const fallback = document.getElementById('imgFallback');
-            if (placeData.imageUrl) {
-                img.src = placeData.imageUrl;
-                img.style.display = 'block';
-                fallback.style.display = 'none';
-            } else {
-                img.style.display = 'none';
-                fallback.style.display = 'flex';
-            }
-
-            // التقييم العام
-            renderStarsSummary();
-
-            // زر التعديل إذا كان صاحب المكان أو مشرف
-            if (currentUser && (currentUser.uid === placeData.createdBy || currentUser.email === ADMIN_EMAIL)) {
-                document.getElementById('editPlaceBtn').classList.remove('hidden');
-                document.getElementById('editPlaceBtn').href = `add-place.html?id=${placeId}`;
-            }
-        }
-
-        function renderStarsSummary() {
-            const avg = placeData.averageRating || 0;
-            const count = placeData.totalReviews || 0;
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                html += `<i class="fa fa-star ${i <= Math.round(avg) ? 'star-active' : 'star-inactive'}"></i>`;
-            }
-            document.getElementById('placeStars').innerHTML = html;
-            document.getElementById('placeRatingText').textContent = `${avg.toFixed(1)} من 5 — ${count} تقييم`;
-        }
-
-        // نظام تقييم النجوم
-        const ratingStars = document.querySelectorAll('#ratingStars i');
-        ratingStars.forEach(star => {
-            star.addEventListener('mouseover', () => {
-                const val = parseInt(star.dataset.value);
-                highlightStars(val);
-            });
-            star.addEventListener('mouseout', () => {
-                highlightStars(selectedRating);
-            });
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.dataset.value);
-                highlightStars(selectedRating);
-            });
-        });
-
-        function highlightStars(count) {
-            ratingStars.forEach(star => {
-                const val = parseInt(star.dataset.value);
-                if (val <= count) {
-                    star.classList.add('star-active');
-                    star.classList.remove('star-inactive');
-                } else {
-                    star.classList.remove('star-active');
-                    star.classList.add('star-inactive');
-                }
-            });
-        }
-
-        // إرسال التقييم
-        document.getElementById('submitReview').addEventListener('click', async () => {
-            const text = document.getElementById('reviewText').value.trim();
-            const msgEl = document.getElementById('reviewMsg');
-            msgEl.classList.add('hidden');
-            
-            if (selectedRating === 0) {
-                msgEl.textContent = '❌ اختر تقييماً من فضلك';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
-                return;
-            }
-            if (!text) {
-                msgEl.textContent = '❌ اكتب تعليقاً من فضلك';
-                msgEl.classList.remove('hidden", "text-green-600", "bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
-                return;
-            }
-            
-            try {
-                await addDoc(collection(db, 'reviews'), {
-                    placeId: placeId,
-                    userId: currentUser.uid,
-                    userEmail: currentUser.email,
-                    rating: selectedRating,
-                    text: text,
-                    createdAt: new Date()
-                });
-                
-                // تحديث متوسط التقييم
-                const reviewsSnap = await getDocs(query(collection(db, 'reviews'), where('placeId', '==', placeId)));
-                const reviews = reviewsSnap.docs.map(d => d.data());
-                const total = reviews.reduce((sum, r) => sum + r.rating, 0);
-                const avg = total / reviews.length;
-                
-                await doc(db, 'places', placeId).update({
-                    averageRating: avg,
-                    totalReviews: reviews.length
-                });
-                
-                msgEl.textContent = '✅ شكراً لك! تم نشر تقييمك';
-                msgEl.classList.remove('hidden', 'text-red-500', 'bg-red-50');
-                msgEl.classList.add('text-green-600', 'bg-green-50', 'p-2', 'rounded-lg');
-                
-                // إعادة تعيين النموذج
-                selectedRating = 0;
-                highlightStars(0);
-                document.getElementById('reviewText').value = '';
-                
-                // تحديث البيانات
-                placeData.averageRating = avg;
-                placeData.totalReviews = reviews.length;
-                renderStarsSummary();
-                loadReviews();
-            } catch (err) {
-                console.error(err);
-                msgEl.textContent = '❌ حدث خطأ أثناء نشر التقييم';
-                msgEl.classList.remove('hidden', 'text-green-600', 'bg-green-50');
-                msgEl.classList.add('text-red-500', 'bg-red-50', 'p-2', 'rounded-lg');
+    <script>
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarPreview = document.getElementById('avatarPreview');
+        let avatarData = '';
+        avatarInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    avatarPreview.src = ev.target.result;
+                    avatarData = ev.target.result;
+                };
+                reader.readAsDataURL(file);
             }
         });
-
-        // تحميل التقييمات
-        async function loadReviews() {
-            try {
-                const q = query(
-                    collection(db, 'reviews'),
-                    where('placeId', '==', placeId),
-                    orderBy('createdAt', 'desc')
-                );
-                const snap = await getDocs(q);
-                const reviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderReviews(reviews);
-            } catch (err) {
-                console.error('خطأ في تحميل التقييمات:', err);
-            }
-        }
-
-        function renderReviews(reviews) {
-            const container = document.getElementById('reviewsContainer');
-            document.getElementById('reviewCount').textContent = `${reviews.length} تقييم`;
-            
-            if (!reviews.length) {
-                container.innerHTML = '<p class="text-center text-gray-500 py-4">لا توجد تقييمات حتى الآن. كن الأول في تقييم هذا المكان!</p>';
-                return;
-            }
-            
-            container.innerHTML = reviews.map(r => {
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    stars += `<i class="fa fa-star ${i <= r.rating ? 'star-active' : 'star-inactive'}"></i>`;
-                }
-                const date = r.createdAt ? new Date(r.createdAt.toDate()).toLocaleDateString('ar-SA') : 'تاريخ غير معروف';
-                return `
-                    <div class="review-card p-4 rounded-xl border-b last:border-b-0">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                    <i class="fa fa-user text-sm"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-800 text-sm">${r.userEmail || 'مستخدم مجهول'}</p>
-                                    <p class="text-xs text-gray-400">${date}</p>
-                                </div>
-                            </div>
-                            <div class="text-sm">${stars}</div>
-                        </div>
-                        <p class="text-gray-600 text-sm leading-relaxed">${r.text}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // مشاركة
-        document.getElementById('shareBtn').addEventListener('click', () => {
-            const link = window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('✅ تم نسخ الرابط!');
-                }).catch(() => {
-                    prompt('انسخ الرابط:', link);
-                });
-            } else {
-                prompt('انسخ الرابط:', link);
-            }
-        });
-
-        // قائمة المستخدم
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-        });
-        document.addEventListener('click', () => {
-            userDropdown.classList.add('hidden');
-        });
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await signOut(auth);
-            window.location.href = 'home.html';
+        document.getElementById('regForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            localStorage.setItem('user', JSON.stringify({
+                name, phone, email, password, avatar: avatarData, type: 'user'
+            }));
+            alert('✅ تم إنشاء الحساب بنجاح');
+            location.href = 'home.html';
         });
     </script>
 </body>
