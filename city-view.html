@@ -3,6 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الأماكن</title>
+    <title>اسم المدينة — الأماكن</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#22C55E', secondary: '#3B82F6', accent: '#F59E0B' }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; }
+        body { background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%); min-height: 100vh; padding-bottom: 100px; }
+        .glass { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); }
+        .place-card { background: rgba(255,255,255,0.9); border-radius: 16px; transition: all 0.25s ease; border: 1px solid rgba(0,0,0,0.05); }
+        .place-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .btn-float { position: fixed; bottom: 24px; left: 24px; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 40; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <!-- حماية الصفحة -->
+    <script>
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!userData) {
+            location.href = 'login.html';
+        }
+    </script>
+
+    <header class="glass sticky top-0 z-30 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- زر الرجوع -->
+            <button onclick="location.href='home.html'" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border-0">
+                <i class="fa fa-arrow-right text-gray-600"></i>
+            </button>
+            <h1 id="cityTitle" class="text-lg font-bold">اسم المدينة</h1>
+            <div class="w-10"></div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-5">
+        <!-- زران في الأعلى -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <button onclick="location.href='add-place.html'" class="flex-1 bg-primary text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                <i class="fa fa-plus"></i> إضافة مكان جديد
+            </button>
+            <button onclick="location.href='home.html'" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                <i class="fa fa-home"></i> الرجوع للمدن
+            </button>
+        </div>
+
+        <hr class="my-4 border-gray-200/50">
+
+        <section>
+            <h2 class="text-md font-bold mb-4 flex items-center gap-2">
+                <i class="fa fa-map-marker text-secondary"></i> الأماكن في <span id="cityNameSub">المدينة</span>
+            </h2>
+            <div id="placesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-full text-center py-12">
+                    <i class="fa fa-map-o text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">لا توجد أماكن مضافة في هذه المدينة</p>
+                    <p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مكان جديد" لأول مكان ✅</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <button onclick="location.href='add-place.html'" class="btn-float bg-primary">
+        <i class="fa fa-plus text-lg"></i>
+    </button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+            authDomain: "ali-alaowishi.firebaseapp.com",
+            projectId: "ali-alaowishi",
+            storageBucket: "ali-alaowishi.firebasestorage.app",
+            messagingSenderId: "536583940962",
+            appId: "1:536583940962:web:1b101ab662b21e18d3da3b"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // استلام اسم المدينة من الرابط
+        const params = new URLSearchParams(window.location.search);
+        const cityName = params.get('name') || 'مدينة غير معروفة';
+        document.getElementById('cityTitle').textContent = cityName;
+        document.getElementById('cityNameSub').textContent = cityName;
+
+        async function loadPlaces() {
+            const grid = document.getElementById('placesGrid');
+            try {
+                const q = query(collection(db, 'places'), where('city', '==', cityName));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-12"><i class="fa fa-map-o text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">لا توجد أماكن مضافة في هذه المدينة</p><p class="text-sm text-gray-400 mt-1">اضغط على "إضافة مكان جديد" لأول مكان ✅</p></div>`;
+                    return;
+                }
+                grid.innerHTML = '';
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    const stars = '★'.repeat(p.rating||0) + '☆'.repeat(5-(p.rating||0));
+                    grid.innerHTML += `
+                        <div class="place-card p-5">
+                            <h3 class="font-bold text-lg">${p.name}</h3>
+                            <p class="text-sm text-gray-500 mt-1">${p.category || 'بدون تصنيف'}</p>
+                            <p class="text-yellow-500 text-sm mt-1">${stars}</p>
+                            ${p.price ? `<p class="text-sm text-accent mt-1">💰 ${p.price}</p>` : ''}
+                            ${p.phone ? `<a href="tel:${p.phone}" class="text-sm text-secondary mt-2 inline-block"><i class="fa fa-phone ml-1"></i> ${p.phone}</a>` : ''}
+                            ${p.mapUrl ? `<div class="mt-2"><a href="${p.mapUrl}" target="_blank" class="text-sm text-primary"><i class="fa fa-map-marker ml-1"></i> عرض في الخريطة</a></div>` : ''}
+                            ${p.notes ? `<p class="text-sm text-gray-600 mt-2 border-t pt-2">${p.notes}</p>` : ''}
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                grid.innerHTML = `<p class="text-red-500 col-span-full text-center">❌ خطأ في التحميل</p>`;
+            }
+        }
+
+        loadPlaces();
+    </script>
+</body>
+</html>
