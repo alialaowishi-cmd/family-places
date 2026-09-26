@@ -1,100 +1,116 @@
-// ==========================================
-// إدارة تسجيل الدخول — مُصحح
-// ==========================================
-import { auth, db, storage } from './firebase-config.js';
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+import { auth, db } from './firebase-config.js';
 import { 
-  getCities, addCity, deleteCityDoc,
-  getPlaces, addPlace, deletePlace,
-  getAllUsers, getUserByPhone, addUserByAdmin, deleteUserByAdmin
-} from './db.js';
+  signInWithEmailAndPassword, 
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  onAuthStateChanged,
+  signOut,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
 
-const ADMIN_PHONE = "0500509134";
-const ADMIN_PASSWORD = "admin123";
-const ADMIN_EMAIL = "Alihossin28@gmail.com";
+// المشرف
+const ADMIN_EMAIL = 'Alihossin28@gmail.com';
+const ADMIN_PASSWORD = 'admin123';
 
+// الحالة الحالية
 let currentUser = null;
 
-// ===== تسجيل الدخول برقم الجوال — مُحسن =====
+// مراقبة حالة المصادقة
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      currentUser = { uid: user.uid, ...userDoc.data() };
+    } else {
+      currentUser = { uid: user.uid, email: user.email, phone: user.phoneNumber };
+    }
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  } else {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+  }
+});
+
+// تسجيل الدخول بالإيميل
+export async function loginWithEmail(email, password) {
+  try {
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    const userDoc = await getDoc(doc(db, 'users', userCred.user.uid));
+    let userData = { uid: userCred.user.uid, email: email };
+    if (userDoc.exists()) {
+      userData = { ...userData, ...userDoc.data() };
+    }
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    return { success: true, user: userData };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// تسجيل الدخول برقم الجوال (مبسط للاستخدام)
 export async function loginWithPhone(phone) {
   try {
-    const normalizedPhone = phone.trim();
-    console.log('🔍 جاري البحث عن رقم:', normalizedPhone);
-    
-    const user = await getUserByPhone(normalizedPhone);
-    console.log('📤 نتيجة البحث:', user);
-    
-    if (!user) {
-      return { success: false, message: 'رقم الجوال غير مسجل لدى المشرف. اطلب من المشرف إضافة رقمك أولاً.' };
+    const q = query(collection(db, 'users'), where('phone', '==', phone));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return { success: false, error: 'رقم الجوال غير مسجل أو غير معتمد' };
     }
-    if (!user.approved) {
-      return { success: false, message: 'بانتظار موافقة المشرف' };
-    }
-    
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    currentUser = user;
-    return { success: true, user };
+    const userDoc = snapshot.docs[0];
+    const userData = { uid: userDoc.id, ...userDoc.data() };
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    return { success: true, user: userData };
   } catch (error) {
-    console.error('❌ خطأ تسجيل الدخول:', error);
-    return { success: false, message: 'خطأ في تسجيل الدخول: ' + error.message };
+    return { success: false, error: error.message };
   }
 }
 
+// دخول المشرف
 export async function loginAsAdmin(password) {
-  if (password === ADMIN_PASSWORD) {
-    const adminUser = {
-      phone: ADMIN_PHONE,
-      name: 'المشرف',
+  if (password === 'admin123') {
+    const adminData = {
+      uid: 'admin',
       email: ADMIN_EMAIL,
+      name: 'المشرف',
+      phone: '0500509134',
       isAdmin: true
     };
-    localStorage.setItem('currentUser', JSON.stringify(adminUser));
-    currentUser = adminUser;
-    return { success: true };
+    localStorage.setItem('currentUser', JSON.stringify(adminData));
+    return { success: true, user: adminData };
   }
-  return { success: false, message: 'كلمة المرور غير صحيحة' };
+  return { success: false, error: 'كلمة المرور غير صحيحة' };
 }
 
-export function logout() {
-  localStorage.removeItem('currentUser');
-  currentUser = null;
-}
-
+// التحقق من المستخدم الحالي
 export function getCurrentUser() {
-  if (!currentUser) {
-    const stored = localStorage.getItem('currentUser');
-    if (stored) {
-      try { currentUser = JSON.parse(stored); } catch { currentUser = null; }
-    }
-  }
-  return currentUser;
+  const stored = localStorage.getItem('currentUser');
+  return stored ? JSON.parse(stored) : null;
 }
 
-export function isUserLoggedIn() {
-  return getCurrentUser() !== null;
+// تسجيل الخروج
+export async function logout() {
+  await signOut(auth);
+  localStorage.removeItem('currentUser');
+  window.location.href = 'login.html';
 }
 
-export function isAdmin() {
+// حماية الصفحات
+export function requireAuth() {
   const user = getCurrentUser();
-  if (!user) return false;
-  return user.isAdmin === true || user.phone === ADMIN_PHONE;
-}
-
-export async function uploadImage(file) {
-  try {
-    const fileName = `images/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, fileName);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    return { url };
-  } catch (error) {
-    console.error('❌ خطأ رفع الصورة:', error);
-    throw error;
+  if (!user) {
+    window.location.href = 'login.html';
+    return false;
   }
+  return user;
 }
 
-export {
-  getCities, addCity, deleteCityDoc,
-  getPlaces, addPlace, deletePlace,
-  getAllUsers, addUserByAdmin, deleteUserByAdmin
-};
+export function requireAdmin() {
+  const user = getCurrentUser();
+  if (!user || !user.isAdmin) {
+    alert('غير مصرح لك بالدخول هنا');
+    window.location.href = 'home.html';
+    return false;
+  }
+  return user;
+}
