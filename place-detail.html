@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل المكان</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        primaryLight: 'rgba(0, 122, 255, 0.08)',
+                        secondary: '#5E5CE6',
+                        danger: '#FF3B30',
+                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
+        body {
+            background: linear-gradient(180deg, rgba(0, 122, 255, 0.04) 0%, rgba(94, 92, 230, 0.03) 100%);
+            min-height: 100vh;
+            padding-bottom: 85px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .glass-ios {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: saturate(180%) blur(25px);
+            -webkit-backdrop-filter: saturate(180%) blur(25px);
+            border-top: 1px solid rgba(0, 122, 255, 0.08);
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        .nav-item.active {
+            color: #007AFF;
+        }
+        .nav-item:not(.active) {
+            color: #8E8E93;
+        }
+        .nav-fab {
+            background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%);
+            width: 50px;
+            height: 50px;
+            margin-top: -20px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+        .nav-fab:hover {
+            transform: scale(1.05);
+        }
+        .thumbnail {
+            transition: opacity 0.2s ease;
+        }
+        .thumbnail:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <!-- رأس الصفحة -->
+    <header class="glass-ios sticky top-0 z-40 shadow-sm">
+        <div class="max-w-2xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <button onclick="history.back()" class="flex items-center gap-2 text-gray-500 hover:text-primary text-sm">
+                <i class="fa fa-arrow-right"></i> رجوع
+            </button>
+            <h1 class="text-lg font-bold text-gray-800">تفاصيل المكان</h1>
+            <div class="w-16"></div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="max-w-2xl mx-auto px-4 py-5" id="mainContent">
+        <p class="text-center py-12 text-gray-400">جاري التحميل...</p>
+    </main>
+
+    <!-- ✅ شريط التنقل السفلي الموحد والثابت -->
+    <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
+        <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
+            <!-- الرئيسية -->
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
+                <i class="fa fa-home text-lg"></i>
+                <span class="text-xs">الرئيسية</span>
+            </button>
+
+            <!-- إضافة مدينة -->
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
+                <i class="fa fa-building-o text-lg"></i>
+                <span class="text-xs">مدينة</span>
+            </button>
+
+            <!-- زر المنتصف: إضافة مكان جديد -->
+            <button id="navAddPlace" class="nav-fab rounded-full flex items-center justify-center text-white text-xl">
+                <i class="fa fa-plus"></i>
+            </button>
+
+            <!-- حسابي -->
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="alert('حسابي قيد التطوير')">
+                <i class="fa fa-user text-lg"></i>
+                <span class="text-xs">حسابي</span>
+            </button>
+
+            <!-- المشرف - يظهر فقط للمدير -->
+            <button id="navAdmin" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500 hidden" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fa fa-cog text-lg"></i>
+                <span class="text-xs">المشرف</span>
+            </button>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { getPlaces, deletePlace, isUserLoggedIn, isAdmin, getCurrentUser } from './auth.js';
+
+        // التحقق من تسجيل الدخول
+        if (!isUserLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeId = urlParams.get('id');
+        
+        if (!placeId) {
+            window.location.href = 'home.html';
+        }
+
+        const mainContent = document.getElementById('mainContent');
+        const navAddPlace = document.getElementById('navAddPlace');
+        const navAdmin = document.getElementById('navAdmin');
+
+        // إظهار زر المشرف إذا كان المستخدم مديراً
+        if (isAdmin()) {
+            navAdmin.classList.remove('hidden');
+        }
+
+        // الانتقال لصفحة إضافة مكان
+        navAddPlace.addEventListener('click', () => {
+            window.location.href = 'add-place.html';
+        });
+
+        let currentPlace = null;
+
+        // تحميل بيانات المكان
+        async function loadPlace() {
+            const places = await getPlaces();
+            currentPlace = places.find(p => p.id === placeId);
+            
+            if (!currentPlace) {
+                mainContent.innerHTML = '<p class="text-center py-12 text-gray-400">المكان غير موجود</p>';
+                return;
+            }
+
+            renderPlace();
+        }
+
+        function renderPlace() {
+            const user = getCurrentUser();
+            const canEdit = isAdmin() || (user && currentPlace.createdBy === user.phone);
+
+            // الصور
+            const images = currentPlace.images?.length > 0 
+                ? currentPlace.images 
+                : ['https://picsum.photos/seed/' + placeId + '/800/400.jpg'];
+
+            mainContent.innerHTML = `
+                <div class="space-y-5">
+                    <!-- معرض الصور -->
+                    <div class="space-y-3">
+                        <img id="mainImage" src="${images[0]}" alt="${currentPlace.name}" 
+                            class="w-full h-56 object-cover rounded-2xl">
+                        
+                        ${images.length > 1 ? `
+                            <div class="flex gap-2 overflow-x-auto pb-1">
+                                ${images.map((img, i) => `
+                                    <img src="${img}" alt="" 
+                                        class="thumbnail w-16 h-16 object-cover rounded-xl flex-shrink-0 cursor-pointer border-2 ${i === 0 ? 'border-primary' : 'border-transparent'}"
+                                        onclick="document.getElementById('mainImage').src='${img}'; 
+                                                 this.parentElement.querySelectorAll('.thumbnail').forEach(t=>t.classList.remove('border-primary')); 
+                                                 this.classList.add('border-primary');">
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- بطاقة المعلومات -->
+                    <div class="glass-ios rounded-2xl p-5 space-y-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">${currentPlace.name}</h2>
+                            <p class="text-sm text-gray-400 mt-1">
+                                ${currentPlace.city}${currentPlace.category ? ' • ' + currentPlace.category : ''}
+                            </p>
+                        </div>
+
+                        <!-- التقييم بالنجوم -->
+                        <div class="flex items-center text-yellow-400">
+                            ${'★'.repeat(currentPlace.rating || 0)}${'☆'.repeat(5 - (currentPlace.rating || 0))}
+                            <span class="text-sm text-gray-400 ml-2">
+                                ${currentPlace.rating ? currentPlace.rating + ' من 5' : 'بدون تقييم'}
+                            </span>
+                        </div>
+
+                        <!-- السعر -->
+                        ${currentPlace.price ? `
+                            <div class="flex items-center gap-2 text-sm">
+                                <i class="fa fa-tag text-primary"></i>
+                                <span class="text-gray-600">${currentPlace.price}</span>
+                            </div>
+                        ` : ''}
+
+                        <!-- رقم الجوال -->
+                        ${currentPlace.phone ? `
+                            <a href="tel:${currentPlace.phone}" class="flex items-center gap-2 text-sm text-primary hover:underline">
+                                <i class="fa fa-phone"></i>
+                                <span>${currentPlace.phone}</span>
+                            </a>
+                        ` : ''}
+
+                        <!-- رابط قوقل ماب -->
+                        ${currentPlace.mapUrl ? `
+                            <a href="${currentPlace.mapUrl}" target="_blank" class="flex items-center gap-2 text-sm text-primary hover:underline">
+                                <i class="fa fa-map-marker"></i>
+                                <span>عرض في قوقل ماب</span>
+                            </a>
+                        ` : ''}
+
+                        <!-- الملاحظات -->
+                        ${currentPlace.notes ? `
+                            <div class="pt-3 border-t border-gray-100">
+                                <p class="text-sm text-gray-600 leading-relaxed">${currentPlace.notes}</p>
+                            </div>
+                        ` : ''}
+
+                        <p class="text-xs text-gray-400 pt-2">أُضيف بواسطة: ${currentPlace.createdByName || 'مجهول'}</p>
+                    </div>
+
+                    <!-- أزرار الإجراءات -->
+                    <div class="glass-ios rounded-2xl p-4 space-y-3">
+                        <!-- زر المشاركة -->
+                        <button id="shareBtn" class="w-full py-2.5 rounded-xl bg-secondary/10 text-secondary text-sm font-medium hover:bg-secondary/15 flex items-center justify-center gap-2">
+                            <i class="fa fa-share-alt"></i> مشاركة المكان
+                        </button>
+
+                        ${currentPlace.mapUrl ? `
+                            <a href="${currentPlace.mapUrl}" target="_blank" class="block w-full py-2.5 rounded-xl bg-primaryLight text-primary text-sm font-medium hover:bg-primary/12 text-center">
+                                <i class="fa fa-map-o mr-1"></i> فتح في قوقل ماب
+                            </a>
+                        ` : ''}
+
+                        ${currentPlace.phone ? `
+                            <a href="tel:${currentPlace.phone}" class="block w-full py-2.5 rounded-xl bg-green-50 text-green-600 text-sm font-medium hover:bg-green-100 text-center">
+                                <i class="fa fa-phone mr-1"></i> اتصال مباشر
+                            </a>
+                        ` : ''}
+
+                        ${canEdit ? `
+                            <div class="flex gap-3 pt-2 border-t border-gray-100">
+                                <button id="editBtn" class="flex-1 py-2.5 rounded-xl bg-primaryLight text-primary text-sm font-medium hover:bg-primary/15">
+                                    <i class="fa fa-pencil mr-1"></i> تعديل
+                                </button>
+                                <button id="deleteBtn" class="flex-1 py-2.5.5 rounded-xl bg-red-50 text-red-500 text-sm font-medium hover:bg-red-100">
+                                    <i class="fa fa-trash mr-1"></i> حذف
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            // ربط أحداث الأزرار
+            attachButtonEvents();
+        }
+
+        function attachButtonEvents() {
+            const shareBtn = document.getElementById('shareBtn');
+            const editBtn = document.getElementById('editBtn');
+            const deleteBtn = document.getElementById('deleteBtn');
+
+            // المشاركة
+            shareBtn.addEventListener('click', async () => {
+                const shareText = `${currentPlace.name}\n📍 ${currentPlace.city}\n${currentPlace.mapUrl || ''}`;
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: currentPlace.name,
+                            text: shareText
+                        });
+                    } catch (e) {
+                        // تم إلغاء المشاركة
+                    }
+                } else {
+                    navigator.clipboard.writeText(shareText);
+                    alert('✅ تم نسخ التفاصيل');
+                }
+            });
+
+            // التعديل
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    alert('🔧 خاصية التعديل قيد التطوير حالياً');
+                });
+            }
+
+            // الحذف
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm('⚠️ هل أنت متأكد من حذف هذا المكان؟')) {
+                        await deletePlace(placeId);
+                        alert('✅ تم حذف المكان بنجاح');
+                        window.location.href = 'home.html';
+                    }
+                });
+            }
+        }
+
+        // بدء التحميل
+        loadPlace();
+    </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المشرف</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        primaryLight: 'rgba(0, 122, 255, 0.08)',
+                        secondary: '#5E5CE6',
+                        danger: '#FF3B30',
+                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
+        body {
+            background: linear-gradient(180deg, rgba(0, 122, 255, 0.04) 0%, rgba(94, 92, 230, 0.03) 100%);
+            min-height: 100vh;
+            padding-bottom: 85px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .glass-ios {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .input-ios {
+            background: rgba(118, 118, 128, 0.08);
+            border: none;
+        }
+        .tab-active {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+        }
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: saturate(180%) blur(25px);
+            border-top: 1px solid rgba(0, 122, 255, 0.08);
+        }
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item:not(.active) { color: #8E8E93; }
+        .nav-fab {
+            background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%);
+            width: 50px; height: 50px; margin-top: -20px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header class="glass-ios sticky top-0 z-40 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <button onclick="window.location.href='home.html'" class="flex items-center gap-2 text-gray-500 hover:text-primary text-sm">
+                <i class="fa fa-arrow-right"></i> العودة
+            </button>
+            <h1 class="text-lg font-bold text-gray-800">لوحة المشرف</h1>
+            <button id="logoutBtn" class="text-sm text-danger hover:opacity-80">تسجيل الخروج</button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-5">
+        <!-- التبويبات -->
+        <div class="glass-ios rounded-2xl p-2 mb-6 flex gap-2 overflow-x-auto">
+            <button class="tab tab-active px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="users">المستخدمين</button>
+            <button class="tab px-4 py-2 rounded-xl text-sm font-medium text-gray-500 whitespace-nowrap hover:bg-gray-100" data-tab="cities">المدن</button>
+            <button class="tab px-4 py-2 rounded-xl text-sm font-medium text-gray-500 whitespace-nowrap hover:bg-gray-100" data-tab="places">الأماكن</button>
+            <button class="tab px-4 py-2 rounded-xl text-sm font-medium text-gray-500 whitespace-nowrap hover:bg-gray-100" data-tab="settings">الإعدادات</button>
+        </div>
+
+        <!-- قسم المستخدمين -->
+        <div id="usersTab" class="tab-content">
+            <div class="glass-ios rounded-2xl p-5 mb-6">
+                <h3 class="text-base font-semibold text-gray-700 mb-4">إضافة مستخدم جديد</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" id="newUserName" placeholder="الاسم الكامل" class="px-4 py-3 rounded-xl input-ios">
+                    <input type="tel" id="newUserPhone" placeholder="رقم الجوال" class="px-4 py-3 rounded-xl input-ios">
+                    <button id="addUserBtn" class="bg-primary text-white rounded-xl font-medium hover:bg-primary/90">إضافة</button>
+                </div>
+            </div>
+
+            <div class="glass-ios rounded-2xl p-5">
+                <h3 class="text-base font-semibold text-gray-700 mb-4">قائمة المستخدمين</h3>
+                <div id="usersList" class="space-y-3">
+                    <p class="text-gray-400 text-center py-6 text-sm">جاري التحميل...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم المدن -->
+        <div id="citiesTab" class="tab-content hidden">
+            <div class="glass-ios rounded-2xl p-5">
+                <h3 class="text-base font-semibold text-gray-700 mb-4">إدارة المدن</h3>
+                <div id="citiesList" class="space-y-3">
+                    <p class="text-gray-400 text-center py-6 text-sm">جاري التحميل...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الأماكن -->
+        <div id="placesTab" class="tab-content hidden">
+            <div class="glass-ios rounded-2xl p-5">
+                <h3 class="text-base font-semibold text-gray-700 mb-4">إدارة الأماكن</h3>
+                <div id="placesList" class="space-y-3">
+                    <p class="text-gray-400 text-center py-6 text-sm">جاري التحميل...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الإعدادات -->
+        <div id="settingsTab" class="tab-content hidden">
+            <div class="glass-ios rounded-2xl p-5">
+                <h3 class="text-base font-semibold text-gray-700 mb-4">إعدادات الموقع</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">اسم الموقع</label>
+                        <input type="text" id="siteTitleInput" class="w-full px-4 py-3 rounded-xl input-ios">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">نص البانر</label>
+                        <input type="text" id="bannerTextInput" class="w-full px-4 py-3 rounded-xl input-ios">
+                    </div>
+                    <button id="saveSettingsBtn" class="w-full bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary/90">حفظ الإعدادات</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ✅ شريط التنقل السفلي الموحد -->
+    <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
+        <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
+                <i class="fa fa-home text-lg"></i>
+                <span class="text-xs">الرئيسية</span>
+            </button>
+            <button id="navAddCity" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
+                <i class="fa fa-building-o text-lg"></i>
+                <span class="text-xs">مدينة</span>
+            </button>
+            <button id="navAddPlace" class="nav-fab rounded-full flex items-center justify-center text-white text-xl" onclick="window.location.href='add-place.html'">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="alert('حسابي قيد التطوير')">
+                <i class="fa fa-user text-lg"></i>
+                <span class="text-xs">حسابي</span>
+            </button>
+            <button class="nav-item active flex flex-col items-center gap-1 px-2 py-1" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fa fa-cog text-lg"></i>
+                <span class="text-xs">المشرف</span>
+            </button>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { 
+            isUserLoggedIn, isAdmin, logout, getAllUsers, addUserByAdmin, deleteUserByAdmin,
+            getCities, deleteCityDoc, getPlaces, deletePlace, getSettings, saveSettings
+        } from './auth.js';
+
+        if (!isUserLoggedIn() || !isAdmin()) {
+            window.location.href = 'login.html';
+        }
+
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        function switchTab(tabName) {
+            tabs.forEach(t => {
+                t.classList.remove('tab-active');
+                t.classList.add('text-gray-500', 'hover:bg-gray-100');
+            });
+            tabContents.forEach(c => c.classList.add('hidden'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.remove('text-gray-500', 'hover:bg-gray-100');
+            document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+            
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'cities') loadCities();
+            if (tabName === 'places') loadAllPlaces();
+            if (tabName === 'settings') loadSettingsTab();
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+
+        async function loadUsers() {
+            const users = await getAllUsers();
+            const list = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-6 text-sm">لا يوجد مستخدمين</p>';
+                return;
+            }
+
+            list.innerHTML = users.map(u => `
+                <div class="flex items-center justify-between p-3 bg-gray-50/60 rounded-xl">
+                    <div>
+                        <p class="font-medium text-gray-800">${u.name || 'بدون اسم'}</p>
+                        <p class="text-xs text-gray-400">${u.phone}</p>
+                    </div>
+                    <button data-phone="${u.phone}" class="delete-user-btn text-danger text-sm hover:opacity-80">
+                        <i class="fa fa-trash"></i> حذف
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const phone = btn.dataset.phone;
+                    if (confirm('هل تريد حذف هذا المستخدم؟')) {
+                        const result = await deleteUserByAdmin(phone);
+                        alert(result.message);
+                        loadUsers();
+                    }
+                });
+            });
+        }
+
+        document.getElementById('addUserBtn').addEventListener('click', async () => {
+            const name = document.getElementById('newUserName').value.trim();
+            const phone = document.getElementById('newUserPhone').value.trim();
+            if (!name || !phone) return alert('أدخل الاسم ورقم الجوال');
+            
+            const result = await addUserByAdmin(phone, name);
+            alert(result.message);
+            if (result.success) {
+                document.getElementById('newUserName').value = '';
+                document.getElementById('newUserPhone').value = '';
+                loadUsers();
+            }
+        });
+
+        async function loadCities() {
+            const cities = await getCities();
+            const list = document.getElementById('citiesList');
+            
+            if (cities.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-6 text-sm">لا توجد مدن مضافة</p>';
+                return;
+            }
+
+            list.innerHTML = cities.map(c => `
+                <div class="flex items-center justify-between p-3 bg-gray-50/60 rounded-xl">
+                    <span class="font-medium text-gray-800">${c.name}</span>
+                    <button data-id="${c.id}" class="delete-city-btn text-danger text-sm hover:opacity-80">
+                        <i class="fa fa-trash"></i> حذف
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.delete-city-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('هل تريد حذف هذه المدينة؟')) {
+                        await deleteCityDoc(btn.dataset.id);
+                        loadCities();
+                    }
+                });
+            });
+        }
+
+        async function loadAllPlaces() {
+            const places = await getPlaces();
+            const list = document.getElementById('placesList');
+            
+            if (places.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-6 text-sm">لا توجد أماكن مضافة</p>';
+                return;
+            }
+
+            list.innerHTML = places.map(p => `
+                <div class="flex items-center justify-between p-3 bg-gray-50/60 rounded-xl">
+                    <div>
+                        <p class="font-medium text-gray-800">${p.name}</p>
+                        <p class="text-xs text-gray-400">${p.city} • ${p.category || ''}</p>
+                    </div>
+                    <button data-id="${p.id}" class="delete-place-btn text-danger text-sm hover:opacity-80">
+                        <i class="fa fa-trash"></i> حذف
+                    </button>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.delete-place-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('هل تريد حذف هذا المكان؟')) {
+                        await deletePlace(btn.dataset.id);
+                        loadAllPlaces();
+                    }
+                });
+            });
+        }
+
+        async function loadSettingsTab() {
+            const settings = await getSettings();
+            document.getElementById('siteTitleInput').value = settings.siteTitle || '';
+            document.getElementById('bannerTextInput').value = settings.bannerText || '';
+        }
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+            const siteTitle = document.getElementById('siteTitleInput').value.trim();
+            const bannerText = document.getElementById('bannerTextInput').value.trim();
+            await saveSettings({ siteTitle, bannerText });
+            alert('✅ تم حفظ الإعدادات');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            logout();
+            window.location.href = 'login.html';
+        });
+
+        loadUsers();
+    </script>
+</body>
+</html>
