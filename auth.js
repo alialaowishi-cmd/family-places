@@ -11,7 +11,7 @@ import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/fireba
 import { 
   getCities, addCity, deleteCityDoc,
   getPlaces, addPlace, deletePlace,
-  getAllUsers, getUserByPhone, addUser, approveUser, deleteUserByAdmin,
+  getAllUsers, getUserByPhone, addUser, approveUser, deleteUserByAdmin, addUserByAdmin,
   getSettings, saveSettings
 } from './db.js';
 
@@ -23,12 +23,12 @@ const ADMIN_PHONE = "0500509134";
 // حالة المستخدم الحالي
 let currentUser = null;
 
-// ===== تسجيل الدخول =====
+// ===== تسجيل الدخول برقم الجوال =====
 export async function loginWithPhone(phone) {
   try {
     const user = await getUserByPhone(phone);
     if (!user) {
-      return { success: false, message: 'رقم الجوال غير مسجل' };
+      return { success: false, message: 'رقم الجوال غير مسجل لدى المشرف' };
     }
     if (!user.approved) {
       return { success: false, message: 'بانتظار موافقة المشرف' };
@@ -37,10 +37,12 @@ export async function loginWithPhone(phone) {
     currentUser = user;
     return { success: true, user };
   } catch (error) {
+    console.error(error);
     return { success: false, message: 'خطأ في تسجيل الدخول' };
   }
 }
 
+// ===== دخول المشرف بكلمة المرور =====
 export async function loginAsAdmin(password) {
   if (password === 'admin123') {
     const adminUser = {
@@ -56,6 +58,7 @@ export async function loginAsAdmin(password) {
   return { success: false, message: 'كلمة المرور غير صحيحة' };
 }
 
+// ===== تسجيل الدخول بالبريد =====
 export async function loginWithEmail(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -63,12 +66,14 @@ export async function loginWithEmail(email, password) {
     const userData = {
       uid: userCredential.user.uid,
       email: email,
+      name: 'المشرف',
       isAdmin: isAdmin
     };
     localStorage.setItem('currentUser', JSON.stringify(userData));
     currentUser = userData;
     return { success: true };
   } catch (error) {
+    console.error(error);
     return { success: false, message: 'البريد أو كلمة المرور غير صحيحة' };
   }
 }
@@ -80,22 +85,33 @@ export function logout() {
   return signOut(auth);
 }
 
-// ===== التحقق من الحالة =====
+// ===== الحصول على بيانات المستخدم الحالي =====
 export function getCurrentUser() {
   if (!currentUser) {
     const stored = localStorage.getItem('currentUser');
-    if (stored) currentUser = JSON.parse(stored);
+    if (stored) {
+      try {
+        currentUser = JSON.parse(stored);
+      } catch {
+        currentUser = null;
+      }
+    }
   }
   return currentUser;
 }
 
+// ===== التحقق من تسجيل الدخول =====
 export function isUserLoggedIn() {
   return getCurrentUser() !== null;
 }
 
+// ===== التحقق من صلاحيات المشرف =====
 export function isAdmin() {
   const user = getCurrentUser();
-  return user && (user.isAdmin || user.email === ADMIN_EMAIL || user.phone === ADMIN_PHONE);
+  if (!user) return false;
+  return user.isAdmin === true || 
+         user.email === ADMIN_EMAIL || 
+         user.phone === ADMIN_PHONE;
 }
 
 // ===== رفع الصور =====
@@ -116,25 +132,6 @@ export async function uploadImage(file) {
 export {
   getCities, addCity, deleteCityDoc,
   getPlaces, addPlace, deletePlace,
-  getAllUsers, addUserByAdmin, deleteUserByAdmin,
+  getAllUsers, addUser, approveUser, deleteUserByAdmin, addUserByAdmin,
   getSettings, saveSettings
 };
-
-async function addUserByAdmin(phone, name) {
-  try {
-    const existing = await getUserByPhone(phone);
-    if (existing) return { success: false, message: 'المستخدم موجود مسبقاً' };
-    
-    const { setDoc } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
-    await setDoc(doc(db, 'users', phone), {
-      phone: phone,
-      name: name,
-      approved: true,
-      createdAt: new Date()
-    });
-    return { success: true, message: '✅ تم إضافة المستخدم' };
-  } catch (error) {
-    console.error(error);
-    return { success: false, message: 'خطأ في الإضافة' };
-  }
-}
