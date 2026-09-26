@@ -22,227 +22,275 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-        body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 85px; }
-        .avatar-md { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+        body { 
+            background: #0F172A; 
+            font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; 
+            padding-bottom: 30px;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            transition: all 0.2s ease;
+        }
+        .image-gallery img { 
+            transition: transform 0.2s ease; 
+        }
+        .image-gallery img:hover { 
+            transform: scale(1.05); 
+        }
         button { cursor: pointer; font-family: inherit; }
+        .skeleton { background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="text-white">
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
         <div class="flex items-center justify-between">
-            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2">
-                <i class="fa fa-arrow-right fa-lg"></i>
-            </button>
+            <button id="backBtn" class="text-slate-400 p-2"><i class="fa fa-arrow-right fa-lg"></i></button>
             <h1 class="text-lg font-bold">تفاصيل المكان</h1>
-            <div class="flex gap-1">
-                <button id="shareBtn" class="text-slate-400 hover:text-white transition p-2" title="مشاركة">
-                    <i class="fa fa-share-alt"></i>
-                </button>
-                <button id="editBtn" class="text-slate-400 hover:text-white transition p-2 hidden" title="تعديل">
-                    <i class="fa fa-pencil"></i>
-                </button>
-                <button id="deleteBtn" class="text-slate-400 hover:text-red-400 transition p-2 hidden" title="حذف">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </div>
+            <button id="shareBtn" class="text-slate-400 p-2"><i class="fa fa-share-alt fa-lg"></i></button>
         </div>
     </header>
 
     <main class="px-4 py-6">
-        <div id="placeNotFound" class="text-center py-16 hidden">
-            <i class="fa fa-exclamation-circle text-5xl text-slate-600 mb-4"></i>
-            <h3 class="text-lg font-medium text-slate-400">المكان غير موجود</h3>
-            <button onclick="window.location.href='home.html'" class="mt-4 px-4 py-2 bg-secondary rounded-lg text-sm">العودة للرئيسية</button>
+        <!-- حالة التحميل -->
+        <div id="loadingState">
+            <div class="w-full h-48 rounded-xl skeleton mb-4"></div>
+            <div class="h-6 w-3/4 rounded skeleton mb-2"></div>
+            <div class="h-4 w-1/2 rounded skeleton mb-4"></div>
+            <div class="h-20 rounded skeleton mb-4"></div>
         </div>
 
-        <div id="placeContent" class="hidden">
+        <!-- محتوى التفاصيل -->
+        <div id="detailContent" class="hidden">
             <!-- معرض الصور -->
-            <div id="imageGallery" class="mb-6 rounded-xl overflow-hidden bg-slate-800">
-                <!-- الصور هنا -->
+            <div id="mainImageContainer" class="mb-4">
+                <img id="mainImage" src="" class="w-full h-48 object-cover rounded-xl" alt="">
+            </div>
+            <div id="noImageContainer" class="w-full h-48 bg-slate-800 rounded-xl flex items-center justify-center mb-4 hidden">
+                <i class="fa fa-map-marker text-4xl text-slate-500"></i>
             </div>
 
-            <!-- اسم المدينة والتصنيف -->
-            <div class="mb-4">
-                <h2 id="placeName" class="text-2xl font-bold mb-1">اسم المكان</h2>
-                <p id="placeCityCat" class="text-sm text-slate-400">
-                    <i class="fa fa-map-marker ml-1"></i> المدينة · التصنيف
-                </p>
+            <!-- معرض الصور المصغرة -->
+            <div id="thumbnailsContainer" class="flex gap-2 overflow-x-auto pb-2 mb-4 image-gallery hidden">
             </div>
+
+            <!-- معلومات المكان -->
+            <h2 id="placeName" class="text-2xl font-bold mb-1">اسم المكان</h2>
+            <p id="placeLocation" class="text-slate-400 mb-4">
+                <i class="fa fa-map-pin ml-1"></i>
+                <span id="placeCity"></span> · <span id="placeCategory"></span>
+            </p>
 
             <!-- التقييم والسعر -->
-            <div class="flex flex-wrap gap-4 mb-6">
-                <div class="bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-full text-sm">
-                    <span id="placeStars">★★★★★</span>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="flex items-center">
+                    <span id="placeRating" class="text-yellow-400 text-lg"></span>
                 </div>
-                <div id="placePriceWrap" class="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-sm hidden">
-                    <i class="fa fa-tag ml-1"></i> <span id="placePrice">—</span>
-                </div>
-            </div>
-
-            <!-- معلومات الاتصال والموقع -->
-            <div class="space-y-3 mb-6">
-                <div id="phoneWrap" class="flex items-center justify-between p-3 bg-slate-800/60 rounded-xl border border-slate-700 hidden">
-                    <span class="flex items-center text-slate-300">
-                        <i class="fa fa-phone ml-3 text-green-400"></i> رقم الجوال
-                    </span>
-                    <a id="placePhone" href="#" class="text-secondary text-sm">اتصال</a>
-                </div>
-                <div id="mapWrap" class="flex items-center justify-between p-3 bg-slate-800/60 rounded-xl border border-slate-700 hidden">
-                    <span class="flex items-center text-slate-300">
-                        <i class="fa fa-map-marker ml-3 text-red-400"></i> الموقع على الخريطة
-                    </span>
-                    <a id="placeMap" href="#" target="_blank" class="text-secondary text-sm">فتح في الخريطة ↗</a>
+                <div id="placePriceWrapper" class="text-slate-300">
+                    <i class="fa fa-tag ml-1 text-sm text-slate-500"></i>
+                    <span id="placePrice"></span>
                 </div>
             </div>
 
-            <!-- وصف المكان -->
-            <div id="notesWrap" class="mb-6 hidden">
-                <h3 class="text-sm font-medium text-slate-400 mb-2">الوصف والملاحظات</h3>
-                <p id="placeNotes" class="text-slate-300 bg-slate-800/60 p-3 rounded-xl border border-slate-700"></p>
+            <!-- ملاحظات -->
+            <div id="placeNotesWrapper" class="bg-slate-800/50 rounded-xl p-4 mb-6">
+                <h3 class="font-medium text-sm text-slate-400 mb-2">الوصف والملاحظات</h3>
+                <p id="placeNotes" class="text-slate-200"></p>
             </div>
 
-            <!-- معلومات صاحب المكان -->
-            <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-6">
-                <h3 class="text-sm font-medium text-slate-400 mb-3">معلومات المالك</h3>
-                <div class="flex items-center gap-3">
-                    <div id="ownerAvatarWrap" class="avatar-md bg-secondary/20 flex items-center justify-center overflow-hidden rounded-full">
-                        <img id="ownerAvatarImg" src="" class="w-full h-full object-cover hidden">
-                        <i id="ownerAvatarIcon" class="fa fa-user text-secondary"></i>
-                    </div>
-                    <div>
-                        <p id="ownerName" class="font-bold text-lg">اسم المالك</p>
-                        <p id="ownerPhone" class="text-sm text-slate-400">📞 —</p>
-                        <p id="addedDate" class="text-xs text-slate-500 mt-1">أضيف في: —</p>
-                    </div>
-                </div>
+            <!-- معلومات المالك -->
+            <div class="bg-slate-800/50 rounded-xl p-4 mb-6">
+                <h3 class="font-medium text-sm text-slate-400 mb-2">مضاف بواسطة</h3>
+                <p id="placeOwner" class="text-slate-200"></p>
+            </div>
+
+            <!-- أزرار الإجراءات -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <a id="phoneLink" href="#" class="btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                    <i class="fa fa-phone"></i> اتصال
+                </a>
+                <a id="mapLink" href="#" target="_blank" class="bg-green-600 hover:bg-green-500 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition">
+                    <i class="fa fa-map-o"></i> الموقع
+                </a>
+            </div>
+
+            <!-- أزرار التعديل والحذف -->
+            <div id="ownerActions" class="flex gap-3 hidden">
+                <button id="editBtn" class="flex-1 bg-slate-700 hover:bg-slate-600 py-3 rounded-xl font-medium transition">
+                    <i class="fa fa-pencil ml-1"></i> تعديل
+                </button>
+                <button id="deleteBtn" class="flex-1 bg-red-600/20 text-red-400 hover:bg-red-600/30 py-3 rounded-xl font-medium transition">
+                    <i class="fa fa-trash ml-1"></i> حذف
+                </button>
             </div>
         </div>
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module">
+        import { getPlaceById, deletePlace, getPlaces } from './db.js';
+        import { getCurrentUser } from './auth.js';
+
+        const currentUser = getCurrentUser();
+        if (!currentUser) window.location.href = 'login.html';
+
+        let placeId = '';
+        let placeData = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
-            const placeId = params.get('id');
-            
-            console.log('🔍 معرف المكان المطلوب:', placeId);
+            placeId = params.get('id');
             
             if (!placeId) {
+                alert('معرف المكان غير صالح ❌');
                 window.location.href = 'home.html';
                 return;
             }
 
-            const places = JSON.parse(localStorage.getItem('places') || '[]');
-            console.log('📋 قائمة الأماكن المخزنة:', places);
-            
-            const place = places.find(p => p.id === placeId);
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-
-            const placeNotFound = document.getElementById('placeNotFound');
-            const placeContent = document.getElementById('placeContent');
-
-            if (!place) {
-                console.log('❌ لم يتم العثور على المكان!');
-                placeNotFound.classList.remove('hidden');
-                return;
-            }
-
-            console.log('✅ تم العثور على المكان:', place);
-            placeNotFound.classList.add('hidden');
-            placeContent.classList.remove('hidden');
-
-            // تعبئة البيانات الأساسية
-            document.getElementById('placeName').textContent = place.name;
-            document.getElementById('placeCityCat').innerHTML = `
-                <i class="fa fa-map-marker ml-1"></i> ${place.city} · ${place.category}
-            `;
-            document.getElementById('placeStars').textContent = '★'.repeat(place.rating) + '☆'.repeat(5 - place.rating);
-
-            if (place.price) {
-                document.getElementById('placePriceWrap').classList.remove('hidden');
-                document.getElementById('placePrice').textContent = place.price;
-            }
-            if (place.phone) {
-                document.getElementById('phoneWrap').classList.remove('hidden');
-                document.getElementById('placePhone').href = 'tel:' + place.phone;
-                document.getElementById('placePhone').textContent = place.phone;
-            }
-            if (place.mapUrl) {
-                document.getElementById('mapWrap').classList.remove('hidden');
-                document.getElementById('placeMap').href = place.mapUrl;
-            }
-            if (place.notes) {
-                document.getElementById('notesWrap').classList.remove('hidden');
-                document.getElementById('placeNotes').textContent = place.notes;
-            }
-
-            // معرض الصور
-            const gallery = document.getElementById('imageGallery');
-            if (place.images && place.images.length > 0) {
-                gallery.innerHTML = place.images.map(img => 
-                    `<img src="${img}" class="w-full h-56 object-cover">`
-                ).join('');
-            } else {
-                gallery.innerHTML = '<div class="w-full h-48 flex items-center justify-center"><i class="fa fa-map-marker text-4xl text-slate-500"></i></div>';
-            }
-
-            // بيانات صاحب المكان
-            document.getElementById('ownerName').textContent = place.ownerName || 'مستخدم';
-            document.getElementById('ownerPhone').textContent = place.ownerPhone 
-                ? '📞 ' + place.ownerPhone 
-                : '📞 رقم غير متوفر';
-            document.getElementById('addedDate').textContent = 
-                'أضيف في: ' + new Date(place.createdAt).toLocaleDateString('ar-SA');
-            
-            // صورة المالك
-            const ownerAvatarImg = document.getElementById('ownerAvatarImg');
-            const ownerAvatarIcon = document.getElementById('ownerAvatarIcon');
-            if (place.ownerAvatar) {
-                ownerAvatarImg.src = place.ownerAvatar;
-                ownerAvatarImg.classList.remove('hidden');
-                ownerAvatarIcon.classList.add('hidden');
-            }
-
-            // أزرار التعديل والحذف
-            const editBtn = document.getElementById('editBtn');
-            const deleteBtn = document.getElementById('deleteBtn');
-            const isOwner = currentUser && (currentUser.phone === place.ownerPhone || currentUser.uid === place.ownerId);
-            const isAdmin = currentUser && currentUser.isAdmin;
-            
-            if (isOwner || isAdmin) {
-                editBtn.classList.remove('hidden');
-                deleteBtn.classList.remove('hidden');
-            }
-
-            // أحداث الأزرار
-            document.getElementById('backBtn').addEventListener('click', () => history.back());
-            
-            document.getElementById('shareBtn').addEventListener('click', function() {
-                const shareUrl = window.location.href;
-                if (navigator.share) {
-                    navigator.share({
-                        title: place.name,
-                        text: `مكان مميز: ${place.name} في ${place.city}`,
-                        url: shareUrl
-                    });
-                } else {
-                    navigator.clipboard.writeText(shareUrl);
-                    alert('✅ تم نسخ الرابط');
-                }
-            });
-
-            editBtn.addEventListener('click', function() {
-                alert('🚧 تعديل المكان قيد التطوير');
-            });
-
-            deleteBtn.addEventListener('click', function() {
-                if (confirm('هل أنت متأكد من حذف هذا المكان؟')) {
-                    const updatedPlaces = places.filter(p => p.id !== placeId);
-                    localStorage.setItem('places', JSON.stringify(updatedPlaces));
-                    alert('✅ تم الحذف');
-                    history.back();
-                }
-            });
+            bindEvents();
+            await loadPlaceDetails();
         });
+
+        function bindEvents() {
+            document.getElementById('backBtn').onclick = () => history.back();
+            document.getElementById('shareBtn').onclick = sharePlace;
+            document.getElementById('deleteBtn').onclick = confirmDelete;
+            document.getElementById('editBtn').onclick = editPlace;
+        }
+
+        async function loadPlaceDetails() {
+            try {
+                console.log('⏳ تحميل تفاصيل المكان:', placeId);
+                placeData = await getPlaceById(placeId);
+                
+                if (!placeData) {
+                    alert('المكان غير موجود ❌');
+                    window.location.href = 'home.html';
+                    return;
+                }
+
+                console.log('✅ بيانات المكان:', placeData);
+                renderDetails();
+            } catch (error) {
+                console.error('❌ خطأ تحميل التفاصيل:', error);
+                alert('حدث خطأ في تحميل البيانات');
+            }
+        }
+
+        function renderDetails() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('detailContent').classList.remove('hidden');
+
+            // الاسم والمعلومات الأساسية
+            document.getElementById('placeName').textContent = placeData.name;
+            document.getElementById('placeCity').textContent = placeData.city;
+            document.getElementById('placeCategory').textContent = placeData.category || 'غير مصنف';
+            document.getElementById('placeOwner').textContent = placeData.ownerName || 'مستخدم مجهول';
+
+            // التقييم
+            const ratingStars = '★'.repeat(placeData.rating || 0) + '☆'.repeat(5 - (placeData.rating || 0));
+            document.getElementById('placeRating').textContent = ratingStars;
+
+            // السعر
+            if (placeData.price) {
+                document.getElementById('placePrice').textContent = placeData.price;
+                document.getElementById('placePriceWrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('placePriceWrapper').classList.add('hidden');
+            }
+
+            // الملاحظات
+            if (placeData.notes) {
+                document.getElementById('placeNotes').textContent = placeData.notes;
+                document.getElementById('placeNotesWrapper').classList.remove('hidden');
+            } else {
+                document.getElementById('placeNotesWrapper').classList.add('hidden');
+            }
+
+            // الصور
+            const images = placeData.images || [];
+            if (images.length > 0) {
+                document.getElementById('mainImage').src = images[0];
+                document.getElementById('mainImageContainer').classList.remove('hidden');
+                document.getElementById('noImageContainer').classList.add('hidden');
+
+                if (images.length > 1) {
+                    const thumbnails = document.getElementById('thumbnailsContainer');
+                    thumbnails.innerHTML = '';
+                    thumbnails.classList.remove('hidden');
+                    images.forEach((img, idx) => {
+                        const thumb = document.createElement('img');
+                        thumb.src = img;
+                        thumb.className = 'w-16 h-16 rounded-lg object-cover cursor-pointer border-2 border-transparent hover:border-secondary';
+                        thumb.onclick = () => {
+                            document.getElementById('mainImage').src = img;
+                        };
+                        thumbnails.appendChild(thumb);
+                    });
+                }
+            } else {
+                document.getElementById('mainImageContainer').classList.add('hidden');
+                document.getElementById('noImageContainer').classList.remove('hidden');
+                document.getElementById('thumbnailsContainer').classList.add('hidden');
+            }
+
+            // رابط الهاتف
+            const phoneLink = document.getElementById('phoneLink');
+            if (placeData.phone) {
+                phoneLink.href = `tel:${placeData.phone}`;
+                phoneLink.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                phoneLink.href = '#';
+                phoneLink.classList.add('opacity-50', 'pointer-events-none');
+                phoneLink.innerHTML = '<i class="fa fa-phone-slash"></i> لا يوجد رقم';
+            }
+
+            // رابط الخريطة
+            const mapLink = document.getElementById('mapLink');
+            if (placeData.mapUrl) {
+                mapLink.href = placeData.mapUrl;
+                mapLink.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeData.name + ', ' + placeData.city)}`;
+            }
+
+            // أزرار التعديل والحذف (للمالك أو المشرف فقط)
+            const ownerActions = document.getElementById('ownerActions');
+            if (currentUser.uid === placeData.ownerId || currentUser.isAdmin) {
+                ownerActions.classList.remove('hidden');
+            }
+        }
+
+        function sharePlace() {
+            const shareText = `تفضل بزيارة ${placeData.name} في ${placeData.city} — عبر منصة كشتات عائلة حسين العويشي`;
+            if (navigator.share) {
+                navigator.share({
+                    title: placeData.name,
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('✅ تم نسخ الرابط!');
+            }
+        }
+
+        function editPlace() {
+            alert('التعديل قيد التطوير، يمكنك إضافة مكان جديد بنفس المعلومات والتواصل مع المشرف للحذف');
+        }
+
+        async function confirmDelete() {
+            if (!confirm('هل أنت متأكد من حذف هذا المكان؟ لا يمكن التراجع عن هذا الإجراء ❌')) return;
+            
+            try {
+                await deletePlace(placeId);
+                alert('✅ تم حذف المكان بنجاح!');
+                window.location.href = `city.html?name=${encodeURIComponent(placeData.city)}`;
+            } catch (error) {
+                console.error(error);
+                alert('❌ حدث خطأ أثناء الحذف');
+            }
+        }
     </script>
 </body>
 </html>
