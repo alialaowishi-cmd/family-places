@@ -6,17 +6,16 @@
     <title>تفاصيل المكان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="module" src="./config.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1E40AF',
+                        primary: '#007AFF',
                         secondary: '#3B82F6',
-                        accent: '#F59E0B',
-                        success: '#10B981',
+                        accent: '#FFCC00',
                         danger: '#EF4444',
-                        dark: '#0F172A',
                     },
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] }
                 }
@@ -26,55 +25,57 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body {
-            background: #0F172A;
-            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(180deg, rgba(0, 122, 255, 0.04) 0%, rgba(94, 92, 230, 0.03) 100%);
             min-height: 100vh;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .glass-ios {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .btn-primary {
-            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%);
         }
         .btn-danger {
             background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
         }
         .btn-outline {
-            border: 1px solid #3B82F6;
-            color: #3B82F6;
+            border: 1px solid #007AFF;
+            color: #007AFF;
             background: transparent;
-            transition: all 0.2s ease;
         }
-        .star-rating { color: #F59E0B; font-size: 1.2rem; }
+        .star-rating { color: #FFCC00; font-size: 1.2rem; }
         .modal-backdrop {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
-        }
-        .image-placeholder {
-            background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
         }
         button { cursor: pointer; border: none; }
     </style>
 </head>
-<body class="text-white">
+<body>
     <!-- رأس الصفحة -->
-    <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3 flex items-center justify-between">
-        <button id="backBtn" class="text-slate-400 hover:text-white bg-transparent text-lg">
-            <i class="fa fa-arrow-right"></i>
-        </button>
-        <h1 class="text-lg font-bold" id="placeName">تفاصيل المكان</h1>
-        <div class="w-6"></div>
+    <header class="glass-ios sticky top-0 z-40 shadow-sm">
+        <div class="max-w-2xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <button id="backBtn" class="flex items-center gap-2 text-gray-500 hover:text-primary text-sm">
+                <i class="fa fa-arrow-right"></i> رجوع
+            </button>
+            <h1 class="text-lg font-bold text-gray-800" id="placeName">تفاصيل المكان</h1>
+            <div class="w-16"></div>
+        </div>
     </header>
 
-    <main class="px-4 py-4">
+    <main class="max-w-2xl mx-auto px-4 py-5">
         <!-- صور المكان -->
-        <div class="rounded-2xl overflow-hidden mb-6 image-placeholder h-48 flex items-center justify-center" id="placeImages">
-            <i class="fa fa-image text-4xl text-slate-500"></i>
+        <div class="rounded-2xl overflow-hidden mb-4 bg-gray-100 h-48 flex items-center justify-center" id="placeImages">
+            <i class="fa fa-image text-4xl text-gray-400"></i>
         </div>
 
         <!-- معلومات المكان -->
-        <div class="bg-slate-800/60 rounded-2xl p-5 mb-4 border border-slate-700">
-            <h2 class="text-xl font-bold mb-2" id="detailName">اسم المكان</h2>
-            <p class="text-slate-400 text-sm mb-4" id="detailCity">
-                <i class="fa fa-map-marker ml-1 text-secondary"></i>
+        <div class="glass-ios rounded-2xl p-5 mb-4">
+            <h2 class="text-xl font-bold text-gray-800 mb-2" id="detailName">اسم المكان</h2>
+            <p class="text-gray-500 text-sm mb-4" id="detailCity">
+                <i class="fa fa-map-marker ml-1 text-primary"></i>
                 المدينة
             </p>
             
@@ -86,33 +87,33 @@
                     <i class="fa fa-star-o"></i>
                     <i class="fa fa-star-o"></i>
                 </span>
-                <span class="text-sm text-slate-400 mr-2" id="ratingText">لا تقييم</span>
+                <span class="text-sm text-gray-500 mr-2" id="ratingText">لا تقييم</span>
             </div>
 
-            <div class="space-y-3 text-sm">
+            <div class="space-y-3 text-sm text-gray-700">
                 <div class="flex items-start">
-                    <span class="text-slate-500 w-20">التصنيف:</span>
-                    <span id="detailCategory" class="text-white">غير مصنف</span>
+                    <span class="text-gray-400 w-20">التصنيف:</span>
+                    <span id="detailCategory">غير مصنف</span>
                 </div>
                 <div class="flex items-start">
-                    <span class="text-slate-500 w-20">السعر:</span>
-                    <span id="detailPrice" class="text-white">غير محدد</span>
+                    <span class="text-gray-400 w-20">السعر:</span>
+                    <span id="detailPrice">غير محدد</span>
                 </div>
                 <div class="flex items-start" id="phoneRow" style="display:none;">
-                    <span class="text-slate-500 w-20">جوال:</span>
-                    <a href="#" id="detailPhone" class="text-secondary hover:underline">-</a>
+                    <span class="text-gray-400 w-20">جوال:</span>
+                    <a href="#" id="detailPhone" class="text-primary hover:underline">-</a>
                 </div>
                 <div class="flex items-start" id="mapRow" style="display:none;">
-                    <span class="text-slate-500 w-20">الموقع:</span>
-                    <a href="#" id="detailMapLink" target="_blank" class="text-secondary hover:underline">عرض في قوقل ماب</a>
+                    <span class="text-gray-400 w-20">الموقع:</span>
+                    <a href="#" id="detailMapLink" target="_blank" class="text-primary hover:underline">عرض في قوقل ماب</a>
                 </div>
                 <div class="flex items-start">
-                    <span class="text-slate-500 w-20">ملاحظات:</span>
-                    <span id="detailNotes" class="text-white">لا توجد ملاحظات</span>
+                    <span class="text-gray-400 w-20">ملاحظات:</span>
+                    <span id="detailNotes">لا توجد ملاحظات</span>
                 </div>
                 <div class="flex items-start">
-                    <span class="text-slate-500 w-20">تاريخ:</span>
-                    <span id="detailDate" class="text-slate-400">-</span>
+                    <span class="text-gray-400 w-20">تاريخ:</span>
+                    <span id="detailDate">-</span>
                 </div>
             </div>
         </div>
@@ -131,11 +132,11 @@
                 <i class="fa fa-phone"></i>
                 <span>اتصال مباشر</span>
             </button>
-            <button id="editBtn" class="btn-primary rounded-xl py-3 px-4 flex items-center justify-center gap-2">
+            <button id="editBtn" class="btn-primary rounded-xl py-3 px-4 flex items-center justify-center gap-2 text-white">
                 <i class="fa fa-pencil"></i>
                 <span>تعديل</span>
             </button>
-            <button id="deleteBtn" class="btn-danger rounded-xl py-3 px-4 flex items-center justify-center gap-2 col-span-2">
+            <button id="deleteBtn" class="btn-danger rounded-xl py-3 px-4 flex items-center justify-center gap-2 text-white col-span-2">
                 <i class="fa fa-trash"></i>
                 <span>حذف المكان</span>
             </button>
@@ -144,52 +145,56 @@
 
     <!-- نافذة تأكيد الحذف -->
     <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
-        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-slate-700">
-            <h3 class="text-lg font-bold mb-4 text-center">تأكيد الحذف</h3>
-            <p class="text-slate-300 text-center mb-6">هل أنت متأكد من حذف هذا المكان؟</p>
+        <div class="glass-ios rounded-2xl p-6 w-full max-w-sm mx-4 shadow-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">تأكيد الحذف</h3>
+            <p class="text-gray-600 text-center mb-6">هل أنت متأكد من حذف هذا المكان؟</p>
             <div class="flex gap-3">
-                <button id="confirmCancel" class="flex-1 py-3 rounded-lg bg-slate-700">إلغاء</button>
+                <button id="confirmCancel" class="flex-1 py-3 rounded-lg bg-gray-200 text-gray-700">إلغاء</button>
                 <button id="confirmOk" class="flex-1 py-3 rounded-lg bg-danger text-white">نعم، احذف</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // === دوال مساعدة ===
-        function getAllPlaces() {
-            try {
-                const data = localStorage.getItem('places');
-                return data ? JSON.parse(data) : [];
-            } catch { return []; }
-        }
+    <script type="module">
+        import { 
+            getPlaceById, 
+            deletePlace,
+            getCurrentUser, 
+            isAdmin 
+        } from './auth.js';
 
-        function savePlaces(places) {
-            localStorage.setItem('places', JSON.stringify(places));
-        }
-
-        function getCurrentUser() {
-            try {
-                const data = localStorage.getItem('currentUser');
-                return data ? JSON.parse(data) : null;
-            } catch { return null; }
-        }
-
-        function isAdmin() {
-            const user = getCurrentUser();
-            return user?.isAdmin === true;
-        }
+        // === المتغيرات العامة ===
+        let placeId = null;
+        let place = null;
 
         // === قراءة المعرف من الرابط ===
         const params = new URLSearchParams(window.location.search);
-        const index = parseInt(params.get('index') || '0');
-        let allPlaces = getAllPlaces();
-        let place = allPlaces[index];
+        placeId = params.get('id');
 
-        // === التحميل الأولي ===
-        if (!place) {
-            alert('المكان غير موجود ❌');
-            window.location.href = 'home.html';
-        } else {
+        // === عناصر الصفحة ===
+        const backBtn = document.getElementById('backBtn');
+        const editBtn = document.getElementById('editBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmCancel = document.getElementById('confirmCancel');
+        const confirmOk = document.getElementById('confirmOk');
+
+        // === تحميل بيانات المكان ===
+        async function loadPlace() {
+            if (!placeId) {
+                alert('معرف المكان مفقود ❌');
+                window.location.href = 'home.html';
+                return;
+            }
+
+            place = await getPlaceById(placeId);
+            
+            if (!place) {
+                alert('المكان غير موجود ❌');
+                window.location.href = 'home.html';
+                return;
+            }
+
             renderPlace();
             checkPermissions();
         }
@@ -198,11 +203,11 @@
         function renderPlace() {
             document.getElementById('placeName').textContent = place.name || 'تفاصيل المكان';
             document.getElementById('detailName').textContent = place.name || 'بدون اسم';
-            document.getElementById('detailCity').innerHTML = `<i class="fa fa-map-marker ml-1 text-secondary"></i>${place.city || 'بدون مدينة'}`;
+            document.getElementById('detailCity').innerHTML = `<i class="fa fa-map-marker ml-1 text-primary"></i>${place.city || 'بدون مدينة'}`;
             document.getElementById('detailCategory').textContent = place.category || 'غير مصنف';
             document.getElementById('detailPrice').textContent = place.price || 'غير محدد';
             document.getElementById('detailNotes').textContent = place.notes || 'لا توجد ملاحظات';
-            document.getElementById('detailDate').textContent = place.createdAt ? new Date(place.createdAt).toLocaleDateString('ar-SA') : '-';
+            document.getElementById('detailDate').textContent = place.createdAt ? new Date(place.createdAt.toDate ? place.createdAt.toDate() : place.createdAt).toLocaleDateString('ar-SA') : '-';
 
             // التقييم - النجوم
             const rating = parseInt(place.rating) || 0;
@@ -237,15 +242,13 @@
             if (place.images && place.images.length > 0) {
                 imgContainer.innerHTML = `<img src="${place.images[0]}" alt="${place.name}" class="w-full h-full object-cover">`;
             } else {
-                imgContainer.innerHTML = '<i class="fa fa-image text-4xl text-slate-500"></i>';
+                imgContainer.innerHTML = '<i class="fa fa-image text-4xl text-gray-400"></i>';
             }
         }
 
         // === صلاحيات التعديل والحذف ===
         function checkPermissions() {
             const user = getCurrentUser();
-            const editBtn = document.getElementById('editBtn');
-            const deleteBtn = document.getElementById('deleteBtn');
             
             if (!place || !user) {
                 editBtn.style.display = 'none';
@@ -266,7 +269,7 @@
         }
 
         // === أحداث الأزرار ===
-        document.getElementById('backBtn').onclick = function() {
+        backBtn.onclick = function() {
             if (window.history.length > 1) {
                 window.history.back();
             } else {
@@ -274,8 +277,8 @@
             }
         };
 
-        // ✏️ تعديل المكان — تم تفعيله
-        document.getElementById('editBtn').onclick = function() {
+        // ✏️ تعديل المكان
+        editBtn.onclick = function() {
             const user = getCurrentUser();
             const isOwner = place.createdBy === (user?.phone || user?.email);
             const userIsAdmin = isAdmin();
@@ -284,12 +287,12 @@
                 alert('أنت لست صاحب هذا المكان ❌');
                 return;
             }
-            // الانتقال لصفحة الإضافة مع تمرير الفهرس للتعديل
-            window.location.href = `add-place.html?editIndex=${index}`;
+            // الانتقال لصفحة التعديل مع تمرير المعرف
+            window.location.href = `add-place.html?editId=${placeId}`;
         };
 
         // 🗑️ حذف المكان
-        document.getElementById('deleteBtn').onclick = function() {
+        deleteBtn.onclick = function() {
             const user = getCurrentUser();
             const isOwner = place.createdBy === (user?.phone || user?.email);
             const userIsAdmin = isAdmin();
@@ -298,21 +301,30 @@
                 alert('أنت لست صاحب هذا المكان ❌');
                 return;
             }
-            document.getElementById('confirmModal').classList.remove('hidden');
+            // إظهار نافذة التأكيد
+            confirmModal.classList.remove('hidden');
+            confirmModal.style.display = 'flex';
         };
 
         // إلغاء الحذف
-        document.getElementById('confirmCancel').onclick = function() {
-            document.getElementById('confirmModal').classList.add('hidden');
+        confirmCancel.onclick = function() {
+            confirmModal.classList.add('hidden');
+            confirmModal.style.display = 'none';
         };
 
         // تأكيد الحذف
-        document.getElementById('confirmOk').onclick = function() {
-            document.getElementById('confirmModal').classList.add('hidden');
-            allPlaces.splice(index, 1);
-            savePlaces(allPlaces);
-            alert('تم حذف المكان بنجاح ✅');
-            window.location.href = 'home.html';
+        confirmOk.onclick = async function() {
+            confirmModal.classList.add('hidden');
+            confirmModal.style.display = 'none';
+            
+            try {
+                await deletePlace(placeId);
+                alert('تم حذف المكان بنجاح ✅');
+                window.location.href = 'home.html';
+            } catch (error) {
+                console.error(error);
+                alert('حدث خطأ أثناء الحذف ❌');
+            }
         };
 
         // 📞 اتصال مباشر
@@ -349,6 +361,9 @@
                 });
             }
         };
+
+        // === بدء التشغيل ===
+        loadPlace();
     </script>
 </body>
 </html>
