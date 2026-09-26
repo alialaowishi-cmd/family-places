@@ -13,7 +13,6 @@
                     colors: {
                         primary: '#1E40AF',
                         secondary: '#3B82F6',
-                        accent: '#F59E0B',
                         dark: '#0F172A',
                     },
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] }
@@ -23,62 +22,44 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-        body {
-            background: #0F172A;
-            font-family: 'Tajawal', sans-serif;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-            transition: all 0.2s ease;
-        }
+        body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 85px; }
+        .btn-primary { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); transition: all 0.2s ease; }
         .btn-primary:active { transform: scale(0.97); }
         .nav-btn { transition: all 0.2s ease; cursor: pointer; }
         .nav-btn:active { transform: scale(0.95); }
-        .sticky-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
-            border-top: 1px solid #1E293B;
-        }
-        .avatar-ring {
-            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-            padding: 3px;
-        }
-        .skeleton { background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
-        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #1E293B; }
+        .avatar-ring { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); padding: 3px; border-radius: 9999px; }
     </style>
 </head>
 <body class="text-white">
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
         <div class="flex items-center justify-between">
-            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2 -ml-2">
-                <i class="fa fa-arrow-right"></i>
+            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2">
+                <i class="fa fa-arrow-right fa-lg"></i>
             </button>
             <h1 class="text-lg font-bold">حسابي</h1>
-            <div></div>
+            <div class="w-8"></div>
         </div>
     </header>
 
     <main class="px-4 py-6">
-        <!-- بطاقة بيانات المستخدم -->
         <section class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-6">
             <div class="flex flex-col items-center text-center">
-                <div class="avatar-ring rounded-full mb-4">
+                <div class="avatar-ring mb-4">
                     <div class="w-24 h-24 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
                         <img id="userAvatar" src="" alt="صورة المستخدم" class="w-full h-full object-cover hidden">
                         <i id="defaultAvatar" class="fa fa-user text-4xl text-slate-400"></i>
                     </div>
                 </div>
-                <h2 id="userName" class="text-xl font-bold mb-1"><span class="skeleton inline-block w-24 h-6 rounded"></span></h2>
-                <p id="userPhone" class="text-sm text-slate-400 mb-4"><span class="skeleton inline-block w-32 h-4 rounded"></span></p>
+                <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
+                <p id="userPhone" class="text-sm text-slate-400 mb-4">05XX XXX XXXX</p>
                 <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4">
-                    <i class="fa fa-camera ml-1"></i> تغيير الصورة
+                    <i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية
                 </button>
                 <input type="file" id="avatarInput" accept="image/*" class="hidden">
             </div>
 
-            <div class="space-y-3 mt-4">
+            <div class="space-y-3 mt-2">
                 <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
                     <span class="text-slate-300"><i class="fa fa-envelope ml-2 text-secondary"></i> البريد الإلكتروني</span>
                     <span id="userEmail" class="text-sm text-slate-400">—</span>
@@ -94,57 +75,51 @@
             </div>
         </section>
 
-        <!-- أزرار الإجراءات -->
         <section class="space-y-3 mb-6">
-            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
                 <span class="flex items-center">
-                    <i class="fa fa-edit ml-3 text-secondary"></i>
-                    تعديل بياناتي
+                    <i class="fa fa-edit ml-3 text-secondary"></i> تعديل بياناتي
                 </span>
                 <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
-            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
                 <span class="flex items-center">
-                    <i class="fa fa-map ml-3 text-secondary"></i>
-                    أماكني المضافة
+                    <i class="fa fa-map ml-3 text-secondary"></i> أماكني المضافة
                 </span>
                 <span id="myPlacesBadge" class="bg-secondary/20 text-secondary text-xs px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
                 <span class="flex items-center">
-                    <i class="fa fa-bell ml-3 text-secondary"></i>
-                    إعدادات الإشعارات
+                    <i class="fa fa-bell ml-3 text-secondary"></i> إعدادات الإشعارات
                 </span>
                 <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
-            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
                 <span class="flex items-center">
-                    <i class="fa fa-question-circle ml-3 text-secondary"></i>
-                    مساعدة
+                    <i class="fa fa-question-circle ml-3 text-secondary"></i> مساعدة
                 </span>
                 <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
         </section>
 
         <section class="mb-8">
-            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition">
+            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition active:scale-[0.98]">
                 <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
             </button>
         </section>
     </main>
 
-    <!-- نافذة تعديل البيانات -->
-    <div id="editModal" class="hidden fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
         <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
             <h3 class="text-lg font-bold mb-4 text-center">تعديل بياناتي</h3>
-            <div class="space-y-3 mb-4">
+            <div class="space-y-4 mb-6">
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">الاسم الكامل</label>
-                    <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                    <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white outline-none">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">رقم الجوال</label>
-                    <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white" dir="ltr" disabled>
+                    <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white outline-none" dir="ltr" readonly>
                     <p class="text-xs text-slate-500 mt-1">لا يمكن تغيير رقم الجوال</p>
                 </div>
             </div>
@@ -155,249 +130,171 @@
         </div>
     </div>
 
-    <!-- الشريط السفلي -->
-    <nav class="sticky-nav px-2 py-3">
+    <nav class="sticky-nav px-2 py-2">
         <div class="flex justify-around items-center max-w-lg mx-auto">
-            <button id="navHome" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+            <button id="navHome" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-home text-lg mb-1"></i>
                 الرئيسية
             </button>
-            <button id="navCity" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+            <button id="navCity" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-building text-lg mb-1"></i>
                 مدينة
             </button>
-            <button id="navAdd" class="nav-btn flex flex-col items-center text-xs">
-                <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center -mt-6 border border-slate-600">
+            <button id="navAdd" class="nav-btn flex flex-col items-center text-xs py-1">
+                <div class="w-11 h-11 bg-slate-700 rounded-full flex items-center justify-center -mt-5 border border-slate-600">
                     <i class="fa fa-plus text-lg text-slate-300"></i>
                 </div>
             </button>
-            <button id="navAccount" class="nav-btn flex flex-col items-center text-xs text-secondary">
+            <button id="navAccount" class="nav-btn flex flex-col items-center text-xs text-secondary py-1">
                 <i class="fa fa-user text-lg mb-1"></i>
                 حسابي
             </button>
-            <button id="navAdmin" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+            <button id="navAdmin" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-cog text-lg mb-1"></i>
                 المشرف
             </button>
         </div>
     </nav>
 
-    <script type="module">
-        import { getCurrentUser, logout, getPlaces } from './db.js';
-        import { getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-        import { db } from './db.js';
+    <script>
+        // انتظر تحميل الصفحة بالكامل
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ صفحة حسابي جاهزة');
 
-        if (!getCurrentUser()) {
-            window.location.href = 'login.html';
-        }
+            // جلب العناصر
+            const backBtn = document.getElementById('backBtn');
+            const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+            const avatarInput = document.getElementById('avatarInput');
+            const editInfoBtn = document.getElementById('editInfoBtn');
+            const editModal = document.getElementById('editModal');
+            const editName = document.getElementById('editName');
+            const editPhone = document.getElementById('editPhone");
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const myPlacesBtn = document.getElementById('myPlacesBtn');
+            const notifSettingsBtn = document.getElementById('notifSettingsBtn');
+            const helpBtn = document.getElementById('helpBtn');
+            const navHome = document.getElementById('navHome');
+            const navCity = document.getElementById('navCity');
+            const navAdd = document.getElementById('navAdd');
+            const navAdmin = document.getElementById('navAdmin');
 
-        let currentUserData = getCurrentUser();
-        
-        const userName = document.getElementById('userName');
-        const userPhone = document.getElementById('userPhone');
-        const userEmail = document.getElementById('userEmail');
-        const joinDate = document.getElementById('joinDate');
-        const placesCount = document.getElementById('placesCount');
-        const myPlacesBadge = document.getElementById('myPlacesBadge');
-        const avatarInput = document.getElementById('avatarInput');
-        const userAvatar = document.getElementById('userAvatar');
-        const defaultAvatar = document.getElementById('defaultAvatar');
-        
-        const editModal = document.getElementById('editModal');
-        const editName = document.getElementById('editName');
-        const editPhone = document.getElementById('editPhone');
-        const editInfoBtn = document.getElementById('editInfoBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const saveEditBtn = document.getElementById('saveEditBtn');
-        
-        const backBtn = document.getElementById('backBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
-        const myPlacesBtn = document.getElementById('myPlacesBtn');
-        const notifSettingsBtn = document.getElementById('notifSettingsBtn');
-        const helpBtn = document.getElementById('helpBtn');
-        
-        const navHome = document.getElementById('navHome');
-        const navCity = document.getElementById('navCity');
-        const navAdd = document.getElementById('navAdd');
-        const navAccount = document.getElementById('navAccount');
-        const navAdmin = document.getElementById('navAdmin');
-
-        // تحميل بيانات المستخدم من Firebase
-        async function loadUserData() {
-            if (!currentUserData || !currentUserData.uid) {
-                userName.textContent = 'مستخدم';
-                userPhone.textContent = 'غير متوفر';
-                return;
-            }
-
-            try {
-                // جلب البيانات المحدثة من Firestore
-                const userDoc = await getDoc(doc(db, 'users', currentUserData.uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    currentUserData = { uid: currentUserData.uid, ...data };
-                    
-                    // تحديث العرض
-                    userName.textContent = data.name || 'مستخدم';
-                    userPhone.textContent = data.phone || 'غير متوفر';
-                    userEmail.textContent = data.email || '—';
-                    joinDate.textContent = data.createdAt 
-                        ? new Date(data.createdAt).toLocaleDateString('ar-SA') 
-                        : '—';
-                    
-                    // حفظ أحدث البيانات في localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(currentUserData));
-                } else {
-                    userName.textContent = currentUserData.name || 'مستخدم';
-                    userPhone.textContent = currentUserData.phone || 'غير متوفر';
-                    userEmail.textContent = currentUserData.email || '—';
-                }
-            } catch (error) {
-                console.error('❌ خطأ في تحميل بيانات المستخدم:', error);
-                userName.textContent = currentUserData.name || 'مستخدم';
-                userPhone.textContent = currentUserData.phone || 'غير متوفر';
-            }
-
-            // تحميل الصورة الشخصية
-            const savedAvatar = localStorage.getItem(`userAvatar_${currentUserData?.uid}`);
-            if (savedAvatar) {
-                userAvatar.src = savedAvatar;
-                userAvatar.classList.remove('hidden');
-                defaultAvatar.classList.add('hidden');
-            }
-
-            loadUserPlaces();
-        }
-
-        // تحميل أماكن المستخدم
-        async function loadUserPlaces() {
-            try {
-                const allPlaces = await getPlaces();
-                const myPlaces = allPlaces.filter(p => p.createdBy === currentUserData?.uid);
-                placesCount.textContent = `${myPlaces.length} مكان`;
-                myPlacesBadge.textContent = myPlaces.length;
-            } catch (error) {
-                console.error('❌ خطأ:', error);
-            }
-        }
-
-        // تغيير الصورة الشخصية
-        changeAvatarBtn.addEventListener('click', () => {
-            avatarInput.click();
-        });
-
-        avatarInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file && currentUserData?.uid) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const imageData = event.target.result;
-                    localStorage.setItem(`userAvatar_${currentUserData.uid}`, imageData);
-                    userAvatar.src = imageData;
-                    userAvatar.classList.remove('hidden');
-                    defaultAvatar.classList.add('hidden');
-                    alert('✅ تم تحديث الصورة الشخصية');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // فتح نافذة تعديل البيانات
-        editInfoBtn.addEventListener('click', () => {
-            editName.value = currentUserData?.name || '';
-            editPhone.value = currentUserData?.phone || '';
-            editModal.classList.remove('hidden');
-        });
-
-        cancelEditBtn.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-        });
-
-        saveEditBtn.addEventListener('click', async () => {
-            const newName = editName.value.trim();
-            if (!newName) { alert('أدخل الاسم الكامل'); return; }
+            // بيانات المستخدم
+            let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             
-            saveEditBtn.disabled = true;
-            saveEditBtn.innerHTML = '<i class="fa fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
-            
-            try {
-                // تحديث في Firestore
-                if (currentUserData?.uid) {
-                    await updateDoc(doc(db, 'users', currentUserData.uid), {
-                        name: newName
-                    });
+            const userName = document.getElementById('userName');
+            const userPhone = document.getElementById('userPhone');
+            const userEmail = document.getElementById('userEmail');
+            const joinDate = document.getElementById('joinDate');
+            const placesCount = document.getElementById('placesCount');
+            const myPlacesBadge = document.getElementById('myPlacesBadge');
+            const userAvatar = document.getElementById('userAvatar');
+            const defaultAvatar = document.getElementById('defaultAvatar');
+
+            // تحميل البيانات
+            function loadData() {
+                if (currentUser) {
+                    userName.textContent = currentUser.name || 'مستخدم';
+                    userPhone.textContent = currentUser.phone || 'غير متوفر';
+                    userEmail.textContent = currentUser.email || '—';
+                    joinDate.textContent = currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('ar-SA') : '—';
+                    
+                    const avatar = localStorage.getItem('userAvatar_' + (currentUser.uid || currentUser.phone));
+                    if (avatar) {
+                        userAvatar.src = avatar;
+                        userAvatar.classList.remove('hidden');
+                        defaultAvatar.classList.add('hidden');
+                    }
                 }
-                
-                // تحديث محلي
-                currentUserData.name = newName;
-                localStorage.setItem('currentUser', JSON.stringify(currentUserData));
-                
+                placesCount.textContent = '0 مكان';
+                myPlacesBadge.textContent = '0';
+            }
+
+            // أحداث الأزرار
+            if (backBtn) backBtn.addEventListener('click', () => {
+                window.location.href = 'home.html';
+            });
+
+            if (changeAvatarBtn && avatarInput) changeAvatarBtn.addEventListener('click', () => {
+                avatarInput.click();
+            });
+
+            if (avatarInput) avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        const dataUrl = ev.target.result;
+                        localStorage.setItem('userAvatar_' + (currentUser.uid || currentUser.phone), dataUrl);
+                        userAvatar.src = dataUrl;
+                        userAvatar.classList.remove('hidden');
+                        defaultAvatar.classList.add('hidden');
+                        alert('✅ تم حفظ الصورة');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            if (editInfoBtn) editInfoBtn.addEventListener('click', () => {
+                editName.value = currentUser.name || '';
+                editPhone.value = currentUser.phone || '';
+                editModal.classList.remove('hidden');
+            });
+
+            if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
+                editModal.classList.add('hidden');
+            });
+
+            if (saveEditBtn) saveEditBtn.addEventListener('click', () => {
+                const newName = editName.value.trim();
+                if (!newName) { alert('أدخل الاسم'); return; }
+                currentUser.name = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 userName.textContent = newName;
                 editModal.classList.add('hidden');
-                alert('✅ تم حفظ التغييرات بنجاح');
-            } catch (error) {
-                console.error('❌ خطأ:', error);
-                alert('حدث خطأ أثناء الحفظ، يرجى المحاولة مرة أخرى');
-            } finally {
-                saveEditBtn.disabled = false;
-                saveEditBtn.innerHTML = 'حفظ';
-            }
-        });
+                alert('✅ تم حفظ التغييرات');
+            });
 
-        editModal.addEventListener('click', (e) => {
-            if (e.target === editModal) {
-                editModal.classList.add('hidden');
-            }
-        });
+            if (editModal) editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) editModal.classList.add('hidden');
+            });
 
-        backBtn.addEventListener('click', () => {
-            window.location.href = 'home.html';
-        });
+            if (logoutBtn) logoutBtn.addEventListener('click', () => {
+                if (confirm('هل تريد تسجيل الخروج؟')) {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                }
+            });
 
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('هل تريد تسجيل الخروج؟')) {
-                logout();
-                window.location.href = 'login.html';
-            }
-        });
+            if (myPlacesBtn) myPlacesBtn.addEventListener('click', () => {
+                alert('🚧 قيد التطوير');
+            });
 
-        myPlacesBtn.addEventListener('click', () => {
-            alert('قيد التطوير 🚧 ستصلك قائمة بأماكنك قريباً!');
-        });
+            if (notifSettingsBtn) notifSettingsBtn.addEventListener('click', () => {
+                alert('🚧 قيد التطوير');
+            });
 
-        notifSettingsBtn.addEventListener('click', () => {
-            alert('قيد التطوير 🚧');
-        });
+            if (helpBtn) helpBtn.addEventListener('click', () => {
+                alert('📧 تواصل مع المشرف للمساعدة');
+            });
 
-        helpBtn.addEventListener('click', () => {
-            alert('📧 للمساعدة: تواصل مع المشرف');
-        });
+            // شريط التنقل السفلي
+            if (navHome) navHome.addEventListener('click', () => window.location.href = 'home.html');
+            if (navCity) navCity.addEventListener('click', () => window.location.href = 'home.html');
+            if (navAdd) navAdd.addEventListener('click', () => window.location.href = 'add-place.html');
+            if (navAdmin) navAdmin.addEventListener('click', () => {
+                const pwd = prompt('كلمة مرور المشرف:');
+                if (pwd === 'admin123') {
+                    localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
+                    window.location.href = 'admin-dashboard.html';
+                } else if (pwd) {
+                    alert('❌ كلمة المرور خطأ');
+                }
+            });
 
-        // شريط التنقل السفلي
-        navHome.addEventListener('click', () => {
-            window.location.href = 'home.html';
+            loadData();
         });
-        navCity.addEventListener('click', () => {
-            window.location.href = 'home.html';
-        });
-        navAdd.addEventListener('click', () => {
-            window.location.href = 'add-place.html';
-        });
-        navAccount.addEventListener('click', () => {
-            // الصفحة الحالية
-        });
-        navAdmin.addEventListener('click', () => {
-            const password = prompt('أدخل كلمة مرور المشرف:');
-            if (password === 'admin123') {
-                localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
-                window.location.href = 'admin-dashboard.html';
-            } else if (password) {
-                alert('كلمة المرور غير صحيحة ❌');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', loadUserData);
     </script>
 </body>
 </html>
