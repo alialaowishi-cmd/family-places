@@ -45,15 +45,18 @@
             background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
             padding: 3px;
         }
+        .skeleton { background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
+        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="text-white">
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
-        <div class="flex items-center">
+        <div class="flex items-center justify-between">
             <button id="backBtn" class="text-slate-400 hover:text-white transition p-2 -ml-2">
                 <i class="fa fa-arrow-right"></i>
             </button>
-            <h1 class="text-lg font-bold mr-2">حسابي</h1>
+            <h1 class="text-lg font-bold">حسابي</h1>
+            <div></div>
         </div>
     </header>
 
@@ -67,8 +70,8 @@
                         <i id="defaultAvatar" class="fa fa-user text-4xl text-slate-400"></i>
                     </div>
                 </div>
-                <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
-                <p id="userPhone" class="text-sm text-slate-400 mb-4">05XX XXX XXXX</p>
+                <h2 id="userName" class="text-xl font-bold mb-1"><span class="skeleton inline-block w-24 h-6 rounded"></span></h2>
+                <p id="userPhone" class="text-sm text-slate-400 mb-4"><span class="skeleton inline-block w-32 h-4 rounded"></span></p>
                 <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4">
                     <i class="fa fa-camera ml-1"></i> تغيير الصورة
                 </button>
@@ -135,10 +138,15 @@
         <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
             <h3 class="text-lg font-bold mb-4 text-center">تعديل بياناتي</h3>
             <div class="space-y-3 mb-4">
-                <label class="block text-sm text-slate-400">الاسم الكامل</label>
-                <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white">
-                <label class="block text-sm text-slate-400">رقم الجوال</label>
-                <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white" dir="ltr">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">الاسم الكامل</label>
+                    <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">رقم الجوال</label>
+                    <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white" dir="ltr" disabled>
+                    <p class="text-xs text-slate-500 mt-1">لا يمكن تغيير رقم الجوال</p>
+                </div>
             </div>
             <div class="flex gap-3">
                 <button id="cancelEditBtn" class="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
@@ -176,12 +184,14 @@
 
     <script type="module">
         import { getCurrentUser, logout, getPlaces } from './db.js';
+        import { getDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+        import { db } from './db.js';
 
         if (!getCurrentUser()) {
             window.location.href = 'login.html';
         }
 
-        const user = getCurrentUser();
+        let currentUserData = getCurrentUser();
         
         const userName = document.getElementById('userName');
         const userPhone = document.getElementById('userPhone');
@@ -213,22 +223,50 @@
         const navAccount = document.getElementById('navAccount');
         const navAdmin = document.getElementById('navAdmin');
 
-        // تحميل بيانات المستخدم
-        function loadUserData() {
-            if (user) {
-                userName.textContent = user.name || 'مستخدم';
-                userPhone.textContent = user.phone || '05XX XXX XXXX';
-                userEmail.textContent = user.email || '—';
-                joinDate.textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-SA') : '—';
-                
-                // تحميل الصورة الشخصية
-                const savedAvatar = localStorage.getItem('userAvatar');
-                if (savedAvatar) {
-                    userAvatar.src = savedAvatar;
-                    userAvatar.classList.remove('hidden');
-                    defaultAvatar.classList.add('hidden');
-                }
+        // تحميل بيانات المستخدم من Firebase
+        async function loadUserData() {
+            if (!currentUserData || !currentUserData.uid) {
+                userName.textContent = 'مستخدم';
+                userPhone.textContent = 'غير متوفر';
+                return;
             }
+
+            try {
+                // جلب البيانات المحدثة من Firestore
+                const userDoc = await getDoc(doc(db, 'users', currentUserData.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    currentUserData = { uid: currentUserData.uid, ...data };
+                    
+                    // تحديث العرض
+                    userName.textContent = data.name || 'مستخدم';
+                    userPhone.textContent = data.phone || 'غير متوفر';
+                    userEmail.textContent = data.email || '—';
+                    joinDate.textContent = data.createdAt 
+                        ? new Date(data.createdAt).toLocaleDateString('ar-SA') 
+                        : '—';
+                    
+                    // حفظ أحدث البيانات في localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                } else {
+                    userName.textContent = currentUserData.name || 'مستخدم';
+                    userPhone.textContent = currentUserData.phone || 'غير متوفر';
+                    userEmail.textContent = currentUserData.email || '—';
+                }
+            } catch (error) {
+                console.error('❌ خطأ في تحميل بيانات المستخدم:', error);
+                userName.textContent = currentUserData.name || 'مستخدم';
+                userPhone.textContent = currentUserData.phone || 'غير متوفر';
+            }
+
+            // تحميل الصورة الشخصية
+            const savedAvatar = localStorage.getItem(`userAvatar_${currentUserData?.uid}`);
+            if (savedAvatar) {
+                userAvatar.src = savedAvatar;
+                userAvatar.classList.remove('hidden');
+                defaultAvatar.classList.add('hidden');
+            }
+
             loadUserPlaces();
         }
 
@@ -236,7 +274,7 @@
         async function loadUserPlaces() {
             try {
                 const allPlaces = await getPlaces();
-                const myPlaces = allPlaces.filter(p => p.createdBy === user?.uid);
+                const myPlaces = allPlaces.filter(p => p.createdBy === currentUserData?.uid);
                 placesCount.textContent = `${myPlaces.length} مكان`;
                 myPlacesBadge.textContent = myPlaces.length;
             } catch (error) {
@@ -251,11 +289,11 @@
 
         avatarInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
+            if (file && currentUserData?.uid) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const imageData = event.target.result;
-                    localStorage.setItem('userAvatar', imageData);
+                    localStorage.setItem(`userAvatar_${currentUserData.uid}`, imageData);
                     userAvatar.src = imageData;
                     userAvatar.classList.remove('hidden');
                     defaultAvatar.classList.add('hidden');
@@ -267,8 +305,8 @@
 
         // فتح نافذة تعديل البيانات
         editInfoBtn.addEventListener('click', () => {
-            editName.value = user.name || '';
-            editPhone.value = user.phone || '';
+            editName.value = currentUserData?.name || '';
+            editPhone.value = currentUserData?.phone || '';
             editModal.classList.remove('hidden');
         });
 
@@ -276,19 +314,35 @@
             editModal.classList.add('hidden');
         });
 
-        saveEditBtn.addEventListener('click', () => {
+        saveEditBtn.addEventListener('click', async () => {
             const newName = editName.value.trim();
-            const newPhone = editPhone.value.trim();
-            if (!newName) { alert('أدخل الاسم'); return; }
+            if (!newName) { alert('أدخل الاسم الكامل'); return; }
             
-            // حفظ في localStorage
-            const updatedUser = { ...user, name: newName, phone: newPhone };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            saveEditBtn.disabled = true;
+            saveEditBtn.innerHTML = '<i class="fa fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
             
-            userName.textContent = newName;
-            userPhone.textContent = newPhone || '05XX XXX XXXX';
-            editModal.classList.add('hidden');
-            alert('✅ تم حفظ التغييرات');
+            try {
+                // تحديث في Firestore
+                if (currentUserData?.uid) {
+                    await updateDoc(doc(db, 'users', currentUserData.uid), {
+                        name: newName
+                    });
+                }
+                
+                // تحديث محلي
+                currentUserData.name = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                
+                userName.textContent = newName;
+                editModal.classList.add('hidden');
+                alert('✅ تم حفظ التغييرات بنجاح');
+            } catch (error) {
+                console.error('❌ خطأ:', error);
+                alert('حدث خطأ أثناء الحفظ، يرجى المحاولة مرة أخرى');
+            } finally {
+                saveEditBtn.disabled = false;
+                saveEditBtn.innerHTML = 'حفظ';
+            }
         });
 
         editModal.addEventListener('click', (e) => {
