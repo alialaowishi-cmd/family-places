@@ -56,40 +56,44 @@
     </header>
 
     <main class="px-4 py-6">
-        <!-- أزرار التحكم -->
-        <div class="flex gap-3 mb-6">
-            <button id="addPlaceInCityBtn" class="flex-1 btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
-                <i class="fa fa-plus"></i> إضافة مكان
-            </button>
-            <button id="backToCitiesBtn" class="bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl transition">
-                <i class="fa fa-list"></i>
-            </button>
+        <div id="authLoading" class="flex flex-col items-center justify-center py-20">
+            <i class="fa fa-spinner fa-spin text-3xl text-secondary mb-4"></i>
+            <p class="text-slate-400">جاري التحقق من الحالة...</p>
         </div>
 
-        <!-- قائمة الأماكن -->
-        <section>
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">📍 الأماكن</h2>
-                <span id="placeCount" class="text-sm text-slate-400">جاري التحميل...</span>
-            </div>
-
-            <div id="placesContainer" class="space-y-4">
-                <div class="h-28 rounded-xl skeleton"></div>
-                <div class="h-28 rounded-xl skeleton"></div>
-            </div>
-
-            <div id="noPlacesState" class="text-center py-12 hidden">
-                <i class="fa fa-map-marker text-5xl text-slate-600 mb-4"></i>
-                <h3 class="text-lg font-medium text-slate-400 mb-2">لا توجد أماكن مضافة بعد</h3>
-                <p class="text-sm text-slate-500 mb-6">كن أول من يضيف مكاناً في هذه المدينة 🎉</p>
-                <button id="addFirstPlaceBtn" class="btn-primary px-6 py-2 rounded-lg font-medium">
-                    <i class="fa fa-plus ml-1"></i> إضافة أول مكان
+        <div id="mainContent" class="hidden">
+            <div class="flex gap-3 mb-6">
+                <button id="addPlaceInCityBtn" class="flex-1 btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                    <i class="fa fa-plus"></i> إضافة مكان
+                </button>
+                <button id="backToCitiesBtn" class="bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl transition">
+                    <i class="fa fa-home"></i>
                 </button>
             </div>
-        </section>
+
+            <section>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold">📍 الأماكن</h2>
+                    <span id="placeCount" class="text-sm text-slate-400">جاري التحميل...</span>
+                </div>
+
+                <div id="placesContainer" class="space-y-4">
+                    <div class="h-28 rounded-xl skeleton"></div>
+                    <div class="h-28 rounded-xl skeleton"></div>
+                </div>
+
+                <div id="noPlacesState" class="text-center py-12 hidden">
+                    <i class="fa fa-map-marker text-5xl text-slate-600 mb-4"></i>
+                    <h3 class="text-lg font-medium text-slate-400 mb-2">لا توجد أماكن مضافة بعد</h3>
+                    <p class="text-sm text-slate-500 mb-6">كن أول من يضيف مكاناً في هذه المدينة 🎉</p>
+                    <button id="addFirstPlaceBtn" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                        <i class="fa fa-plus ml-1"></i> إضافة أول مكان
+                    </button>
+                </div>
+            </section>
+        </div>
     </main>
 
-    <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-t border-slate-700 px-2 py-2">
         <div class="flex justify-around items-center max-w-lg mx-auto">
             <button id="navHomeBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
@@ -113,21 +117,35 @@
     </nav>
 
     <script type="module">
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getPlaces } from './db.js';
-        import { getCurrentUser } from './auth.js';
+        import './firebase-config.js';
 
-        const currentUser = getCurrentUser();
-        if (!currentUser) window.location.href = 'login.html';
-
+        const auth = getAuth();
         let currentCity = '';
         let places = [];
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        // ✅ التحقق من Firebase Authentication وليس localStorage
+        onAuthStateChanged(auth, (user) => {
+            document.getElementById('authLoading').classList.add('hidden');
+            
+            if (!user) {
+                console.log('⚠️ المستخدم غير مسجل، الانتقال لصفحة الدخول');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            console.log('✅ المستخدم مسجل الدخول:', user.uid);
+            document.getElementById('mainContent').classList.remove('hidden');
+            initPage();
+        });
+
+        function initPage() {
             const params = new URLSearchParams(window.location.search);
             currentCity = params.get('name');
             
             if (!currentCity) {
-                alert('خطأ: لم يتم تحديد المدينة');
+                alert('⚠️ اسم المدينة غير صالح');
                 window.location.href = 'home.html';
                 return;
             }
@@ -136,11 +154,11 @@
             document.getElementById('cityTitle').textContent = currentCity + ' — كشتات عائلة حسين العويشي';
 
             bindEvents();
-            await loadPlaces();
-        });
+            loadPlaces();
+        }
 
         function bindEvents() {
-            document.getElementById('backBtn').onclick = () => history.back();
+            document.getElementById('backBtn').onclick = () => window.location.href = 'home.html';
             document.getElementById('backToCitiesBtn').onclick = () => window.location.href = 'home.html';
             document.getElementById('addPlaceInCityBtn').onclick = goToAddPlace;
             document.getElementById('addFirstPlaceBtn').onclick = goToAddPlace;
@@ -150,18 +168,18 @@
         }
 
         function goToAddPlace() {
-            window.location.href = `add-place.html?name=${encodeURIComponent(currentCity)}&city=${encodeURIComponent(currentCity)}`;
+            window.location.href = `add-place.html?city=${encodeURIComponent(currentCity)}`;
         }
 
         async function loadPlaces() {
             try {
-                console.log('⏳ تحميل أماكن:', currentCity);
+                console.log('⏳ جاري تحميل أماكن:', currentCity);
                 places = await getPlaces(currentCity);
-                console.log('📍 الأماكن المحملة:', places);
+                console.log('✅ تم تحميل الأماكن:', places);
                 renderPlaces();
             } catch (error) {
                 console.error('❌ خطأ تحميل الأماكن:', error);
-                alert('حدث خطأ في تحميل الأماكن');
+                document.getElementById('placesContainer').innerHTML = '<p class="text-center text-slate-400 py-8">حدث خطأ في تحميل الأماكن</p>';
             }
         }
 
@@ -212,9 +230,9 @@
                         </div>
                     </div>
                 `;
-                card.addEventListener('click', () => {
+                card.onclick = () => {
                     window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
-                });
+                };
                 container.appendChild(card);
             });
         }
