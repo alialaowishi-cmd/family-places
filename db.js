@@ -1,151 +1,96 @@
-// ==========================================
-// دوال التعامل مع قاعدة البيانات — مُصحح كاملاً
-// ==========================================
-import { db } from './firebase-config.js';
+import { db, storage } from './firebase-config.js';
 import { 
-  collection, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  setDoc,
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  collection, addDoc, getDocs, getDoc, doc, 
+  updateDoc, deleteDoc, query, where, orderBy, 
+  serverTimestamp, setDoc 
+} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-storage.js";
 
 // ===== المدن =====
 export async function getCities() {
-  try {
-    const snapshot = await getDocs(collection(db, 'cities'));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error('❌ خطأ في جلب المدن:', error);
-    return [];
-  }
+  const snapshot = await getDocs(collection(db, 'cities'));
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
-export async function addCity(cityData) {
-  try {
-    return await addDoc(collection(db, 'cities'), {
-      ...cityData,
-      createdAt: serverTimestamp()
-    });
-  } catch (error) {
-    console.error('❌ خطأ في إضافة مدينة:', error);
-    throw error;
-  }
-}
-
-export async function deleteCityDoc(cityId) {
-  try {
-    await deleteDoc(doc(db, 'cities', cityId));
-    return { success: true };
-  } catch (error) {
-    console.error('❌ خطأ في حذف المدينة:', error);
-    return { success: false, error };
-  }
+export async function addCity(cityName, userId, userName) {
+  return await addDoc(collection(db, 'cities'), {
+    name: cityName,
+    createdBy: userId,
+    createdByName: userName,
+    createdAt: serverTimestamp()
+  });
 }
 
 // ===== الأماكن =====
-export async function getPlaces(cityName = null) {
-  try {
-    const placesRef = collection(db, 'places');
-    let q = placesRef;
-    if (cityName) {
-      q = query(placesRef, where('city', '==', cityName));
-    }
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error('❌ خطأ في جلب الأماكن:', error);
-    return [];
-  }
+export async function addPlace(placeData) {
+  return await addDoc(collection(db, 'places'), {
+    ...placeData,
+    createdAt: serverTimestamp()
+  });
 }
 
-export async function addPlace(placeData) {
-  try {
-    return await addDoc(collection(db, 'places'), {
-      ...placeData,
-      createdAt: serverTimestamp()
-    });
-  } catch (error) {
-    console.error('❌ خطأ في إضافة مكان:', error);
-    throw error;
+export async function getPlaces(cityName = null) {
+  let q;
+  if (cityName) {
+    q = query(
+      collection(db, 'places'), 
+      where('city', '==', cityName),
+      orderBy('createdAt', 'desc')
+    );
+  } else {
+    q = query(collection(db, 'places'), orderBy('createdAt', 'desc'));
   }
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function getPlaceById(placeId) {
+  const d = await getDoc(doc(db, 'places', placeId));
+  if (!d.exists()) return null;
+  return { id: d.id, ...d.data() };
 }
 
 export async function deletePlace(placeId) {
-  try {
-    await deleteDoc(doc(db, 'places', placeId));
-    return { success: true };
-  } catch (error) {
-    console.error('❌ خطأ في حذف المكان:', error);
-    return { success: false, error };
-  }
+  return await deleteDoc(doc(db, 'places', placeId));
 }
 
-// ===== المستخدمين — تم إعادة كتابتها بالكامل =====
-export async function getAllUsers() {
-  try {
-    const snapshot = await getDocs(collection(db, 'users'));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error('❌ خطأ في جلب المستخدمين:', error);
-    return [];
-  }
+// ===== المستخدمون =====
+export async function addUser(userData) {
+  return await setDoc(doc(db, 'users', userData.uid), {
+    ...userData,
+    createdAt: serverTimestamp()
+  });
 }
 
-export async function getUserByPhone(phone) {
-  try {
-    const normalizedPhone = phone.trim();
-    const q = query(collection(db, 'users'), where('phone', '==', normalizedPhone));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const docSnap = snapshot.docs[0];
-      return { id: docSnap.id, ...docSnap.data() };
-    }
-    return null;
-  } catch (error) {
-    console.error('❌ خطأ في جلب المستخدم:', error);
-    return null;
-  }
+export async function getUser(uid) {
+  const d = await getDoc(doc(db, 'users', uid));
+  if (!d.exists()) return null;
+  return { id: d.id, ...d.data() };
 }
 
-// ✅ تم إصلاح هذه الدالة — كانت سبب الخطأ "خطأ في الإضافة"
-export async function addUserByAdmin(phone, name) {
-  try {
-    const normalizedPhone = phone.trim();
-    const existing = await getUserByPhone(normalizedPhone);
-    if (existing) {
-      return { success: false, message: 'المستخدم موجود مسبقاً' };
-    }
-    
-    // استخدام addDoc بدلاً من setDoc لضمان عملها بشكل صحيح
-    await addDoc(collection(db, 'users'), {
-      phone: normalizedPhone,
-      name: name.trim(),
-      approved: true,
-      createdAt: new Date()
-    });
-    console.log('✅ تم إضافة المستخدم بنجاح');
-    return { success: true, message: '✅ تم إضافة المستخدم بنجاح' };
-  } catch (error) {
-    console.error('❌ تفاصيل الخطأ:', error);
-    return { success: false, message: 'خطأ: ' + error.message };
-  }
+// ===== رفع الصور =====
+export async function uploadImage(file, path) {
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return await getDownloadURL(storageRef);
 }
 
-export async function deleteUserByAdmin(phone) {
-  try {
-    const user = await getUserByPhone(phone);
-    if (!user) return { success: false, message: 'المستخدم غير موجود' };
-    await deleteDoc(doc(db, 'users', user.id));
-    return { success: true, message: '✅ تم حذف المستخدم' };
-  } catch (error) {
-    console.error('❌ خطأ في حذف المستخدم:', error);
-    return { success: false, message: 'خطأ في الحذف' };
-  }
+// ===== طلبات التسجيل =====
+export async function addRegistrationRequest(phone, name) {
+  return await addDoc(collection(db, 'registrationRequests'), {
+    phone: phone,
+    name: name,
+    status: 'pending',
+    createdAt: serverTimestamp()
+  });
+}
+
+export async function getRegistrationRequests() {
+  const q = query(collection(db, 'registrationRequests'), where('status', '==', 'pending'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function approveRequest(requestId) {
+  return await updateDoc(doc(db, 'registrationRequests', requestId), { status: 'approved' });
 }
