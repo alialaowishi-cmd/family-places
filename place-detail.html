@@ -33,6 +33,7 @@
         .btn-primary {
             background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         .btn-primary:active { transform: scale(0.97); }
         .btn-success {
@@ -40,11 +41,14 @@
         }
         .btn-danger {
             background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            cursor: pointer;
         }
         .btn-outline {
             border: 1px solid #3B82F6;
             color: #3B82F6;
             background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         .btn-outline:active { background: rgba(59, 130, 246, 0.2); }
         .star-rating { color: #F59E0B; font-size: 1.2rem; }
@@ -55,13 +59,14 @@
         .image-placeholder {
             background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
         }
+        button { cursor: pointer; }
     </style>
 </head>
 <body class="text-white">
     <!-- رأس الصفحة -->
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3 flex items-center justify-between">
-        <button id="backBtn" class="text-slate-400 hover:text-white transition">
-            <i class="fa fa-arrow-right text-lg"></i>
+        <button id="backBtn" class="text-slate-400 hover:text-white transition bg-transparent border-0 text-lg">
+            <i class="fa fa-arrow-right"></i>
         </button>
         <h1 class="text-lg font-bold" id="placeName">تفاصيل المكان</h1>
         <div class="w-6"></div>
@@ -103,7 +108,7 @@
                 </div>
                 <div class="flex items-start" id="phoneRow" style="display:none;">
                     <span class="text-slate-500 w-20">جوال:</span>
-                    <a href="#" id="detailPhone" class="text-secondary hover:underline" onclick="event.preventDefault(); callPhone()">-</a>
+                    <a href="#" id="detailPhone" class="text-secondary hover:underline">-</a>
                 </div>
                 <div class="flex items-start" id="mapRow" style="display:none;">
                     <span class="text-slate-500 w-20">الموقع:</span>
@@ -146,7 +151,7 @@
     </main>
 
     <!-- نافذة رسالة تأكيد -->
-    <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
         <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-slate-700">
             <h3 class="text-lg font-bold mb-4 text-center" id="confirmTitle">تأكيد</h3>
             <p class="text-slate-300 text-center mb-6" id="confirmText">هل أنت متأكد؟</p>
@@ -158,7 +163,7 @@
     </div>
 
     <!-- نافذة رسالة -->
-    <div id="messageModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
+    <div id="messageModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
         <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl border border-slate-700">
             <h3 class="text-lg font-bold mb-4 text-center" id="msgTitle">رسالة</h3>
             <p class="text-slate-300 text-center mb-6" id="msgText">-</p>
@@ -166,21 +171,46 @@
         </div>
     </div>
 
-    <script type="module">
-        import { 
-            getCurrentUser, getPlaceById, deletePlace, 
-            getUserData, isAdmin 
-        } from './auth.js';
-
-        // التحقق من تسجيل الدخول
-        const currentUser = getCurrentUser();
-        if (!currentUser) {
-            window.location.href = 'login.html';
-        }
-
-        // بيانات المكان
+    <script>
+        // ==========================================
+        // بيانات مؤقتة احتياطية في حال فشل تحميل auth.js
+        // ==========================================
         let placeData = null;
         let placeId = null;
+
+        // دوال مساعدة محلية لتجنب الأخطاء
+        function getCurrentUser() {
+            try {
+                const data = localStorage.getItem('currentUser');
+                return data ? JSON.parse(data) : null;
+            } catch { return null; }
+        }
+
+        function isAdmin() {
+            const user = getCurrentUser();
+            return user?.isAdmin === true;
+        }
+
+        function getAllPlaces() {
+            try {
+                const data = localStorage.getItem('places');
+                return data ? JSON.parse(data) : [];
+            } catch { return []; }
+        }
+
+        function savePlaces(places) {
+            localStorage.setItem('places', JSON.stringify(places));
+        }
+
+        function getPlaceById(id) {
+            return getAllPlaces().find(p => p.id === id);
+        }
+
+        function deletePlace(id) {
+            const places = getAllPlaces().filter(p => p.id !== id);
+            savePlaces(places);
+            return Promise.resolve();
+        }
 
         // العناصر
         const backBtn = document.getElementById('backBtn');
@@ -200,9 +230,43 @@
         const msgClose = document.getElementById('msgClose');
 
         // ==========================================
+        // دوال المساعدة
+        // ==========================================
+        function showMessage(title, text, callback = null) {
+            msgTitle.textContent = title;
+            msgText.textContent = text;
+            messageModal.classList.remove('hidden');
+            messageModal.style.display = 'flex';
+            
+            msgClose.onclick = () => {
+                messageModal.classList.add('hidden');
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        }
+
+        function showConfirm(title, text, onConfirm) {
+            confirmTitle.textContent = title;
+            confirmText.textContent = text;
+            confirmModal.classList.remove('hidden');
+            confirmModal.style.display = 'flex';
+            
+            confirmCancel.onclick = () => {
+                confirmModal.classList.add('hidden');
+                confirmModal.style.display = 'none';
+            };
+            
+            confirmOk.onclick = () => {
+                confirmModal.classList.add('hidden');
+                confirmModal.style.display = 'none';
+                onConfirm();
+            };
+        }
+
+        // ==========================================
         // تحميل بيانات المكان
         // ==========================================
-        async function loadPlace() {
+        function loadPlace() {
             const params = new URLSearchParams(window.location.search);
             placeId = params.get('id');
             
@@ -213,21 +277,16 @@
                 return;
             }
 
-            try {
-                placeData = await getPlaceById(placeId);
-                if (!placeData) {
-                    showMessage('خطأ', 'المكان غير موجود ❌', () => {
-                        window.location.href = 'home.html';
-                    });
-                    return;
-                }
-
-                renderPlace();
-                checkPermissions();
-            } catch (error) {
-                console.error('❌ خطأ:', error);
-                showMessage('خطأ', 'حدث خطأ في تحميل البيانات ❌');
+            placeData = getPlaceById(placeId);
+            if (!placeData) {
+                showMessage('خطأ', 'المكان غير موجود ❌', () => {
+                    window.location.href = 'home.html';
+                });
+                return;
             }
+
+            renderPlace();
+            checkPermissions();
         }
 
         // ==========================================
@@ -253,19 +312,24 @@
 
             // رقم الجوال
             const phoneRow = document.getElementById('phoneRow');
+            const detailPhone = document.getElementById('detailPhone');
             if (placeData.phone) {
                 phoneRow.style.display = 'flex';
-                document.getElementById('detailPhone').textContent = placeData.phone;
-                document.getElementById('detailPhone').href = `tel:${placeData.phone}`;
+                detailPhone.textContent = placeData.phone;
+                detailPhone.onclick = function(e) {
+                    e.preventDefault();
+                    window.location.href = 'tel:' + placeData.phone;
+                };
             } else {
                 phoneRow.style.display = 'none';
             }
 
             // رابط الخريطة
             const mapRow = document.getElementById('mapRow');
+            const detailMapLink = document.getElementById('detailMapLink');
             if (placeData.mapUrl) {
                 mapRow.style.display = 'flex';
-                document.getElementById('detailMapLink').href = placeData.mapUrl;
+                detailMapLink.href = placeData.mapUrl;
             } else {
                 mapRow.style.display = 'none';
             }
@@ -284,10 +348,15 @@
         // ==========================================
         function checkPermissions() {
             const user = getCurrentUser();
-            const isOwner = placeData.createdBy === (user?.phone || user?.email);
+            if (!placeData || !user) {
+                editBtn.style.display = 'none';
+                deleteBtn.style.display = 'none';
+                return;
+            }
+            
+            const isOwner = placeData.createdBy === (user.phone || user.email);
             const userIsAdmin = isAdmin();
 
-            // إظهار الأزرار فقط للمالك أو المشرف
             if (isOwner || userIsAdmin) {
                 editBtn.style.display = 'flex';
                 deleteBtn.style.display = 'flex';
@@ -298,20 +367,19 @@
         }
 
         // ==========================================
-        // دالة الاتصال
+        // ربط الأزرار بالأحداث ✅
         // ==========================================
-        window.callPhone = function() {
-            if (placeData?.phone) {
-                window.location.href = `tel:${placeData.phone}`;
+        backBtn.addEventListener('click', () => {
+            console.log('🔙 زر العودة');
+            if (window.history.length > 1) {
+                window.history.back();
             } else {
-                showMessage('تنبيه', 'لا يوجد رقم جوال لهذا المكان 😊');
+                window.location.href = 'home.html';
             }
-        };
+        });
 
-        // ==========================================
-        // تعديل المكان ✅
-        // ==========================================
         editBtn.addEventListener('click', () => {
+            console.log('✏️ زر التعديل');
             if (!placeData) return;
             
             const user = getCurrentUser();
@@ -323,14 +391,11 @@
                 return;
             }
 
-            // الانتقال لصفحة الإضافة مع بيانات المكان للتعديل
-            window.location.href = `add-place.html?edit=${placeId}`;
+            window.location.href = 'add-place.html?edit=' + encodeURIComponent(placeId);
         });
 
-        // ==========================================
-        // حذف المكان ✅
-        // ==========================================
         deleteBtn.addEventListener('click', () => {
+            console.log('🗑️ زر الحذف');
             if (!placeData) return;
 
             const user = getCurrentUser();
@@ -342,107 +407,63 @@
                 return;
             }
 
-            // نافذة تأكيد الحذف
-            confirmTitle.textContent = 'تأكيد الحذف';
-            confirmText.textContent = 'هل أنت متأكد من حذف هذا المكان؟ هذا الإجراء لا يمكن التراجع عنه ⚠️';
-            confirmOk.textContent = 'نعم، احذف';
-            confirmOk.className = 'flex-1 py-3 rounded-lg font-medium bg-danger text-white hover:opacity-90 transition';
-            confirmModal.classList.remove('hidden');
-
-            // عند الموافقة
-            confirmOk.onclick = async () => {
-                confirmModal.classList.add('hidden');
-                try {
-                    await deletePlace(placeId);
+            showConfirm(
+                'تأكيد الحذف',
+                'هل أنت متأكد من حذف هذا المكان؟ هذا الإجراء لا يمكن التراجع عنه ⚠️',
+                () => {
+                    deletePlace(placeId);
                     showMessage('نجاح', 'تم حذف المكان بنجاح ✅', () => {
                         window.location.href = 'home.html';
                     });
-                } catch (error) {
-                    console.error('❌ خطأ:', error);
-                    showMessage('خطأ', 'فشل في حذف المكان ❌');
                 }
-            };
+            );
         });
 
-        // ==========================================
-        // مشاركة المكان ✅
-        // ==========================================
-        shareBtn.addEventListener('click', async () => {
+        shareBtn.addEventListener('click', () => {
+            console.log('🔗 زر المشاركة');
             if (!placeData) return;
             
-            const shareText = `📍 ${placeData.name}\n🏙️ ${placeData.city || ''}\n💰 السعر: ${placeData.price || 'غير محدد'}\n🔗 رابط المكان: ${window.location.href}`;
+            const shareText = '📍 ' + (placeData.name || '') + 
+                              '\n🏙️ ' + (placeData.city || '') +
+                              '\n💰 السعر: ' + (placeData.price || 'غير محدد') +
+                              '\n🔗 رابط المكان: ' + window.location.href;
             
-            try {
-                if (navigator.share) {
-                    await navigator.share({
-                        title: placeData.name,
-                        text: shareText,
-                        url: window.location.href
-                    });
-                } else {
-                    // نسخ إلى الحافظة
-                    await navigator.clipboard.writeText(shareText);
+            if (navigator.share) {
+                navigator.share({
+                    title: placeData.name,
+                    text: shareText,
+                    url: window.location.href
+                }).catch(err => console.log('إلغاء المشاركة'));
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
                     showMessage('تم', 'تم نسخ رابط المكان إلى الحافظة ✅');
-                }
-            } catch (error) {
-                console.log('إلغاء المشاركة');
+                }).catch(() => {
+                    showMessage('معلومات', shareText);
+                });
             }
         });
 
-        // ==========================================
-        // فتح في قوقل ماب ✅
-        // ==========================================
         mapBtn.addEventListener('click', () => {
-            if (placeData?.mapUrl) {
+            console.log('📍 زر الخريطة');
+            if (placeData && placeData.mapUrl) {
                 window.open(placeData.mapUrl, '_blank');
             } else {
                 showMessage('تنبيه', 'لا يوجد رابط خريطة لهذا المكان 😊');
             }
         });
 
-        // ==========================================
-        // اتصال مباشر ✅
-        // ==========================================
         callBtn.addEventListener('click', () => {
-            if (placeData?.phone) {
-                window.location.href = `tel:${placeData.phone}`;
+            console.log('📞 زر الاتصال');
+            if (placeData && placeData.phone) {
+                window.location.href = 'tel:' + placeData.phone;
             } else {
                 showMessage('تنبيه', 'لا يوجد رقم جوال لهذا المكان 😊');
             }
         });
 
         // ==========================================
-        // العودة للخلف ✅
-        // ==========================================
-        backBtn.addEventListener('click', () => {
-            window.history.back();
-        });
-
-        // ==========================================
-        // دوال المساعدة
-        // ==========================================
-        function showMessage(title, text, callback = null) {
-            msgTitle.textContent = title;
-            msgText.textContent = text;
-            messageModal.classList.remove('hidden');
-            
-            msgClose.onclick = () => {
-                messageModal.classList.add('hidden');
-                if (callback) callback();
-            };
-        }
-
-        // إلغاء نافذة التأكيد
-        confirmCancel.addEventListener('click', () => {
-            confirmModal.classList.add('hidden');
-        });
-        confirmModal.addEventListener('click', (e) => {
-            if (e.target === confirmModal) {
-                confirmModal.classList.add('hidden');
-            }
-        });
-
         // بدء التحميل
+        // ==========================================
         document.addEventListener('DOMContentLoaded', loadPlace);
     </script>
 </body>
