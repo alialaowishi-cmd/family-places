@@ -102,7 +102,7 @@
                 <!-- 🔔 أيقونة الإشعارات -->
                 <button id="notificationsBtn" class="relative text-slate-400 hover:text-white transition p-2">
                     <i class="fa fa-bell text-lg"></i>
-                    <span id="notifDot" class="notification-dot"></span>
+                    <span id="notifDot" class="notification-dot" style="display:none;"></span>
                 </button>
                 <button id="logoutBtn" class="text-slate-400 hover:text-white transition p-2">
                     <i class="fa fa-sign-out"></i>
@@ -438,6 +438,17 @@
         }
 
         // ==========================================
+        // دالة نص العدد
+        // ==========================================
+        function getPlaceText(count) {
+            if (count === 0) return 'لا توجد أماكن مضافة';
+            if (count === 1) return 'مكان واحد مضاف';
+            if (count === 2) return 'مكانان مضافان';
+            if (count >= 3 && count <= 10) return `${count} أماكن مضافة`;
+            return `${count} مكاناً مضافاً`;
+        }
+
+        // ==========================================
         // تحميل المدن
         // ==========================================
         async function loadCities() {
@@ -461,7 +472,7 @@
                 }
 
                 allCities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-                renderCities();
+                await loadPlacesAndRender();
             } catch (error) {
                 console.error('❌ خطأ تحميل المدن:', error);
                 isLoading = false;
@@ -469,33 +480,40 @@
                     <div class="col-span-2 text-center py-8 text-slate-400">
                         <i class="fa fa-exclamation-triangle text-2xl text-amber-500 mb-2"></i>
                         <p>حدث خطأ في تحميل المدن</p>
-                        <button onclick="loadCities()" class="mt-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg text-sm">إعادة المحاولة</p>
+                        <button onclick="loadCities()" class="mt-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg text-sm">إعادة المحاولة</button>
                     </div>
                 `;
             }
         }
 
-            function renderCities() {
-                citiesContainer.innerHTML = '';
-                allCities.forEach(city => {
-                    const placeCount = allPlaces.filter(p => p.city === city.name).length;
-                    const avgRating = placeCount > 0 
-                        ? allPlaces.filter(p => p.city === city.name).reduce((sum, p) => sum + (p.rating || 0), 0) / placeCount 
-                        : 0;
-                    
-                    const card = document.createElement('div');
-                    card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
-                    card.innerHTML = `
-                        <h3 class="text-lg font-semibold mb-1">${city.name}</h3>
-                        <p class="text-sm text-slate-400 mb-2">${placeCount} مكان مضاف</p>
-                        ${placeCount > 0 ? `<div class="flex items-center">${renderStars(avgRating)} <span class="text-xs text-slate-400 mr-1">(${avgRating.toFixed(1)})</span></div>` : ''}
-                    `;
-                    card.addEventListener('click', () => {
-                        window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
-                    });
-                    citiesContainer.appendChild(card);
-                });
+        async function loadPlacesAndRender() {
+            try {
+                allPlaces = await getPlaces() || [];
+                renderCities();
+            } catch (error) {
+                console.error('❌ خطأ تحميل الأماكن:', error);
+                allPlaces = [];
+                renderCities();
             }
+        }
+
+        function renderCities() {
+            citiesContainer.innerHTML = '';
+            allCities.forEach(city => {
+                const placeCount = allPlaces.filter(p => p.city === city.name).length;
+                
+                const card = document.createElement('div');
+                card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
+                card.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-1">${city.name}</h3>
+                    <p class="text-sm text-slate-400 mb-2">${getPlaceText(placeCount)}</p>
+                `;
+                card.addEventListener('click', () => {
+                    window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
+                });
+                citiesContainer.appendChild(card);
+            });
+        }
 
         // ==========================================
         // تحميل الشريط المتحرك لأحدث الأماكن
@@ -522,7 +540,6 @@
                         <span class="place-tag" data-id="${place.id}">
                             <i class="fa fa-map-pin ml-1 text-yellow-300"></i>
                             ${place.name} — ${place.city || 'بدون مدينة'}
-                            <span class="mr-1">${renderStars(place.rating)}</span>
                         </span>
                     `;
                 });
@@ -537,9 +554,9 @@
                 });
 
                 // إضافة إشعار عند وجود مكان جديد
-                const lastCheck = localStorage.getItem('lastPlacesCount') || 0;
-                if (allPlaces.length > parseInt(lastCheck)) {
-                    const newCount = allPlaces.length - parseInt(lastCheck);
+                const lastCheck = parseInt(localStorage.getItem('lastPlacesCount') || '0');
+                if (allPlaces.length > lastCheck) {
+                    const newCount = allPlaces.length - lastCheck;
                     addNotification(
                         '✨ أماكن جديدة مضافة',
                         `تم إضافة ${newCount} مكان جديد — اكتشفها الآن!`
@@ -554,19 +571,6 @@
                     <span class="text-red-400 text-sm">⚠️ حدث خطأ في تحميل الأماكن &nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 `;
             }
-        }
-
-        // ==========================================
-        // تصنيفات سريعة
-        // ==========================================
-        function filterByCategory(category) {
-            selectedCategory = category;
-            categoryChips.forEach(chip => {
-                chip.classList.remove('active', 'bg-slate-800/60');
-                chip.classList.add('bg-slate-800/60', 'text-slate-300');
-            });
-            event.target.classList.add('active');
-            event.target.classList.remove('text-slate-300');
         }
 
         // ==========================================
@@ -629,8 +633,6 @@
                 chip.classList.add('active');
                 chip.classList.remove('text-slate-300');
                 selectedCategory = chip.dataset.category;
-                // في هذا الإصدار نعرض الكل دائماً والبحث يعمل على الكل
-                // يمكن تطوير التصفية لاحقاً
             });
         });
 
