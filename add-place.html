@@ -6,6 +6,7 @@
     <title>إضافة مكان جديد</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="module" src="./config.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -141,7 +142,6 @@
             </button>
         </form>
     </main>
-    <!-- ✅ شريط التنقل السفلي الموحد -->
     <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
         <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
             <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
@@ -166,42 +166,23 @@
         </div>
     </nav>
 
-    <script>
-        // === دوال مساعدة محلية ===
-        function getAllPlaces() {
-            try {
-                const data = localStorage.getItem('places');
-                return data ? JSON.parse(data) : [];
-            } catch { return []; }
-        }
+    <script type="module">
+        import { 
+            getFirebase, 
+            getCities, 
+            addPlace, 
+            updatePlace,
+            getPlaceById,
+            uploadImage, 
+            isUserLoggedIn, 
+            isAdmin,
+            getCurrentUser
+        } from './auth.js';
+        import { getDocs, collection, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
-        function savePlaces(places) {
-            localStorage.setItem('places', JSON.stringify(places));
-        }
+        if (!isUserLoggedIn()) window.location.href = 'login.html';
+        if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
 
-        function getCities() {
-            const places = getAllPlaces();
-            const cities = [...new Set(places.map(p => p.city).filter(c => c))];
-            return cities;
-        }
-
-        function getCurrentUser() {
-            try {
-                const data = localStorage.getItem('currentUser');
-                return data ? JSON.parse(data) : null;
-            } catch { return null; }
-        }
-
-        function isUserLoggedIn() {
-            return getCurrentUser() !== null;
-        }
-
-        function isAdmin() {
-            const user = getCurrentUser();
-            return user?.isAdmin === true;
-        }
-
-        // === متغيرات عامة ===
         const placeForm = document.getElementById('placeForm');
         const citySelect = document.getElementById('citySelect');
         const newCityInput = document.getElementById('newCityInput');
@@ -214,51 +195,43 @@
         
         let selectedRating = 0;
         let uploadedUrls = [];
-        let editIndex = null;
+        let editId = null;
         let originalImages = [];
 
-        // === التحقق من تسجيل الدخول ===
-        if (!isUserLoggedIn()) window.location.href = 'login.html';
-        if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
-
-        // === تحميل قائمة المدن ===
         async function loadCities() {
-            const cities = getCities();
-            cities.forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const preCity = urlParams.get('city');
-            if (preCity) {
-                const exists = Array.from(citySelect.options).some(o => o.value === preCity);
-                if (exists) citySelect.value = preCity;
-                else newCityInput.value = preCity;
+            try {
+                const cities = await getCities();
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const preCity = urlParams.get('city');
+                if (preCity) {
+                    const exists = Array.from(citySelect.options).some(o => o.value === preCity);
+                    if (exists) citySelect.value = preCity;
+                    else newCityInput.value = preCity;
+                }
+            } catch (e) {
+                console.error('خطأ في تحميل المدن:', e);
             }
         }
 
-        // ✅ تحميل بيانات المكان للتعديل
-        function loadPlaceForEdit() {
+        async function loadPlaceForEdit() {
             const urlParams = new URLSearchParams(window.location.search);
-            editIndex = urlParams.get('editIndex');
+            editId = urlParams.get('editId');
             
-            if (editIndex !== null) {
-                editIndex = parseInt(editIndex);
-                const allPlaces = getAllPlaces();
-                const place = allPlaces[editIndex];
-                
+            if (editId) {
+                const place = await getPlaceById(editId);
                 if (place) {
-                    // تغيير العنوان والزر
                     pageTitle.textContent = 'تعديل المكان';
                     submitBtn.textContent = 'تحديث المكان';
                     
-                    // تعبئة البيانات
                     document.getElementById('placeName').value = place.name || '';
                     
-                    // تعبئة المدينة
                     setTimeout(() => {
                         const cityExists = Array.from(citySelect.options).some(o => o.value === place.city);
                         if (cityExists) {
@@ -274,12 +247,10 @@
                     document.getElementById('placeMap').value = place.mapUrl || '';
                     document.getElementById('placeNotes').value = place.notes || '';
                     
-                    // التقييم
                     selectedRating = parseInt(place.rating) || 0;
                     placeRating.value = selectedRating;
                     updateStars();
                     
-                    // الصور المحفوظة مسبقاً
                     originalImages = place.images || [];
                     uploadedUrls = [...originalImages];
                     if (originalImages.length > 0) {
@@ -291,7 +262,6 @@
             }
         }
 
-        // === نظام النجوم ===
         starRating.querySelectorAll('i').forEach(star => {
             star.addEventListener('click', () => {
                 selectedRating = parseInt(star.dataset.value);
@@ -309,27 +279,21 @@
         }
         function updateStars() { highlightStars(selectedRating); }
 
-        // === رفع الصور ===
         placeImages.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            imagePreview.innerHTML = '<p class="text-sm text-gray-400">جاري المعالجة...</p>';
+            imagePreview.innerHTML = '<p class="text-sm text-gray-400">جاري الرفع...</p>';
+            uploadedUrls = [...originalImages];
             
-            // استخدام رابط مؤقت محلي بدلاً من رفع لـ Firebase
-            const tempUrls = [];
             for (const file of files) {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                await new Promise(resolve => reader.onload = resolve);
-                tempUrls.push(reader.result);
+                const result = await uploadImage(file);
+                uploadedUrls.push(result.url);
             }
             
-            uploadedUrls = [...originalImages, ...tempUrls];
             imagePreview.innerHTML = uploadedUrls.map(url => 
                 `<img src="${url}" class="w-20 h-20 object-cover rounded-xl">`
             ).join('');
         });
 
-        // === حفظ البيانات ===
         placeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -341,6 +305,7 @@
             const name = document.getElementById('placeName').value.trim();
             if (!name) return alert('اسم المكان مطلوب');
             
+            const user = getCurrentUser();
             const placeData = {
                 name: name,
                 city: city,
@@ -351,30 +316,24 @@
                 mapUrl: document.getElementById('placeMap').value.trim(),
                 notes: document.getElementById('placeNotes').value.trim(),
                 images: uploadedUrls,
-                createdAt: new Date().toISOString(),
-                createdBy: getCurrentUser()?.phone || getCurrentUser()?.email || 'unknown'
+                createdBy: user?.phone || user?.email || 'مجهول'
             };
             
-            const allPlaces = getAllPlaces();
-            
-            if (editIndex !== null) {
-                // ✅ تعديل مكان موجود
-                placeData.createdAt = allPlaces[editIndex].createdAt; // الحفاظ على تاريخ الإنشاء الأصلي
-                placeData.createdBy = allPlaces[editIndex].createdBy; // الحفاظ على صاحب المكان الأصلي
-                allPlaces[editIndex] = placeData;
-                savePlaces(allPlaces);
-                alert('✅ تم تحديث المكان بنجاح!');
-            } else {
-                // ➕ إضافة مكان جديد
-                allPlaces.unshift(placeData);
-                savePlaces(allPlaces);
-                alert('✅ تم إضافة المكان بنجاح!');
+            try {
+                if (editId) {
+                    await updatePlace(editId, placeData);
+                    alert('✅ تم تحديث المكان بنجاح!');
+                } else {
+                    await addPlace(placeData);
+                    alert('✅ تم إضافة المكان بنجاح!');
+                }
+                window.location.href = 'home.html';
+            } catch (error) {
+                console.error(error);
+                alert('❌ حدث خطأ، حاول مرة أخرى');
             }
-            
-            window.location.href = 'home.html';
         });
 
-        // === بدء التشغيل ===
         loadCities().then(() => {
             loadPlaceForEdit();
         });
