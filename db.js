@@ -1,5 +1,5 @@
 // ==========================================
-// دواعد التعامل مع قاعدة البيانات
+// دوال التعامل مع قاعدة البيانات
 // ==========================================
 import { db } from './firebase-config.js';
 import { 
@@ -7,6 +7,7 @@ import {
   getDocs, 
   getDoc, 
   addDoc, 
+  setDoc,
   doc, 
   updateDoc, 
   deleteDoc, 
@@ -172,6 +173,24 @@ export async function deleteUserByAdmin(phone) {
   } catch (error) {
     console.error('خطأ في حذف المستخدم:', error);
     return { success: false, message: 'خطأ في الحذف' };
+  }
+}
+
+export async function addUserByAdmin(phone, name) {
+  try {
+    const existing = await getUserByPhone(phone);
+    if (existing) return { success: false, message: 'المستخدم موجود مسبقاً' };
+    
+    await setDoc(doc(db, 'users', phone), {
+      phone: phone,
+      name: name,
+      approved: true,
+      createdAt: new Date()
+    });
+    return { success: true, message: '✅ تم إضافة المستخدم' };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: 'خطأ في الإضافة' };
   }
 }
 
