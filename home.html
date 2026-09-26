@@ -76,7 +76,7 @@
             border: 1px solid transparent;
         }
         .category-chip.active {
-            background: #1E40AF; border-color: #3B82F6;
+            background: #1E40AF; border-color: #3B82F6; color: white !important;
         }
         .notification-dot {
             position: absolute; top: -4px; right: -4px;
@@ -151,7 +151,7 @@
                 تصنيفات سريعة
             </h2>
             <div class="flex flex-wrap gap-2">
-                <button class="category-chip active px-3 py-2 rounded-full bg-slate-800/60 text-sm" data-category="all">
+                <button class="category-chip active px-3 py-2 rounded-full bg-slate-800/60 text-sm text-white" data-category="all">
                     <i class="fa fa-globe ml-1"></i> الكل
                 </button>
                 <button class="category-chip px-3 py-2 rounded-full bg-slate-800/60 text-sm text-slate-300" data-category="مطعم">
@@ -172,11 +172,11 @@
             </div>
         </section>
 
-        <!-- المدن -->
+        <!-- المدن والأماكن المصفاة -->
         <section>
             <h2 class="text-md font-semibold mb-3 flex items-center">
                 <i class="fa fa-map-marker ml-2 text-secondary"></i>
-                المدن
+                <span id="sectionTitle">المدن</span>
             </h2>
             <div id="citiesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="skeleton h-32 rounded-2xl"></div>
@@ -187,8 +187,8 @@
         <!-- رسالة عند عدم وجود بيانات -->
         <div id="emptyState" class="hidden text-center py-16">
             <i class="fa fa-map-o text-6xl text-slate-600 mb-4"></i>
-            <h3 class="text-lg font-medium text-slate-400">لم تُضاف مدن بعد</h3>
-            <p class="text-sm text-slate-500 mt-1">كن أول من يضيف مدينة! 📍</p>
+            <h3 id="emptyTitle" class="text-lg font-medium text-slate-400">لم تُضاف مدن بعد</h3>
+            <p id="emptyDesc" class="text-sm text-slate-500 mt-1">كن أول من يضيف مدينة! 📍</p>
         </div>
         
         <!-- نتائج البحث -->
@@ -280,6 +280,9 @@
         const notifDot = document.getElementById('notifDot');
         const adminBanner = document.getElementById('adminBanner');
         const adminMessage = document.getElementById('adminMessage');
+        const sectionTitle = document.getElementById('sectionTitle');
+        const emptyTitle = document.getElementById('emptyTitle');
+        const emptyDesc = document.getElementById('emptyDesc');
         
         const navHome = document.getElementById('navHome');
         const navCity = document.getElementById('navCity');
@@ -332,7 +335,6 @@
                     </div>
                 `;
             });
-            // النقر على إشعار
             document.querySelectorAll('#notificationsList > div').forEach(item => {
                 item.addEventListener('click', () => {
                     const idx = parseInt(item.dataset.index);
@@ -350,13 +352,7 @@
         }
 
         function addNotification(title, message, placeId = null) {
-            notifications.unshift({
-                title,
-                message,
-                placeId,
-                time: new Date().toISOString(),
-                read: false
-            });
+            notifications.unshift({ title, message, placeId, time: new Date().toISOString(), read: false });
             if (notifications.length > 20) notifications = notifications.slice(0, 20);
             saveNotifications();
             updateNotificationsBadge();
@@ -367,7 +363,32 @@
         }
 
         // ==========================================
-        // البحث
+        // دالة نص العدد
+        // ==========================================
+        function getPlaceText(count) {
+            if (count === 0) return 'لا توجد أماكن مضافة';
+            if (count === 1) return 'مكان واحد مضاف';
+            if (count === 2) return 'مكانان مضافان';
+            if (count >= 3 && count <= 10) return `${count} أماكن مضافة`;
+            return `${count} مكاناً مضافاً`;
+        }
+
+        // ==========================================
+        // الحصول على الأماكن المصفاة حسب التصنيف
+        // ==========================================
+        function getFilteredPlaces() {
+            if (selectedCategory === 'all') return allPlaces;
+            return allPlaces.filter(p => {
+                const cat = (p.category || 'أخرى').trim();
+                if (selectedCategory === 'أخرى') {
+                    return !['مطعم', 'كوفي', 'منتزه', 'محل'].includes(cat);
+                }
+                return cat === selectedCategory;
+            });
+        }
+
+        // ==========================================
+        // البحث مع مراعاة التصنيف
         // ==========================================
         function performSearch(query) {
             query = query.trim().toLowerCase();
@@ -377,8 +398,9 @@
                 return;
             }
 
+            const filteredPlaces = getFilteredPlaces();
             const matchedCities = allCities.filter(c => c.name.toLowerCase().includes(query));
-            const matchedPlaces = allPlaces.filter(p => 
+            const matchedPlaces = filteredPlaces.filter(p => 
                 (p.name?.toLowerCase().includes(query)) ||
                 (p.city?.toLowerCase().includes(query)) ||
                 (p.category?.toLowerCase().includes(query))
@@ -407,12 +429,11 @@
                     <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-3 cursor-pointer hover:border-secondary/50" data-place-id="${place.id}">
                         <i class="fa fa-map-pin text-accent ml-2"></i>
                         <span class="font-medium">${place.name}</span>
-                        <span class="text-xs text-slate-400">${place.city || ''} • ${place.category || ''}</span>
+                        <span class="text-xs text-slate-400">${place.city || ''} • ${place.category || 'غير مصنف'}</span>
                     </div>
                 `;
             });
 
-            // أحداث النقر على النتائج
             searchResultsList.querySelectorAll('[data-city]').forEach(el => {
                 el.addEventListener('click', () => {
                     window.location.href = `city.html?name=${encodeURIComponent(el.dataset.city)}`;
@@ -426,93 +447,96 @@
         }
 
         // ==========================================
-        // التقييم — حساب متوسط النجوم
+        // عرض الأماكن المصفاة مباشرة إذا كان تصنيفاً محدداً
         // ==========================================
-        function renderStars(rating) {
-            const r = Math.round(rating || 0);
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                stars += `<i class="fa fa-star ${i <= r ? 'text-yellow-400' : 'text-slate-600'}"></i>`;
+        function renderContent() {
+            emptyState.classList.add('hidden');
+            
+            if (selectedCategory === 'all') {
+                // عرض المدن
+                sectionTitle.textContent = 'المدن';
+                if (allCities.length === 0) {
+                    citiesContainer.innerHTML = '';
+                    emptyTitle.textContent = 'لم تُضاف مدن بعد';
+                    emptyDesc.textContent = 'كن أول من يضيف مدينة! 📍';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                citiesContainer.innerHTML = '';
+                allCities.forEach(city => {
+                    const placeCount = allPlaces.filter(p => p.city === city.name).length;
+                    const card = document.createElement('div');
+                    card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
+                    card.innerHTML = `
+                        <h3 class="text-lg font-semibold mb-1">${city.name}</h3>
+                        <p class="text-sm text-slate-400 mb-2">${getPlaceText(placeCount)}</p>
+                    `;
+                    card.addEventListener('click', () => {
+                        window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
+                    });
+                    citiesContainer.appendChild(card);
+                });
+            } else {
+                // عرض الأماكن من التصنيف المحدد
+                const filtered = getFilteredPlaces();
+                const categoryNames = {
+                    'مطعم': 'المطاعم',
+                    'كوفي': 'الكافيهات',
+                    'منتزه': 'المتنزهات',
+                    'محل': 'المتاجر والتسوق',
+                    'أخرى': 'أماكن أخرى'
+                };
+                sectionTitle.textContent = categoryNames[selectedCategory] || 'أماكن';
+                
+                if (filtered.length === 0) {
+                    citiesContainer.innerHTML = '';
+                    emptyTitle.textContent = `لا توجد أماكن في قسم ${categoryNames[selectedCategory] || ''}`;
+                    emptyDesc.textContent = 'كن أول من يضيف مكاناً في هذا التصنيف! 📍';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                citiesContainer.innerHTML = '';
+                filtered.forEach(place => {
+                    const card = document.createElement('div');
+                    card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
+                    card.innerHTML = `
+                        <h3 class="text-lg font-semibold mb-1">${place.name}</h3>
+                        <p class="text-sm text-slate-400">${place.city || 'بدون مدينة'}</p>
+                        <span class="text-xs bg-secondary/20 text-secondary px-2 py-0.5 rounded-full">${place.category || 'غير مصنف'}</span>
+                    `;
+                    card.addEventListener('click', () => {
+                        window.location.href = `place-detail.html?id=${place.id}`;
+                    });
+                    citiesContainer.appendChild(card);
+                });
             }
-            return `<span class="star-rating">${stars}</span>`;
         }
 
         // ==========================================
-        // دالة نص العدد
+        // تحميل البيانات
         // ==========================================
-        function getPlaceText(count) {
-            if (count === 0) return 'لا توجد أماكن مضافة';
-            if (count === 1) return 'مكان واحد مضاف';
-            if (count === 2) return 'مكانان مضافان';
-            if (count >= 3 && count <= 10) return `${count} أماكن مضافة`;
-            return `${count} مكاناً مضافاً`;
-        }
-
-        // ==========================================
-        // تحميل المدن
-        // ==========================================
-        async function loadCities() {
+        async function loadData() {
             if (isLoading) return;
             isLoading = true;
-            
-            citiesContainer.innerHTML = `
-                <div class="skeleton h-32 rounded-2xl"></div>
-                <div class="skeleton h-32 rounded-2xl"></div>
-            `;
+            citiesContainer.innerHTML = `<div class="skeleton h-32 rounded-2xl"></div><div class="skeleton h-32 rounded-2xl"></div>`;
             emptyState.classList.add('hidden');
 
             try {
                 allCities = await getCities() || [];
+                allPlaces = await getPlaces() || [];
                 isLoading = false;
-
-                if (allCities.length === 0) {
-                    citiesContainer.innerHTML = '';
-                    emptyState.classList.remove('hidden');
-                    return;
-                }
-
-                allCities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-                await loadPlacesAndRender();
+                renderContent();
             } catch (error) {
-                console.error('❌ خطأ تحميل المدن:', error);
+                console.error('❌ خطأ:', error);
                 isLoading = false;
                 citiesContainer.innerHTML = `
                     <div class="col-span-2 text-center py-8 text-slate-400">
                         <i class="fa fa-exclamation-triangle text-2xl text-amber-500 mb-2"></i>
-                        <p>حدث خطأ في تحميل المدن</p>
-                        <button onclick="loadCities()" class="mt-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg text-sm">إعادة المحاولة</button>
+                        <p>حدث خطأ في التحميل</p>
+                        <button onclick="loadData()" class="mt-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg text-sm">إعادة المحاولة</button>
                     </div>
                 `;
             }
-        }
-
-        async function loadPlacesAndRender() {
-            try {
-                allPlaces = await getPlaces() || [];
-                renderCities();
-            } catch (error) {
-                console.error('❌ خطأ تحميل الأماكن:', error);
-                allPlaces = [];
-                renderCities();
-            }
-        }
-
-        function renderCities() {
-            citiesContainer.innerHTML = '';
-            allCities.forEach(city => {
-                const placeCount = allPlaces.filter(p => p.city === city.name).length;
-                
-                const card = document.createElement('div');
-                card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
-                card.innerHTML = `
-                    <h3 class="text-lg font-semibold mb-1">${city.name}</h3>
-                    <p class="text-sm text-slate-400 mb-2">${getPlaceText(placeCount)}</p>
-                `;
-                card.addEventListener('click', () => {
-                    window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
-                });
-                citiesContainer.appendChild(card);
-            });
         }
 
         // ==========================================
@@ -531,10 +555,8 @@
                     return;
                 }
 
-                // أحدث 10 أماكن
                 const recent = allPlaces.slice(-10).reverse();
                 let html = '';
-                
                 recent.forEach(place => {
                     html += `
                         <span class="place-tag" data-id="${place.id}">
@@ -546,30 +568,20 @@
                 html += `<span class="mx-8 text-slate-500">|</span>` + html;
                 content.innerHTML = html;
 
-                // النقر على عنصر في الشريط
                 document.querySelectorAll('.place-tag').forEach(tag => {
                     tag.addEventListener('click', () => {
                         window.location.href = `place-detail.html?id=${tag.dataset.id}`;
                     });
                 });
 
-                // إضافة إشعار عند وجود مكان جديد
                 const lastCheck = parseInt(localStorage.getItem('lastPlacesCount') || '0');
                 if (allPlaces.length > lastCheck) {
                     const newCount = allPlaces.length - lastCheck;
-                    addNotification(
-                        '✨ أماكن جديدة مضافة',
-                        `تم إضافة ${newCount} مكان جديد — اكتشفها الآن!`
-                    );
+                    addNotification('✨ أماكن جديدة مضافة', `تم إضافة ${newCount} مكان جديد — اكتشفها الآن!`);
                     localStorage.setItem('lastPlacesCount', allPlaces.length);
                 }
-
             } catch (error) {
-                console.error('❌ خطأ تحميل الأماكن:', error);
-                document.querySelector('.marquee-content').innerHTML = `
-                    <span class="text-red-400 text-sm">⚠️ حدث خطأ في تحميل الأماكن &nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                    <span class="text-red-400 text-sm">⚠️ حدث خطأ في تحميل الأماكن &nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                `;
+                console.error('❌ خطأ:', error);
             }
         }
 
@@ -607,10 +619,7 @@
             } else {
                 const password = prompt('أدخل كلمة مرور المشرف:');
                 if (password === 'admin123') {
-                    localStorage.setItem('currentUser', JSON.stringify({
-                        name: 'المشرف',
-                        isAdmin: true
-                    }));
+                    localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
                     window.location.href = 'admin-dashboard.html';
                 } else if (password) {
                     alert('كلمة المرور غير صحيحة ❌');
@@ -623,7 +632,7 @@
             performSearch(e.target.value);
         });
 
-        // التصنيفات
+        // التصنيفات — تم الربط بالتصفية الفعلية ✅
         categoryChips.forEach(chip => {
             chip.addEventListener('click', () => {
                 categoryChips.forEach(c => {
@@ -633,10 +642,12 @@
                 chip.classList.add('active');
                 chip.classList.remove('text-slate-300');
                 selectedCategory = chip.dataset.category;
+                searchInput.value = ''; // مسح البحث عند تغيير التصنيف
+                searchResults.classList.add('hidden');
+                renderContent();
             });
         });
 
-        // الإشعارات
         notificationsBtn.addEventListener('click', () => {
             notifications.forEach(n => n.read = true);
             saveNotifications();
@@ -662,21 +673,16 @@
 
         saveCityBtn.addEventListener('click', async () => {
             const name = newCityInput.value.trim();
-            if (!name) {
-                alert('أدخل اسم المدينة');
-                return;
-            }
-
+            if (!name) { alert('أدخل اسم المدينة'); return; }
             saveCityBtn.disabled = true;
             saveCityBtn.innerHTML = '<i class="fa fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
-
             try {
                 await addCity({ name: name });
                 addNotification('🏙️ مدينة جديدة', `تم إضافة مدينة "${name}"`);
                 alert('✅ تمت إضافة المدينة');
                 addCityModal.classList.add('hidden');
                 newCityInput.value = '';
-                await loadCities();
+                await loadData();
             } catch (error) {
                 console.error('❌ خطأ:', error);
                 alert('حدث خطأ أثناء الإضافة');
@@ -696,7 +702,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminMessage();
             updateNotificationsBadge();
-            loadCities();
+            loadData();
             loadRecentPlaces();
         });
     </script>
