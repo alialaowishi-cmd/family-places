@@ -3,8 +3,7 @@ import {
     getAuth, 
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
-    signOut, 
-    onAuthStateChanged
+    signOut
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -14,8 +13,7 @@ import {
     getDoc,
     doc, 
     updateDoc, 
-    deleteDoc, 
-    setDoc,
+    deleteDoc,
     query, 
     orderBy,
     where
@@ -27,7 +25,7 @@ import {
     getDownloadURL 
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
 
-// ✅ إعداد Firebase — نفس بياناتك الأصلية
+// ✅ إعداد Firebase — بياناتك الأصلية
 const firebaseConfig = {
     apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
     authDomain: "ali-alaowishi.firebaseapp.com",
@@ -51,6 +49,10 @@ const ADMIN_PASSWORD = "admin123";
 export function getCurrentUser() {
     const userData = localStorage.getItem('currentUser');
     return userData ? JSON.parse(userData) : null;
+}
+
+export function isUserLoggedIn() {
+    return !!getCurrentUser();
 }
 
 export function isAdmin() {
@@ -117,7 +119,7 @@ export async function loginWithPhone(phone) {
     }
 }
 
-export async function requestRegistration(phone, name) {
+export async function registerWithPhone(phone, name) {
     try {
         const q = query(collection(db, 'users'), where('phone', '==', phone));
         const snapshot = await getDocs(q);
@@ -172,7 +174,7 @@ export function logout() {
 }
 
 // ==========================================
-// ✅ دوال الأماكن والمدن — الأساسية
+// دوال الأماكن والمدن — متطابقة مع ملفاتك
 // ==========================================
 export async function getAllPlaces() {
     try {
@@ -235,6 +237,19 @@ export async function deletePlace(id) {
     }
 }
 
+export async function getPlaceById(id) {
+    try {
+        const docSnap = await getDoc(doc(db, 'places', id));
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+        }
+        return null;
+    } catch (error) {
+        console.error('❌ خطأ في جلب المكان:', error);
+        return null;
+    }
+}
+
 export async function uploadImage(file) {
     try {
         const storageRef = ref(storage, `images/${Date.now()}_${file.name}`);
@@ -242,6 +257,7 @@ export async function uploadImage(file) {
         const url = await getDownloadURL(snapshot.ref);
         return { success: true, url };
     } catch (error) {
+        console.error('❌ خطأ في رفع الصورة:', error);
         return { success: false, message: error.message };
     }
 }
