@@ -36,9 +36,6 @@
             cursor: pointer;
         }
         .btn-primary:active { transform: scale(0.97); }
-        .btn-success {
-            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
-        }
         .btn-danger {
             background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
             cursor: pointer;
@@ -59,13 +56,13 @@
         .image-placeholder {
             background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
         }
-        button { cursor: pointer; }
+        button { cursor: pointer; border: none; }
     </style>
 </head>
 <body class="text-white">
     <!-- رأس الصفحة -->
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3 flex items-center justify-between">
-        <button id="backBtn" class="text-slate-400 hover:text-white transition bg-transparent border-0 text-lg">
+        <button id="backBtn" class="text-slate-400 hover:text-white transition bg-transparent text-lg">
             <i class="fa fa-arrow-right"></i>
         </button>
         <h1 class="text-lg font-bold" id="placeName">تفاصيل المكان</h1>
@@ -172,13 +169,12 @@
     </div>
 
     <script>
-        // ==========================================
-        // بيانات مؤقتة احتياطية في حال فشل تحميل auth.js
-        // ==========================================
         let placeData = null;
         let placeId = null;
 
-        // دوال مساعدة محلية لتجنب الأخطاء
+        // ==========================================
+        // دوال مساعدة
+        // ==========================================
         function getCurrentUser() {
             try {
                 const data = localStorage.getItem('currentUser');
@@ -202,14 +198,27 @@
             localStorage.setItem('places', JSON.stringify(places));
         }
 
-        function getPlaceById(id) {
-            return getAllPlaces().find(p => p.id === id);
+        // ✅ تحسين البحث عن المكان — يدعم المعرف النصي والرقمي
+        function findPlaceById(id) {
+            const places = getAllPlaces();
+            console.log('🔍 البحث عن المكان بـ المعرف:', id);
+            console.log('📋 جميع الأماكن المتاحة:', places);
+            
+            // تطابق دقيق
+            let found = places.find(p => String(p.id) === String(id));
+            if (found) return found;
+            
+            // تطابق جزئي إذا لم يجد
+            found = places.find(p => String(p.id).includes(String(id)) || String(id).includes(String(p.id)));
+            if (found) return found;
+            
+            return null;
         }
 
         function deletePlace(id) {
-            const places = getAllPlaces().filter(p => p.id !== id);
+            const places = getAllPlaces().filter(p => String(p.id) !== String(id));
             savePlaces(places);
-            return Promise.resolve();
+            return true;
         }
 
         // العناصر
@@ -225,15 +234,15 @@
         const confirmCancel = document.getElementById('confirmCancel');
         const confirmOk = document.getElementById('confirmOk');
         const messageModal = document.getElementById('messageModal');
-        const msgTitle = document.getElementById('msgTitle');
+        const msgTitle = document.getElementById('srcTitle') || document.getElementById('msgTitle');
         const msgText = document.getElementById('msgText');
         const msgClose = document.getElementById('msgClose');
 
         // ==========================================
-        // دوال المساعدة
+        // دوال النوافذ
         // ==========================================
         function showMessage(title, text, callback = null) {
-            msgTitle.textContent = title;
+            document.getElementById('msgTitle').textContent = title;
             msgText.textContent = text;
             messageModal.classList.remove('hidden');
             messageModal.style.display = 'flex';
@@ -264,20 +273,27 @@
         }
 
         // ==========================================
-        // تحميل بيانات المكان
+        // تحميل بيانات المكان ✅
         // ==========================================
         function loadPlace() {
+            // قراءة المعرف من الرابط
             const params = new URLSearchParams(window.location.search);
             placeId = params.get('id');
             
-            if (!placeId) {
+            console.log('📍 معرف المكان من الرابط:', placeId);
+            console.log('📍 نوع المعرف:', typeof placeId);
+            
+            if (!placeId || placeId.trim() === '') {
                 showMessage('خطأ', 'معرف المكان غير موجود ❌', () => {
                     window.location.href = 'home.html';
                 });
                 return;
             }
 
-            placeData = getPlaceById(placeId);
+            // البحث عن المكان
+            placeData = findPlaceById(placeId);
+            console.log('✅ نتيجة البحث عن المكان:', placeData);
+            
             if (!placeData) {
                 showMessage('خطأ', 'المكان غير موجود ❌', () => {
                     window.location.href = 'home.html';
@@ -344,7 +360,7 @@
         }
 
         // ==========================================
-        // صلاحيات التعديل والحذف
+        // صلاحيات
         // ==========================================
         function checkPermissions() {
             const user = getCurrentUser();
@@ -367,10 +383,9 @@
         }
 
         // ==========================================
-        // ربط الأزرار بالأحداث ✅
+        // أحداث الأزرار
         // ==========================================
         backBtn.addEventListener('click', () => {
-            console.log('🔙 زر العودة');
             if (window.history.length > 1) {
                 window.history.back();
             } else {
@@ -379,7 +394,6 @@
         });
 
         editBtn.addEventListener('click', () => {
-            console.log('✏️ زر التعديل');
             if (!placeData) return;
             
             const user = getCurrentUser();
@@ -391,11 +405,10 @@
                 return;
             }
 
-            window.location.href = 'add-place.html?edit=' + encodeURIComponent(placeId);
+            window.location.href = 'add-place.html?edit=' + encodeURIComponent(String(placeData.id));
         });
 
         deleteBtn.addEventListener('click', () => {
-            console.log('🗑️ زر الحذف');
             if (!placeData) return;
 
             const user = getCurrentUser();
@@ -411,7 +424,7 @@
                 'تأكيد الحذف',
                 'هل أنت متأكد من حذف هذا المكان؟ هذا الإجراء لا يمكن التراجع عنه ⚠️',
                 () => {
-                    deletePlace(placeId);
+                    deletePlace(placeData.id);
                     showMessage('نجاح', 'تم حذف المكان بنجاح ✅', () => {
                         window.location.href = 'home.html';
                     });
@@ -420,7 +433,6 @@
         });
 
         shareBtn.addEventListener('click', () => {
-            console.log('🔗 زر المشاركة');
             if (!placeData) return;
             
             const shareText = '📍 ' + (placeData.name || '') + 
@@ -433,18 +445,15 @@
                     title: placeData.name,
                     text: shareText,
                     url: window.location.href
-                }).catch(err => console.log('إلغاء المشاركة'));
+                }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(shareText).then(() => {
                     showMessage('تم', 'تم نسخ رابط المكان إلى الحافظة ✅');
-                }).catch(() => {
-                    showMessage('معلومات', shareText);
                 });
             }
         });
 
         mapBtn.addEventListener('click', () => {
-            console.log('📍 زر الخريطة');
             if (placeData && placeData.mapUrl) {
                 window.open(placeData.mapUrl, '_blank');
             } else {
@@ -453,7 +462,6 @@
         });
 
         callBtn.addEventListener('click', () => {
-            console.log('📞 زر الاتصال');
             if (placeData && placeData.phone) {
                 window.location.href = 'tel:' + placeData.phone;
             } else {
@@ -461,9 +469,7 @@
             }
         });
 
-        // ==========================================
         // بدء التحميل
-        // ==========================================
         document.addEventListener('DOMContentLoaded', loadPlace);
     </script>
 </body>
