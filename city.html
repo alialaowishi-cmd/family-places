@@ -103,7 +103,14 @@
 
             function loadPlaces() {
                 const allPlaces = JSON.parse(localStorage.getItem('places') || '[]');
-                const cityPlaces = allPlaces.filter(p => p.city === cityName);
+                // ✅ تصليح المقارنة: إزالة المسافات الزائدة لضمان التطابق الدقيق
+                const cityPlaces = allPlaces.filter(p => 
+                    p.city && p.city.trim() === cityName.trim()
+                );
+
+                console.log('📋 جميع الأماكن:', allPlaces);
+                console.log('🔍 اسم المدينة المطلوبة:', cityName);
+                console.log('✅ الأماكن المطابقة:', cityPlaces);
 
                 if (cityPlaces.length === 0) {
                     placesContainer.classList.add('hidden');
@@ -134,7 +141,7 @@
                                 ${place.price ? ` · ${place.price}` : ''}
                             </p>
                             
-                            <!-- اسم وصورة صاحب المكان ✅ -->
+                            <!-- اسم وصورة صاحب المكان -->
                             <div class="flex items-center gap-2 pt-3 border-t border-slate-700">
                                 ${ownerAvatar 
                                     ? `<img src="${ownerAvatar}" class="avatar-sm">` 
@@ -147,6 +154,7 @@
                             </div>
                         </div>
                     `;
+                    // ✅ تصليح: نقل المعرف بشكل صحيح
                     card.addEventListener('click', () => {
                         window.location.href = 'place-detail.html?id=' + encodeURIComponent(place.id);
                     });
