@@ -1,32 +1,31 @@
 import { auth, db } from './firebase-config.js';
-import { 
-  signInWithEmailAndPassword, 
-  signInWithPhoneNumber,
-  RecaptchaVerifier,
-  onAuthStateChanged,
-  signOut,
+import {
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
-import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { doc, getDoc, setDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// المشرف
-const ADMIN_EMAIL = 'Alihossin28@gmail.com';
+const ADMIN_EMAIL = 'alihossin28@gmail.com';
 const ADMIN_PASSWORD = 'admin123';
 
-// الحالة الحالية
 let currentUser = null;
 
 // مراقبة حالة المصادقة
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (userDoc.exists()) {
-      currentUser = { uid: user.uid, ...userDoc.data() };
-    } else {
-      currentUser = { uid: user.uid, email: user.email, phone: user.phoneNumber };
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        currentUser = { uid: user.uid, ...userDoc.data() };
+      } else {
+        currentUser = { uid: user.uid, email: user.email, phone: user.phoneNumber };
+      }
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    } catch (e) {
+      console.error('❌ خطأ في تحميل بيانات المستخدم:', e);
     }
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
   } else {
     currentUser = null;
     localStorage.removeItem('currentUser');
@@ -45,11 +44,12 @@ export async function loginWithEmail(email, password) {
     localStorage.setItem('currentUser', JSON.stringify(userData));
     return { success: true, user: userData };
   } catch (error) {
+    console.error('❌ خطأ تسجيل الدخول:', error);
     return { success: false, error: error.message };
   }
 }
 
-// تسجيل الدخول برقم الجوال (مبسط للاستخدام)
+// تسجيل الدخول برقم الجوال
 export async function loginWithPhone(phone) {
   try {
     const q = query(collection(db, 'users'), where('phone', '==', phone));
@@ -62,6 +62,7 @@ export async function loginWithPhone(phone) {
     localStorage.setItem('currentUser', JSON.stringify(userData));
     return { success: true, user: userData };
   } catch (error) {
+    console.error('❌ خطأ تسجيل الدخول بالجوال:', error);
     return { success: false, error: error.message };
   }
 }
@@ -82,25 +83,26 @@ export async function loginAsAdmin(password) {
   return { success: false, error: 'كلمة المرور غير صحيحة' };
 }
 
-// التحقق من المستخدم الحالي
 export function getCurrentUser() {
   const stored = localStorage.getItem('currentUser');
   return stored ? JSON.parse(stored) : null;
 }
 
-// تسجيل الخروج
 export async function logout() {
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch (e) {
+    console.log('لا يوجد جلسة نشطة');
+  }
   localStorage.removeItem('currentUser');
   window.location.href = 'login.html';
 }
 
-// حماية الصفحات
 export function requireAuth() {
   const user = getCurrentUser();
   if (!user) {
     window.location.href = 'login.html';
-    return false;
+    return null;
   }
   return user;
 }
@@ -110,7 +112,24 @@ export function requireAdmin() {
   if (!user || !user.isAdmin) {
     alert('غير مصرح لك بالدخول هنا');
     window.location.href = 'home.html';
-    return false;
+    return null;
   }
   return user;
+}
+
+// تسجيل مستخدم جديد
+export async function registerWithPhone(name, phone) {
+  try {
+    const tempUid = 'temp_' + Date.now();
+    const userData = {
+      uid: tempUid,
+      name,
+      phone,
+      approved: false
+    };
+    await setDoc(doc(db, 'users', tempUid), userData);
+    return { success: true, user: userData };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
