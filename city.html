@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مدينة — كشتات عائلة حسين العويشي</title>
+    <title id="cityTitle">المدينة — كشتات عائلة حسين العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -22,146 +22,202 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-        body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 85px; }
-        .place-card { transition: all 0.2s ease; cursor: pointer; }
-        .place-card:hover { transform: translateY(-2px); border-color: #3B82F6; }
-        .avatar-sm { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        body { 
+            background: #0F172A; 
+            font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; 
+            padding-bottom: 85px;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            transition: all 0.2s ease;
+        }
+        .place-card { 
+            background: #1E293B; 
+            border: 1px solid #334155; 
+            transition: all 0.2s ease;
+        }
+        .place-card:hover { 
+            border-color: #3B82F6; 
+            transform: translateY(-2px);
+        }
         button { cursor: pointer; font-family: inherit; }
+        .skeleton { background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="text-white">
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
         <div class="flex items-center justify-between">
-            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2">
-                <i class="fa fa-arrow-right fa-lg"></i>
-            </button>
-            <h1 id="cityTitle" class="text-lg font-bold">المدينة</h1>
-            <button id="addPlaceBtn" class="text-secondary hover:text-secondary/80 text-sm font-medium">
-                <i class="fa fa-plus ml-1"></i> إضافة مكان
-            </button>
+            <button id="backBtn" class="text-slate-400 p-2"><i class="fa fa-arrow-right fa-lg"></i></button>
+            <h1 id="cityNameHeader" class="text-lg font-bold">اسم المدينة</h1>
+            <div class="w-8"></div>
         </div>
     </header>
 
     <main class="px-4 py-6">
-        <div id="placesContainer" class="space-y-4">
-            <!-- الأماكن ستظهر هنا -->
-        </div>
-        <div id="emptyState" class="text-center py-16 hidden">
-            <i class="fa fa-map-o text-5xl text-slate-600 mb-4"></i>
-            <h3 class="text-lg font-medium text-slate-400 mb-2">لا توجد أماكن مضافة بعد</h3>
-            <p class="text-sm text-slate-500 mb-6">كن أول من يضيف مكاناً في هذه المدينة! 🎉</p>
-            <button id="addFirstPlaceBtn" class="btn-primary px-6 py-2 rounded-lg font-medium">
-                <i class="fa fa-plus ml-1"></i> إضافة أول مكان
+        <!-- أزرار التحكم -->
+        <div class="flex gap-3 mb-6">
+            <button id="addPlaceInCityBtn" class="flex-1 btn-primary py-3 rounded-xl font-medium flex items-center justify-center gap-2">
+                <i class="fa fa-plus"></i> إضافة مكان
+            </button>
+            <button id="backToCitiesBtn" class="bg-slate-700 hover:bg-slate-600 py-3 px-4 rounded-xl transition">
+                <i class="fa fa-list"></i>
             </button>
         </div>
+
+        <!-- قائمة الأماكن -->
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold">📍 الأماكن</h2>
+                <span id="placeCount" class="text-sm text-slate-400">جاري التحميل...</span>
+            </div>
+
+            <div id="placesContainer" class="space-y-4">
+                <div class="h-28 rounded-xl skeleton"></div>
+                <div class="h-28 rounded-xl skeleton"></div>
+            </div>
+
+            <div id="noPlacesState" class="text-center py-12 hidden">
+                <i class="fa fa-map-marker text-5xl text-slate-600 mb-4"></i>
+                <h3 class="text-lg font-medium text-slate-400 mb-2">لا توجد أماكن مضافة بعد</h3>
+                <p class="text-sm text-slate-500 mb-6">كن أول من يضيف مكاناً في هذه المدينة 🎉</p>
+                <button id="addFirstPlaceBtn" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                    <i class="fa fa-plus ml-1"></i> إضافة أول مكان
+                </button>
+            </div>
+        </section>
     </main>
 
+    <!-- شريط التنقل السفلي -->
     <nav class="fixed bottom-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-t border-slate-700 px-2 py-2">
         <div class="flex justify-around items-center max-w-lg mx-auto">
-            <button onclick="window.location.href='home.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
+            <button id="navHomeBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-home text-lg mb-1"></i>الرئيسية
             </button>
             <button class="flex flex-col items-center text-xs text-secondary py-1">
-                <i class="fa fa-building text-lg mb-1"></i>مدينة
+                <i class="fa fa-building text-lg mb-1"></i>المدن
             </button>
-            <button onclick="window.location.href='add-place.html'" class="flex flex-col items-center text-xs py-1">
-                <div class="w-11 h-11 bg-slate-700 rounded-full flex items-center justify-center -mt-5 border border-slate-600">
-                    <i class="fa fa-plus text-lg text-slate-300"></i>
+            <button id="navAddBtn" class="flex flex-col items-center text-xs py-1">
+                <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center -mt-5 shadow-lg shadow-secondary/30">
+                    <i class="fa fa-plus text-xl text-white"></i>
                 </div>
             </button>
-            <button onclick="window.location.href='profile.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-user text-lg mb-1"></i>حسابي
+            <button id="navNotificationsBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
+                <i class="fa fa-bell text-lg mb-1"></i>الإشعارات
             </button>
-            <button onclick="window.location.href='profile.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-cog text-lg mb-1"></i>المشرف
+            <button id="navProfileBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
+                <i class="fa fa-user text-lg mb-1"></i>حسابي
             </button>
         </div>
     </nav>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module">
+        import { getPlaces } from './db.js';
+        import { getCurrentUser } from './auth.js';
+
+        const currentUser = getCurrentUser();
+        if (!currentUser) window.location.href = 'login.html';
+
+        let currentCity = '';
+        let places = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
-            const cityName = params.get('name');
+            currentCity = params.get('name');
             
-            if (!cityName) {
+            if (!currentCity) {
+                alert('خطأ: لم يتم تحديد المدينة');
                 window.location.href = 'home.html';
                 return;
             }
 
-            document.getElementById('cityTitle').textContent = cityName;
-            const backBtn = document.getElementById('backBtn');
-            const addPlaceBtn = document.getElementById('addPlaceBtn');
-            const addFirstPlaceBtn = document.getElementById('addFirstPlaceBtn');
-            const placesContainer = document.getElementById('placesContainer');
-            const emptyState = document.getElementById('emptyState');
+            document.getElementById('cityNameHeader').textContent = currentCity;
+            document.getElementById('cityTitle').textContent = currentCity + ' — كشتات عائلة حسين العويشي';
 
-            backBtn.addEventListener('click', () => window.location.href = 'home.html');
-            addPlaceBtn.addEventListener('click', () => window.location.href = 'add-place.html?city=' + encodeURIComponent(cityName));
-            addFirstPlaceBtn.addEventListener('click', () => window.location.href = 'add-place.html?city=' + encodeURIComponent(cityName));
-
-            loadPlaces();
-
-            function loadPlaces() {
-                const allPlaces = JSON.parse(localStorage.getItem('places') || '[]');
-                // ✅ تصليح المقارنة: إزالة المسافات الزائدة لضمان التطابق الدقيق
-                const cityPlaces = allPlaces.filter(p => 
-                    p.city && p.city.trim() === cityName.trim()
-                );
-
-                console.log('📋 جميع الأماكن:', allPlaces);
-                console.log('🔍 اسم المدينة المطلوبة:', cityName);
-                console.log('✅ الأماكن المطابقة:', cityPlaces);
-
-                if (cityPlaces.length === 0) {
-                    placesContainer.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    return;
-                }
-
-                placesContainer.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-                placesContainer.innerHTML = '';
-
-                cityPlaces.forEach(place => {
-                    const stars = '★'.repeat(place.rating) + '☆'.repeat(5 - place.rating);
-                    const imageUrl = place.images && place.images.length > 0 ? place.images[0] : null;
-                    const ownerAvatar = place.ownerAvatar || '';
-                    
-                    const card = document.createElement('div');
-                    card.className = 'place-card bg-slate-800/60 border border-slate-700 rounded-xl overflow-hidden';
-                    card.innerHTML = `
-                        ${imageUrl ? `<img src="${imageUrl}" class="w-full h-40 object-cover">` : '<div class="w-full h-40 bg-slate-700 flex items-center justify-center"><i class="fa fa-image text-3xl text-slate-500"></i></div>'}
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-lg font-bold">${place.name}</h3>
-                                <span class="text-yellow-400 text-sm">${stars}</span>
-                            </div>
-                            <p class="text-sm text-slate-400 mb-3">
-                                <i class="fa fa-tag ml-1"></i> ${place.category}
-                                ${place.price ? ` · ${place.price}` : ''}
-                            </p>
-                            
-                            <!-- اسم وصورة صاحب المكان -->
-                            <div class="flex items-center gap-2 pt-3 border-t border-slate-700">
-                                ${ownerAvatar 
-                                    ? `<img src="${ownerAvatar}" class="avatar-sm">` 
-                                    : `<div class="avatar-sm bg-secondary/20 flex items-center justify-center"><i class="fa fa-user text-xs text-secondary"></i></div>`
-                                }
-                                <div>
-                                    <p class="text-sm font-medium">${place.ownerName || 'مستخدم'}</p>
-                                    <p class="text-xs text-slate-500">أضاف هذا المكان</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    // ✅ تصليح: نقل المعرف بشكل صحيح
-                    card.addEventListener('click', () => {
-                        window.location.href = 'place-detail.html?id=' + encodeURIComponent(place.id);
-                    });
-                    placesContainer.appendChild(card);
-                });
-            }
+            bindEvents();
+            await loadPlaces();
         });
+
+        function bindEvents() {
+            document.getElementById('backBtn').onclick = () => history.back();
+            document.getElementById('backToCitiesBtn').onclick = () => window.location.href = 'home.html';
+            document.getElementById('addPlaceInCityBtn').onclick = goToAddPlace;
+            document.getElementById('addFirstPlaceBtn').onclick = goToAddPlace;
+            document.getElementById('navAddBtn').onclick = goToAddPlace;
+            document.getElementById('navHomeBtn').onclick = () => window.location.href = 'home.html';
+            document.getElementById('navProfileBtn').onclick = () => window.location.href = 'profile.html';
+        }
+
+        function goToAddPlace() {
+            window.location.href = `add-place.html?name=${encodeURIComponent(currentCity)}&city=${encodeURIComponent(currentCity)}`;
+        }
+
+        async function loadPlaces() {
+            try {
+                console.log('⏳ تحميل أماكن:', currentCity);
+                places = await getPlaces(currentCity);
+                console.log('📍 الأماكن المحملة:', places);
+                renderPlaces();
+            } catch (error) {
+                console.error('❌ خطأ تحميل الأماكن:', error);
+                alert('حدث خطأ في تحميل الأماكن');
+            }
+        }
+
+        function renderPlaces() {
+            const container = document.getElementById('placesContainer');
+            const noPlaces = document.getElementById('noPlacesState');
+            const countEl = document.getElementById('placeCount');
+
+            container.innerHTML = '';
+            countEl.textContent = `${places.length} مكان`;
+
+            if (places.length === 0) {
+                container.classList.add('hidden');
+                noPlaces.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            noPlaces.classList.add('hidden');
+
+            places.forEach(place => {
+                const imageUrl = place.images && place.images.length > 0 ? place.images[0] : null;
+                
+                const card = document.createElement('div');
+                card.className = 'place-card rounded-xl p-4 cursor-pointer';
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        ${imageUrl 
+                            ? `<img src="${imageUrl}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">`
+                            : `<div class="w-20 h-20 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-map-marker text-xl text-slate-500"></i>
+                               </div>`
+                        }
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-lg truncate">${place.name}</h3>
+                            <p class="text-sm text-slate-400">${place.category || 'غير مصنف'}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-yellow-400 text-sm">
+                                    ${'★'.repeat(place.rating || 0)}${'☆'.repeat(5 - (place.rating || 0))}
+                                </span>
+                                ${place.price ? `<span class="text-xs text-slate-400">· ${place.price}</span>` : ''}
+                            </div>
+                            ${place.phone ? `
+                                <a href="tel:${place.phone}" class="inline-flex items-center text-sm text-green-400 mt-1">
+                                    <i class="fa fa-phone ml-1 text-xs"></i>${place.phone}
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
+                });
+                container.appendChild(card);
+            });
+        }
     </script>
 </body>
 </html>
