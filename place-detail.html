@@ -123,8 +123,8 @@
                 <i class="fa fa-share-alt"></i>
                 <span>مشاركة المكان</span>
             </button>
-            <button id="mapBtn" class="btn-outline rounded-xl py-3 px-4 flex items-center justify-center gap-2">
-                <i class="fa fa-map-marker"></i>
+            <button id="mapViewBtn" class="btn-outline rounded-xl py-3 px-4 flex items-center justify-center gap-2">
+                <i class="fa fa-map-o"></i>
                 <span>فتح في قوقل ماب</span>
             </button>
             <button id="callBtn" class="btn-outline rounded-xl py-3 px-4 flex items-center justify-center gap-2">
@@ -181,7 +181,7 @@
 
         // === قراءة المعرف من الرابط ===
         const params = new URLSearchParams(window.location.search);
-        const index = parseInt(params.get('index') || '0'); // ✅ استخدام الفهرس كما كان سابقاً
+        const index = parseInt(params.get('index') || '0');
         let allPlaces = getAllPlaces();
         let place = allPlaces[index];
 
@@ -274,7 +274,7 @@
             }
         };
 
-        // ✏️ تعديل المكان
+        // ✏️ تعديل المكان — تم تفعيله
         document.getElementById('editBtn').onclick = function() {
             const user = getCurrentUser();
             const isOwner = place.createdBy === (user?.phone || user?.email);
@@ -284,7 +284,7 @@
                 alert('أنت لست صاحب هذا المكان ❌');
                 return;
             }
-            // تمرير الفهرس وليس المعرف ليطابق طريقة عملك السابقة
+            // الانتقال لصفحة الإضافة مع تمرير الفهرس للتعديل
             window.location.href = `add-place.html?editIndex=${index}`;
         };
 
@@ -298,8 +298,6 @@
                 alert('أنت لست صاحب هذا المكان ❌');
                 return;
             }
-
-            // إظهار نافذة التأكيد
             document.getElementById('confirmModal').classList.remove('hidden');
         };
 
@@ -317,7 +315,7 @@
             window.location.href = 'home.html';
         };
 
-        // 📞 اتصال
+        // 📞 اتصال مباشر
         document.getElementById('callBtn').onclick = function() {
             if (place.phone) {
                 window.location.href = 'tel:' + place.phone;
@@ -326,8 +324,8 @@
             }
         };
 
-        // 📍 فتح في الخريطة
-        document.getElementById('mapBtn').onclick = function() {
+        // 📍 فتح في قوقل ماب
+        document.getElementById('mapViewBtn').onclick = function() {
             if (place.mapUrl) {
                 window.open(place.mapUrl, '_blank');
             } else {
@@ -335,7 +333,7 @@
             }
         };
 
-        // 🔗 مشاركة
+        // 🔗 مشاركة المكان
         document.getElementById('shareBtn').onclick = function() {
             const shareText = `📍 ${place.name}\n🏙️ ${place.city || ''}\n💰 السعر: ${place.price || 'غير محدد'}\n🔗 رابط المكان: ${window.location.href}`;
             
