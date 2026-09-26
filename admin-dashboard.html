@@ -10,11 +10,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#1E40AF',
-                        secondary: '#3B82F6',
-                        dark: '#0F172A',
-                    },
+                    colors: { primary: '#1E40AF', secondary: '#3B82F6', dark: '#0F172A' },
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] }
                 }
             }
@@ -24,26 +20,20 @@
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; }
         .tab-active { background: #1E40AF; color: white; }
-        input, select { background: #1E293B; border: 1px solid #334155; color: white; }
-        input:focus, select:focus { outline: none; border-color: #3B82F6; }
+        input, select, textarea { background: #1E293B; border: 1px solid #334155; color: white; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #3B82F6; }
         .btn-primary { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); }
         .btn-primary:hover { transform: translateY(-1px); }
     </style>
 </head>
 <body class="text-white">
-    <!-- رأس الصفحة -->
     <header class="bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3 flex justify-between items-center sticky top-0 z-50">
-        <a href="home.html" class="text-slate-400 hover:text-white transition">
-            <i class="fa fa-arrow-right ml-1"></i> العودة
-        </a>
+        <a href="home.html" class="text-slate-400 hover:text-white transition"><i class="fa fa-arrow-right ml-1"></i> العودة</a>
         <h1 class="text-lg font-bold">لوحة المشرف</h1>
-        <button id="logoutBtn" class="text-red-400 hover:text-red-300 transition">
-            <i class="fa fa-sign-out mr-1"></i> تسجيل الخروج
-        </button>
+        <button id="logoutBtn" class="text-red-400 hover:text-red-300 transition"><i class="fa fa-sign-out mr-1"></i> تسجيل الخروج</button>
     </header>
 
-    <!-- التبويبات -->
-    <div class="px-4 py-4">
+    <div class="px-4 py-4 max-w-2xl mx-auto">
         <div class="flex bg-slate-800 rounded-xl p-1 mb-6 overflow-x-auto">
             <button class="admin-tab tab-active flex-1 min-w-max py-2 px-3 rounded-lg text-sm" data-tab="users">المستخدمين</button>
             <button class="admin-tab flex-1 min-w-max py-2 px-3 rounded-lg text-sm text-slate-400" data-tab="cities">المدن</button>
@@ -51,41 +41,37 @@
             <button class="admin-tab flex-1 min-w-max py-2 px-3 rounded-lg text-sm text-slate-400" data-tab="settings">الإعدادات</button>
         </div>
 
-        <!-- رسائل التنبيه -->
         <div id="messageBox" class="hidden mb-4 p-3 rounded-xl text-center text-sm"></div>
 
-        <!-- ================================== -->
-        <!-- قسم المستخدمين -->
-        <!-- ================================== -->
+        <!-- المستخدمين -->
         <div id="usersTab" class="tab-content">
             <div class="bg-slate-800/60 rounded-2xl p-5 mb-6">
                 <h2 class="text-lg font-semibold mb-4 text-center">إضافة مستخدم جديد</h2>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-sm text-slate-400 mb-1">الاسم الكامل</label>
+                        <label class="block text-sm text-slate-400 mb-1">الاسم الكامل *</label>
                         <input type="text" id="newUserName" placeholder="أدخل الاسم الكامل" class="w-full px-4 py-3 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-400 mb-1">رقم الجوال</label>
+                        <label class="block text-sm text-slate-400 mb-1">رقم الجوال *</label>
                         <input type="tel" id="newUserPhone" placeholder="05XXXXXXXX" maxlength="10" class="w-full px-4 py-3 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">البريد الإلكتروني (اختياري — لتسجيل الدخول بالبريد)</label>
+                        <input type="email" id="newUserEmail" placeholder="example@email.com" class="w-full px-4 py-3 rounded-lg">
                     </div>
                     <button id="addUserBtn" class="w-full btn-primary py-3 rounded-lg font-medium transition">
                         <i class="fa fa-plus-circle ml-2"></i> إضافة
                     </button>
                 </div>
             </div>
-
             <div class="bg-slate-800/60 rounded-2xl p-5">
                 <h2 class="text-lg font-semibold mb-4 text-center">قائمة المستخدمين</h2>
-                <div id="usersList" class="space-y-3">
-                    <p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p>
-                </div>
+                <div id="usersList" class="space-y-3"><p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p></div>
             </div>
         </div>
 
-        <!-- ================================== -->
-        <!-- قسم المدن -->
-        <!-- ================================== -->
+        <!-- المدن -->
         <div id="citiesTab" class="tab-content hidden">
             <div class="bg-slate-800/60 rounded-2xl p-5 mb-6">
                 <h2 class="text-lg font-semibold mb-4 text-center">إضافة مدينة جديدة</h2>
@@ -99,43 +85,42 @@
                     </button>
                 </div>
             </div>
-
             <div class="bg-slate-800/60 rounded-2xl p-5">
                 <h2 class="text-lg font-semibold mb-4 text-center">قائمة المدن</h2>
-                <div id="citiesList" class="space-y-3">
-                    <p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p>
-                </div>
+                <div id="citiesList" class="space-y-3"><p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p></div>
             </div>
         </div>
 
-        <!-- ================================== -->
-        <!-- قسم الأماكن -->
-        <!-- ================================== -->
+        <!-- الأماكن -->
         <div id="placesTab" class="tab-content hidden">
             <div class="bg-slate-800/60 rounded-2xl p-5">
                 <h2 class="text-lg font-semibold mb-4 text-center">قائمة الأماكن</h2>
-                <div id="placesList" class="space-y-3">
-                    <p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p>
-                </div>
+                <div id="placesList" class="space-y-3"><p class="text-slate-400 text-center py-4">جاري تحميل البيانات...</p></div>
             </div>
         </div>
 
-        <!-- ================================== -->
-        <!-- قسم الإعدادات -->
-        <!-- ================================== -->
+        <!-- الإعدادات -->
         <div id="settingsTab" class="tab-content hidden">
             <div class="bg-slate-800/60 rounded-2xl p-5">
                 <h2 class="text-lg font-semibold mb-4 text-center">إعدادات الموقع</h2>
                 <div class="space-y-3">
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">اسم الموقع</label>
-                        <input type="text" id="siteTitle" class="w-full px-4 py-3 rounded-lg">
+                        <input type="text" id="siteTitle" class="w-full px-4 py-3 rounded-lg" placeholder="كشتات عائلة حسين العويشي">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-400 mb-1">نص البنر الرئيسي</label>
-                        <textarea id="siteBannerText" rows="3" class="w-full px-4 py-3 rounded-lg"></textarea>
+                        <label class="block text-sm text-slate-400 mb-1">رسالة المشرف (تظهر أعلى الصفحة الرئيسية)</label>
+                        <textarea id="siteBannerText" rows="3" class="w-full px-4 py-3 rounded-lg" placeholder="اكتب رسالة تظهر لجميع الأعضاء..."></textarea>
                     </div>
-                    <button id="saveSettingsBtn" class="w-full btn-primary py-3 rounded-lg font-medium transition">
+                    <div class="pt-4 mt-4 border-t border-slate-700">
+                        <label class="block text-sm text-slate-400 mb-2">إرسال إشعار فوري لكل الأعضاء</label>
+                        <input type="text" id="notifTitle" placeholder="عنوان الإشعار" class="w-full px-4 py-3 rounded-lg mb-2">
+                        <textarea id="notifMessage" rows="2" placeholder="نص الإشعار..." class="w-full px-4 py-3 rounded-lg"></textarea>
+                        <button id="sendNotifBtn" class="w-full mt-3 py-3 rounded-lg bg-secondary/20 text-secondary hover:bg-secondary/30 transition font-medium">
+                            <i class="fa fa-paper-plane ml-2"></i> إرسال الإشعار للجميع
+                        </button>
+                    </div>
+                    <button id="saveSettingsBtn" class="w-full btn-primary py-3 rounded-lg font-medium transition mt-4">
                         <i class="fa fa-save ml-2"></i> حفظ الإعدادات
                     </button>
                 </div>
@@ -144,25 +129,23 @@
     </div>
 
     <script type="module">
-        import { 
+        import {
             getCurrentUser, isAdmin, logout,
             getAllUsers, addUserByAdmin, deleteUserByAdmin,
             getCities, addCity, deleteCityDoc,
-            getPlaces, deletePlace
+            getPlaces, deletePlace,
+            getSettings, saveSettings, addNotification
         } from './auth.js';
 
-        // التحقق من صلاحيات المشرف
         if (!isAdmin()) {
             alert('غير مصرح لك بالدخول لهذه الصفحة');
             window.location.href = 'home.html';
         }
 
-        // العناصر
         const tabs = document.querySelectorAll('.admin-tab');
         const tabContents = document.querySelectorAll('.tab-content');
         const messageBox = document.getElementById('messageBox');
 
-        // عرض الرسائل
         function showMessage(text, isError = false) {
             messageBox.textContent = text;
             messageBox.className = `mb-4 p-3 rounded-xl text-center text-sm ${isError ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`;
@@ -170,22 +153,21 @@
             setTimeout(() => messageBox.classList.add('hidden'), 4000);
         }
 
-        // التبديل بين التبويبات
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const tabName = tab.dataset.tab;
                 tabs.forEach(t => { t.classList.remove('tab-active'); t.classList.add('text-slate-400'); });
-                tab.classList.add('tab-active');
-                tab.classList.remove('text-slate-400');
+                tab.classList.add('tab-active'); tab.classList.remove('text-slate-400');
                 tabContents.forEach(c => c.classList.add('hidden'));
                 document.getElementById(`${tabName}Tab`).classList.remove('hidden');
                 if (tabName === 'users') loadUsers();
                 if (tabName === 'cities') loadCities();
                 if (tabName === 'places') loadAllPlaces();
+                if (tabName === 'settings') loadSiteSettings();
             });
         });
 
-        // ========== المستخدمين ==========
+        // ===== المستخدمين =====
         async function loadUsers() {
             const list = document.getElementById('usersList');
             list.innerHTML = '<p class="text-slate-400 text-center py-4">جاري التحميل...</p>';
@@ -200,18 +182,17 @@
                     <div class="bg-slate-700/50 p-3 rounded-xl flex justify-between items-center">
                         <div>
                             <p class="font-medium">${user.name || 'بدون اسم'}</p>
-                            <p class="text-sm text-slate-400">${user.phone}</p>
+                            <p class="text-sm text-slate-400">${user.phone || 'بدون رقم'}${user.email ? ' • ' + user.email : ''}</p>
                         </div>
-                        <button class="text-red-400 hover:text-red-300 delete-user-btn" data-phone="${user.phone}">
+                        <button class="text-red-400 hover:text-red-300 delete-user-btn" data-phone="${user.phone || ''}">
                             <i class="fa fa-trash"></i>
                         </button>
-                    </div>
-                `;
+                    </div>`;
             });
-            // إضافة أحداث الحذف
             document.querySelectorAll('.delete-user-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const phone = e.currentTarget.dataset.phone;
+                    if (!phone) { alert('لا يمكن حذف مستخدم بدون رقم جوال — احذفه من Firebase Console'); return; }
                     if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
                         const result = await deleteUserByAdmin(phone);
                         showMessage(result.message, !result.success);
@@ -221,38 +202,28 @@
             });
         }
 
-        // إضافة مستخدم جديد
         document.getElementById('addUserBtn').addEventListener('click', async () => {
             const name = document.getElementById('newUserName').value.trim();
             const phone = document.getElementById('newUserPhone').value.trim();
-            
-            if (!name || !phone) {
-                showMessage('أدخل الاسم ورقم الجوال', true);
-                return;
-            }
-            if (phone.length < 9) {
-                showMessage('أدخل رقم جوال صحيح', true);
-                return;
-            }
-
+            const email = document.getElementById('newUserEmail').value.trim();
+            if (!name || !phone) { showMessage('أدخل الاسم ورقم الجوال', true); return; }
+            if (phone.length < 9) { showMessage('أدخل رقم جوال صحيح', true); return; }
             const btn = document.getElementById('addUserBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin ml-2"></i> جاري الإضافة...';
-
-            const result = await addUserByAdmin(phone, name);
-            
+            const result = await addUserByAdmin(phone, name, email);
             btn.disabled = false;
             btn.innerHTML = '<i class="fa fa-plus-circle ml-2"></i> إضافة';
-            
             showMessage(result.message, !result.success);
             if (result.success) {
                 document.getElementById('newUserName').value = '';
                 document.getElementById('newUserPhone').value = '';
+                document.getElementById('newUserEmail').value = '';
                 loadUsers();
             }
         });
 
-        // ========== المدن ==========
+        // ===== المدن =====
         async function loadCities() {
             const list = document.getElementById('citiesList');
             list.innerHTML = '<p class="text-slate-400 text-center py-4">جاري التحميل...</p>';
@@ -266,11 +237,8 @@
                 list.innerHTML += `
                     <div class="bg-slate-700/50 p-3 rounded-xl flex justify-between items-center">
                         <p class="font-medium">${city.name}</p>
-                        <button class="text-red-400 hover:text-red-300 delete-city-btn" data-id="${city.id}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>
-                `;
+                        <button class="text-red-400 hover:text-red-300 delete-city-btn" data-id="${city.id}"><i class="fa fa-trash"></i></button>
+                    </div>`;
             });
             document.querySelectorAll('.delete-city-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
@@ -284,17 +252,18 @@
 
         document.getElementById('addCityBtn').addEventListener('click', async () => {
             const name = document.getElementById('newCityName').value.trim();
-            if (!name) {
-                showMessage('أدخل اسم المدينة', true);
-                return;
+            if (!name) { showMessage('أدخل اسم المدينة', true); return; }
+            try {
+                await addCity({ name });
+                showMessage('✅ تم إضافة المدينة');
+                document.getElementById('newCityName').value = '';
+                loadCities();
+            } catch (e) {
+                showMessage('خطأ: ' + e.message, true);
             }
-            await addCity({ name: name });
-            showMessage('✅ تم إضافة المدينة');
-            document.getElementById('newCityName').value = '';
-            loadCities();
         });
 
-        // ========== الأماكن ==========
+        // ===== الأماكن =====
         async function loadAllPlaces() {
             const list = document.getElementById('placesList');
             list.innerHTML = '<p class="text-slate-400 text-center py-4">جاري التحميل...</p>';
@@ -309,13 +278,10 @@
                     <div class="bg-slate-700/50 p-3 rounded-xl flex justify-between items-center">
                         <div>
                             <p class="font-medium">${place.name}</p>
-                            <p class="text-sm text-slate-400">${place.city || 'بدون مدينة'} • ${place.category || 'أخرى'}</p>
+                            <p class="text-sm text-slate-400">${place.city || 'بدون مدينة'} • ${place.category || 'أخرى'} • ${place.createdByName || 'مجهول'}</p>
                         </div>
-                        <button class="text-red-400 hover:text-red-300 delete-place-btn" data-id="${place.id}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>
-                `;
+                        <button class="text-red-400 hover:text-red-300 delete-place-btn" data-id="${place.id}"><i class="fa fa-trash"></i></button>
+                    </div>`;
             });
             document.querySelectorAll('.delete-place-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
@@ -327,13 +293,55 @@
             });
         }
 
-        // ========== تسجيل الخروج ==========
+        // ===== الإعدادات (تحميل وحفظ في Firestore) =====
+        async function loadSiteSettings() {
+            const settings = await getSettings();
+            document.getElementById('siteTitle').value = settings.siteTitle || '';
+            document.getElementById('siteBannerText').value = settings.adminMessage || '';
+        }
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+            const siteTitle = document.getElementById('siteTitle').value.trim();
+            const adminMessage = document.getElementById('siteBannerText').value.trim();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin ml-2"></i> جاري الحفظ...';
+            const result = await saveSettings({ siteTitle, adminMessage });
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-save ml-2"></i> حفظ الإعدادات';
+            if (result.success) {
+                showMessage('✅ تم حفظ الإعدادات بنجاح — ستظهر في الصفحة الرئيسية');
+            } else {
+                showMessage('❌ خطأ في حفظ الإعدادات', true);
+            }
+        });
+
+        // ===== إرسال إشعار عام =====
+        document.getElementById('sendNotifBtn').addEventListener('click', async () => {
+            const title = document.getElementById('notifTitle').value.trim();
+            const message = document.getElementById('notifMessage').value.trim();
+            if (!title && !message) { showMessage('اكتب عنواناً أو نصاً للإشعار', true); return; }
+            const btn = document.getElementById('sendNotifBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin ml-2"></i> جاري الإرسال...';
+            try {
+                await addNotification({ title: title || 'إشعار من المشرف', message });
+                showMessage('✅ تم إرسال الإشعار لجميع الأعضاء');
+                document.getElementById('notifTitle').value = '';
+                document.getElementById('notifMessage').value = '';
+            } catch (e) {
+                showMessage('❌ خطأ: ' + e.message, true);
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-paper-plane ml-2"></i> إرسال الإشعار للجميع';
+        });
+
+        // ===== تسجيل الخروج =====
         document.getElementById('logoutBtn').addEventListener('click', () => {
             logout();
             window.location.href = 'login.html';
         });
 
-        // تحميل عند فتح الصفحة
         loadUsers();
     </script>
 </body>

@@ -1,12 +1,16 @@
 // ==========================================
-// إدارة تسجيل الدخول — مُصحح
+// إدارة تسجيل الدخول والمستخدمين — نسخة موسّعة (مع الإشعارات)
 // ==========================================
 import { auth, db, storage } from './firebase-config.js';
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
-import { 
+import {
   getCities, addCity, deleteCityDoc,
-  getPlaces, addPlace, deletePlace,
-  getAllUsers, getUserByPhone, addUserByAdmin, deleteUserByAdmin
+  getPlaces, getPlaceById, getPlacesByUser, addPlace, updatePlace, deletePlace,
+  getAllUsers, getUserByPhone, getUserByEmail, addUserByAdmin, updateUserByPhone, deleteUserByAdmin,
+  getSettings, saveSettings,
+  addNotification, onNotifications,
+  getUserPrefs, setUserPrefs, markNotificationRead,
+  onCities, onPlaces
 } from './db.js';
 
 const ADMIN_PHONE = "0500509134";
@@ -15,29 +19,53 @@ const ADMIN_EMAIL = "Alihossin28@gmail.com";
 
 let currentUser = null;
 
-// ===== تسجيل الدخول برقم الجوال — مُحسن =====
 export async function loginWithPhone(phone) {
   try {
     const normalizedPhone = phone.trim();
-    console.log('🔍 جاري البحث عن رقم:', normalizedPhone);
-    
     const user = await getUserByPhone(normalizedPhone);
-    console.log('📤 نتيجة البحث:', user);
-    
     if (!user) {
       return { success: false, message: 'رقم الجوال غير مسجل لدى المشرف. اطلب من المشرف إضافة رقمك أولاً.' };
     }
     if (!user.approved) {
       return { success: false, message: 'بانتظار موافقة المشرف' };
     }
-    
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    currentUser = user;
-    return { success: true, user };
+    const safeUser = sanitizeUser(user);
+    localStorage.setItem('currentUser', JSON.stringify(safeUser));
+    currentUser = safeUser;
+    return { success: true, user: safeUser };
   } catch (error) {
     console.error('❌ خطأ تسجيل الدخول:', error);
     return { success: false, message: 'خطأ في تسجيل الدخول: ' + error.message };
   }
+}
+
+export async function loginWithEmail(email) {
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return { success: false, message: 'البريد الإلكتروني غير مسجل لدى المشرف.' };
+    }
+    if (!user.approved) {
+      return { success: false, message: 'بانتظار موافقة المشرف' };
+    }
+    const safeUser = sanitizeUser(user);
+    localStorage.setItem('currentUser', JSON.stringify(safeUser));
+    currentUser = safeUser;
+    return { success: true, user: safeUser };
+  } catch (error) {
+    console.error('❌ خطأ تسجيل الدخول بالبريد:', error);
+    return { success: false, message: 'خطأ في تسجيل الدخول: ' + error.message };
+  }
+}
+
+function sanitizeUser(user) {
+  const safe = { ...user };
+  if (safe.createdAt && typeof safe.createdAt.toDate === 'function') {
+    safe.createdAt = safe.createdAt.toDate().toISOString();
+  } else if (safe.createdAt && safe.createdAt.seconds !== undefined) {
+    safe.createdAt = new Date(safe.createdAt.seconds * 1000).toISOString();
+  }
+  return safe;
 }
 
 export async function loginAsAdmin(password) {
@@ -93,8 +121,25 @@ export async function uploadImage(file) {
   }
 }
 
+export async function uploadAvatar(file, phone) {
+  try {
+    const fileName = `avatars/${phone}_${Date.now()}.jpg`;
+    const storageRef = ref(storage, fileName);
+    const snapshot = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    return { url };
+  } catch (error) {
+    console.error('❌ خطأ رفع الصورة الشخصية:', error);
+    throw error;
+  }
+}
+
 export {
   getCities, addCity, deleteCityDoc,
-  getPlaces, addPlace, deletePlace,
-  getAllUsers, addUserByAdmin, deleteUserByAdmin
+  getPlaces, getPlaceById, getPlacesByUser, addPlace, updatePlace, deletePlace,
+  getAllUsers, getUserByPhone, getUserByEmail, addUserByAdmin, updateUserByPhone, deleteUserByAdmin,
+  getSettings, saveSettings,
+  addNotification, onNotifications,
+  getUserPrefs, setUserPrefs, markNotificationRead,
+  onCities, onPlaces
 };
