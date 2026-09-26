@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي — كشتات عائلة حسين العويشي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        dark: '#0F172A',
+                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        body { 
+            background: #0F172A; 
+            font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; 
+            padding-bottom: 85px; 
+            margin: 0;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            transition: all 0.2s ease; 
+        }
+        .btn-primary:active { transform: scale(0.97); }
+        .nav-btn { transition: all 0.2s ease; cursor: pointer; }
+        .nav-btn:active { transform: scale(0.95); }
+        .sticky-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 1000; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(12px); 
+            border-top: 1px solid #1E293B; 
+        }
+        .avatar-ring { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            padding: 3px; 
+            border-radius: 9999px; 
+        }
+        button { 
+            cursor: pointer; 
+            border: none;
+            outline: none;
+            font-family: inherit;
+        }
+        button:active { opacity: 0.8; }
+    </style>
+</head>
+<body class="text-white">
+    <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
+        <div class="flex items-center justify-between">
+            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2">
+                <i class="fa fa-arrow-right fa-lg"></i>
+            </button>
+            <h1 class="text-lg font-bold">حسابي</h1>
+            <div class="w-8"></div>
+        </div>
+    </header>
+
+    <main class="px-4 py-6">
+        <section class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-6">
+            <div class="flex flex-col items-center text-center">
+                <div class="avatar-ring mb-4">
+                    <div class="w-24 h-24 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                        <img id="userAvatar" src="" alt="صورة المستخدم" class="w-full h-full object-cover hidden">
+                        <i id="defaultAvatar" class="fa fa-user text-4xl text-slate-400"></i>
+                    </div>
+                </div>
+                <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
+                <p id="userPhone" class="text-sm text-slate-400 mb-4">05XX XXX XXXX</p>
+                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4 bg-transparent">
+                    <i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية
+                </button>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+            </div>
+
+            <div class="space-y-3 mt-2">
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-envelope ml-2 text-secondary"></i> البريد الإلكتروني</span>
+                    <span id="userEmail" class="text-sm text-slate-400">—</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-calendar ml-2 text-secondary"></i> تاريخ الانضمام</span>
+                    <span id="joinDate" class="text-sm text-slate-400">—</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-map-pin ml-2 text-secondary"></i> عدد أماكني</span>
+                    <span id="placesCount" class="text-sm font-medium text-secondary">0 مكان</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-3 mb-6">
+            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-edit ml-3 text-secondary"></i> تعديل بياناتي
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
+            </button>
+            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-map ml-3 text-secondary"></i> أماكني المضافة
+                </span>
+                <span id="myPlacesBadge" class="bg-secondary/20 text-secondary text-xs px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-bell ml-3 text-secondary"></i> إعدادات الإشعارات
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
+            </button>
+            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-question-circle ml-3 text-secondary"></i> مساعدة
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
+            </button>
+        </section>
+
+        <section class="mb-8">
+            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition">
+                <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
+            </button>
+        </section>
+    </main>
+
+    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-center">تعديل بياناتي</h3>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">الاسم الكامل</label>
+                    <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">رقم الجوال</label>
+                    <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white outline-none" dir="ltr" readonly>
+                    <p class="text-xs text-slate-500 mt-1">لا يمكن تغيير رقم الجوال</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelEditBtn" class="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
+                <button id="saveEditBtn" class="flex-1 btn-primary py-3 rounded-lg font-medium">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sticky-nav px-2 py-2">
+        <div class="flex justify-around items-center max-w-lg mx-auto">
+            <button id="navHome" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
+                <i class="fa fa-home text-lg mb-1"></i>
+                الرئيسية
+            </button>
+            <button id="navCity" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
+                <i class="fa fa-building text-lg mb-1"></i>
+                مدينة
+            </button>
+            <button id="navAdd" class="nav-btn flex flex-col items-center text-xs py-1">
+                <div class="w-11 h-11 bg-slate-700 rounded-full flex items-center justify-center -mt-5 border border-slate-600">
+                    <i class="fa fa-plus text-lg text-slate-300"></i>
+                </div>
+            </button>
+            <button id="navAccount" class="nav-btn flex flex-col items-center text-xs text-secondary py-1">
+                <i class="fa fa-user text-lg mb-1"></i>
+                حسابي
+            </button>
+            <button id="navAdmin" class="nav-btn flex flex-col items-center text-xs text-slate-400 py-1">
+                <i class="fa fa-cog text-lg mb-1"></i>
+                المشرف
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ صفحة حسابي جاهزة - جميع الأزرار تعمل الآن');
+
+            // جلب جميع العناصر
+            const backBtn = document.getElementById('backBtn');
+            const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+            const avatarInput = document.getElementById('avatarInput');
+            const editInfoBtn = document.getElementById('editInfoBtn');
+            const editModal = document.getElementById('editModal');
+            const editName = document.getElementById('editName');
+            const editPhone = document.getElementById('editPhone');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const myPlacesBtn = document.getElementById('myPlacesBtn');
+            const notifSettingsBtn = document.getElementById('notifSettingsBtn');
+            const helpBtn = document.getElementById('helpBtn');
+            const navHome = document.getElementById('navHome');
+            const navCity = document.getElementById('navCity');
+            const navAdd = document.getElementById('navAdd');
+            const navAdmin = document.getElementById('navAdmin');
+
+            const userName = document.getElementById('userName');
+            const userPhone = document.getElementById('userPhone');
+            const userEmail = document.getElementById('userEmail');
+            const joinDate = document.getElementById('joinDate');
+            const placesCount = document.getElementById('placesCount');
+            const myPlacesBadge = document.getElementById('myPlacesBadge');
+            const userAvatar = document.getElementById('userAvatar');
+            const defaultAvatar = document.getElementById('defaultAvatar');
+
+            // بيانات المستخدم
+            let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+            // تحميل البيانات
+            function loadData() {
+                if (currentUser) {
+                    userName.textContent = currentUser.name || 'مستخدم';
+                    userPhone.textContent = currentUser.phone || 'غير متوفر';
+                    userEmail.textContent = currentUser.email || '—';
+                    joinDate.textContent = currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('ar-SA') : '—';
+                    
+                    const avatarKey = 'userAvatar_' + (currentUser.uid || currentUser.phone || 'default');
+                    const avatar = localStorage.getItem(avatarKey);
+                    if (avatar) {
+                        userAvatar.src = avatar;
+                        userAvatar.classList.remove('hidden');
+                        defaultAvatar.classList.add('hidden');
+                    }
+                }
+                placesCount.textContent = '0 مكان';
+                myPlacesBadge.textContent = '0';
+            }
+
+            // === أحداث الأزرار ===
+            
+            // زر الرجوع
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
+
+            // تغيير الصورة الشخصية
+            if (changeAvatarBtn && avatarInput) {
+                changeAvatarBtn.addEventListener('click', function() {
+                    avatarInput.click();
+                });
+            }
+
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const dataUrl = ev.target.result;
+                            const avatarKey = 'userAvatar_' + (currentUser.uid || currentUser.phone || 'default');
+                            localStorage.setItem(avatarKey, dataUrl);
+                            userAvatar.src = dataUrl;
+                            userAvatar.classList.remove('hidden');
+                            defaultAvatar.classList.add('hidden');
+                            alert('✅ تم حفظ الصورة الشخصية');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // تعديل بياناتي
+            if (editInfoBtn) {
+                editInfoBtn.addEventListener('click', function() {
+                    editName.value = currentUser.name || '';
+                    editPhone.value = currentUser.phone || '';
+                    editModal.classList.remove('hidden');
+                });
+            }
+
+            if (cancelEditBtn) {
+                cancelEditBtn.addEventListener('click', function() {
+                    editModal.classList.add('hidden');
+                });
+            }
+
+            if (saveEditBtn) {
+                saveEditBtn.addEventListener('click', function() {
+                    const newName = editName.value.trim();
+                    if (!newName) { 
+                        alert('الرجاء إدخال الاسم الكامل'); 
+                        return; 
+                    }
+                    currentUser.name = newName;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    userName.textContent = newName;
+                    editModal.classList.add('hidden');
+                    alert('✅ تم حفظ التغييرات بنجاح');
+                });
+            }
+
+            // إغلاق النافذة عند النقر خارجها
+            if (editModal) {
+                editModal.addEventListener('click', function(e) {
+                    if (e.target === editModal) {
+                        editModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // تسجيل الخروج
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('هل تريد تسجيل الخروج؟')) {
+                        localStorage.removeItem('currentUser');
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+
+            // أماكني المضافة
+            if (myPlacesBtn) {
+                myPlacesBtn.addEventListener('click', function() {
+                    alert('🚧 قيد التطوير - سيتم إطلاقها قريباً!');
+                });
+            }
+
+            // إعدادات الإشعارات
+            if (notifSettingsBtn) {
+                notifSettingsBtn.addEventListener('click', function() {
+                    alert('🚧 قيد التطوير');
+                });
+            }
+
+            // مساعدة
+            if (helpBtn) {
+                helpBtn.addEventListener('click', function() {
+                    alert('📧 للمساعدة: تواصل مع المشرف');
+                });
+            }
+
+            // === شريط التنقل السفلي ===
+            if (navHome) {
+                navHome.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
+            if (navCity) {
+                navCity.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
+            if (navAdd) {
+                navAdd.addEventListener('click', function() {
+                    window.location.href = 'add-place.html';
+                });
+            }
+            if (navAdmin) {
+                navAdmin.addEventListener('click', function() {
+                    const pwd = prompt('أدخل كلمة مرور المشرف:');
+                    if (pwd === 'admin123') {
+                        localStorage.setItem('currentUser', JSON.stringify({ 
+                            name: 'المشرف', 
+                            isAdmin: true,
+                            phone: '0500509134'
+                        }));
+                        window.location.href = 'admin-dashboard.html';
+                    } else if (pwd !== null) {
+                        alert('❌ كلمة المرور غير صحيحة');
+                    }
+                });
+            }
+
+            // تحميل البيانات عند فتح الصفحة
+            loadData();
+        });
+    </script>
+</body>
+</html>
