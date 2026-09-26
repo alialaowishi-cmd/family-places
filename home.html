@@ -30,6 +30,7 @@
             background: #0F172A;
             font-family: 'Tajawal', sans-serif;
             min-height: 100vh;
+            padding-bottom: 80px;
         }
         .btn-primary {
             background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
@@ -58,6 +59,13 @@
             align-items: center;
             justify-content: center;
         }
+        .nav-item {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .nav-item:hover {
+            color: white;
+        }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -66,14 +74,16 @@
     <!-- رأس الصفحة -->
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-4">
         <div class="max-w-2xl mx-auto flex items-center justify-between">
-            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center">
+            <button onclick="window.location.href='profile.html'" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">
                 <i class="fa fa-user"></i>
-            </div>
+            </button>
             <div class="text-center">
                 <h1 class="text-xl font-bold">كشتات عائلة حسين العويشي</h1>
-                <p class="text-sm text-slate-400">مرحباً، الضيف 👋</p>
+                <p class="text-sm text-slate-400">مرحباً، <span id="userName">الضيف</span> 👋</p>
             </div>
-            <div class="w-10"></div>
+            <button id="adminHeaderBtn" onclick="window.location.href='admin-dashboard.html'" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition hidden">
+                <i class="fa fa-cog"></i>
+            </button>
         </div>
     </header>
 
@@ -84,7 +94,7 @@
                 <h2 class="text-lg font-semibold">أحدث الأماكن المضافة</h2>
                 <button class="text-sm text-secondary hover:text-blue-400">عرض الكل</button>
             </div>
-            <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700 text-center text-slate-400">
+            <div id="recentPlaces" class="bg-slate-800/50 rounded-xl p-4 border border-slate-700 text-center text-slate-400">
                 جاري التحميل...
             </div>
         </section>
@@ -99,32 +109,6 @@
             </div>
         </section>
     </main>
-
-    <!-- شريط التنقل السفلي -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-dark/90 backdrop-blur-md border-t border-slate-700 z-50">
-        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-around">
-            <button class="flex flex-col items-center gap-1 text-secondary">
-                <i class="fa fa-home text-lg"></i>
-                <span class="text-xs">الرئيسية</span>
-            </button>
-            <button onclick="openAddCityModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white">
-                <i class="fa fa-building-o text-lg"></i>
-                <span class="text-xs">مدينة</span>
-            </button>
-            <button class="w-14 h-14 rounded-full btn-primary flex items-center justify-center -mt-6 shadow-lg" onclick="window.location.href='add-place.html'">
-                <i class="fa fa-plus text-xl"></i>
-            </button>
-            <button class="flex flex-col items-center gap-1 text-slate-400 hover:text-white relative" onclick="openNotifications()">
-                <i class="fa fa-bell text-lg"></i>
-                <span class="text-xs">الإشعارات</span>
-                <span class="notification-badge" id="notifBadge" style="display:none;">0</span>
-            </button>
-            <button class="flex flex-col items-center gap-1 text-slate-400 hover:text-white" onclick="window.location.href='profile.html'">
-                <i class="fa fa-user text-lg"></i>
-                <span class="text-xs">حسابي</span>
-            </button>
-        </div>
-    </nav>
 
     <!-- نافذة الإشعارات -->
     <div id="notificationsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm">
@@ -154,34 +138,79 @@
         </div>
     </div>
 
+    <!-- شريط التنقل السفلي -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-dark/90 backdrop-blur-md border-t border-slate-700 z-50">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-around">
+            <!-- زر الرئيسية -->
+            <button class="nav-item flex flex-col items-center gap-1 text-secondary">
+                <i class="fa fa-home text-lg"></i>
+                <span class="text-xs">الرئيسية</span>
+            </button>
+            
+            <!-- زر مدينة -->
+            <button onclick="openAddCityModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa fa-building-o text-lg"></i>
+                <span class="text-xs">مدينة</span>
+            </button>
+            
+            <!-- زر إضافة مكان -->
+            <button onclick="window.location.href='add-place.html'" class="w-14 h-14 rounded-full btn-primary flex items-center justify-center -mt-6 shadow-lg">
+                <i class="fa fa-plus text-xl"></i>
+            </button>
+            
+            <!-- زر الإشعارات -->
+            <button onclick="openNotifications()" class="nav-item flex flex-col items-center gap-1 text-slate-400 relative">
+                <i class="fa fa-bell text-lg"></i>
+                <span class="text-xs">الإشعارات</span>
+                <span class="notification-badge" id="notifBadge" style="display:none;">0</span>
+            </button>
+            
+            <!-- زر حسابي -->
+            <button onclick="window.location.href='profile.html'" class="nav-item flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa fa-user text-lg"></i>
+                <span class="text-xs">حسابي</span>
+            </button>
+        </div>
+    </nav>
+
     <script type="module">
         import { getAllPlaces, addPlace, getCurrentUser, isAdmin, logout } from './auth.js';
 
-        if (!getCurrentUser()) {
+        // التحقق من تسجيل الدخول
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
             window.location.href = 'login.html';
         }
 
-        const user = getCurrentUser();
-        document.querySelector('p:has(+h1)').textContent = `مرحباً، ${user?.name || 'مستخدم'} 👋`;
+        // عرض اسم المستخدم
+        document.getElementById('userName').textContent = currentUser?.name || 'مستخدم';
+
+        // إظهار زر المشرف إذا كان مشرفاً
+        if (isAdmin()) {
+            document.getElementById('adminHeaderBtn').classList.remove('hidden');
+        }
 
         let allPlaces = [];
 
-        async function loadData() {
+        // تحميل البيانات
+        async function loadAllData() {
             try {
                 allPlaces = await getAllPlaces();
                 renderCities();
                 renderRecentPlaces();
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
-                document.getElementById('citiesContainer').innerHTML = '<p class="col-span-2 text-center text-red-400">خطأ في تحميل البيانات</p>';
+                document.getElementById('citiesContainer').innerHTML = '<p class="col-span-2 text-center text-red-400">خطأ في تحميل البيانات<br>يرجى تحديث الصفحة</p>';
             }
         }
 
+        // عرض المدن
         function renderCities() {
             const cities = [...new Set(allPlaces.map(p => p.city).filter(c => c))];
+            const container = document.getElementById('citiesContainer');
             
             if (cities.length === 0) {
-                document.getElementById('citiesContainer').innerHTML = `
+                container.innerHTML = `
                     <div class="col-span-2 text-center py-12 text-slate-400">
                         <i class="fa fa-map-o text-4xl mb-3 opacity-50"></i>
                         <p>لم تُضاف مدن بعد</p>
@@ -191,7 +220,7 @@
                 return;
             }
 
-            document.getElementById('citiesContainer').innerHTML = cities.map(city => {
+            container.innerHTML = cities.map(city => {
                 const count = allPlaces.filter(p => p.city === city && !p.isCityOnly).length;
                 return `
                     <div class="city-card rounded-xl p-4 cursor-pointer" onclick="openCityPage('${city}')">
@@ -205,12 +234,13 @@
             }).join('');
         }
 
+        // عرض أحدث الأماكن
         function renderRecentPlaces() {
-            const container = document.querySelector('section:first-of-type div:last-child');
+            const container = document.getElementById('recentPlaces');
             const recent = allPlaces.filter(p => !p.isCityOnly).slice(0, 5);
             
             if (recent.length === 0) {
-                container.innerHTML = '<p class="text-slate-400">لم تُضاف أماكن بعد 😊</p>';
+                container.innerHTML = '<p class="text-slate-400">لم تُضاف أماكن بعد 😊<br>اضغط على الزر الأوسط (+) لإضافة أول مكان</p>';
                 return;
             }
 
@@ -227,16 +257,21 @@
                             </div>
                             <h4 class="font-medium truncate">${place.name}</h4>
                             <p class="text-xs text-slate-400">${place.city}</p>
+                            <div class="flex items-center mt-1 text-amber-400 text-xs">
+                                ${'⭐'.repeat(place.rating || 0) + '☆'.repeat(5 - (place.rating || 0))}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
             `;
         }
 
+        // فتح صفحة المدينة
         window.openCityPage = function(cityName) {
             window.location.href = `city.html?city=${encodeURIComponent(cityName)}`;
         };
 
+        // دوال الإشعارات
         window.openNotifications = function() {
             document.getElementById('notificationsModal').classList.remove('hidden');
             document.getElementById('notifBadge').style.display = 'none';
@@ -246,6 +281,7 @@
             document.getElementById('notificationsModal').classList.add('hidden');
         };
 
+        // دوال إضافة مدينة
         window.openAddCityModal = function() {
             document.getElementById('addCityModal').classList.remove('hidden');
             document.getElementById('newCityName').value = '';
@@ -262,19 +298,24 @@
             const exists = allPlaces.some(p => p.city === name);
             if (exists) return alert('المدينة موجودة مسبقاً ✅');
             
-            await addPlace({
-                name: '',
-                city: name,
-                category: '',
-                isCityOnly: true
-            });
-            
-            document.getElementById('addCityModal').classList.add('hidden');
-            alert(`✅ تمت إضافة مدينة "${name}"`);
-            loadData();
+            try {
+                await addPlace({
+                    name: '',
+                    city: name,
+                    category: '',
+                    isCityOnly: true
+                });
+                document.getElementById('addCityModal').classList.add('hidden');
+                alert(`✅ تمت إضافة مدينة "${name}"`);
+                loadAllData();
+            } catch (err) {
+                console.error(err);
+                alert('❌ حدث خطأ، حاول مرة أخرى');
+            }
         };
 
-        loadData();
+        // بدء تحميل البيانات
+        loadAllData();
     </script>
 </body>
 </html>
