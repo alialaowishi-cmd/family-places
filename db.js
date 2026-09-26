@@ -1,184 +1,141 @@
-import { db, storage } from './firebase-config.js';
-import {
-  collection, addDoc, getDocs, getDoc, doc,
-  updateDoc, deleteDoc, query, where, orderBy,
-  serverTimestamp, setDoc
-} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+import { db } from './firebase-config.js';
+import { 
+  collection, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  orderBy, 
+  serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-// ===== المدن =====
+// === دوال المدن ===
 export async function getCities() {
   try {
-    const snapshot = await getDocs(collection(db, 'cities'));
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error('❌ خطأ في جلب المدن:', e);
-    throw e;
+    const snapshot = await getDocs(collection(db, "cities"));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("خطأ في جلب المدن:", error);
+    return [];
   }
 }
 
-export async function addCity(cityName, userId, userName) {
+export async function addCity(cityData) {
   try {
-    return await addDoc(collection(db, 'cities'), {
-      name: cityName,
-      createdBy: userId,
-      createdByName: userName,
+    const docRef = await addDoc(collection(db, "cities"), {
+      ...cityData,
       createdAt: serverTimestamp()
     });
-  } catch (e) {
-    console.error('❌ خطأ في إضافة مدينة:', e);
-    throw e;
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("خطأ في إضافة مدينة:", error);
+    return { success: false, error: error.message };
   }
 }
 
-// ===== الأماكن =====
-export async function addPlace(placeData) {
-  try {
-    return await addDoc(collection(db, 'places'), {
-      ...placeData,
-      createdAt: serverTimestamp()
-    });
-  } catch (e) {
-    console.error('❌ خطأ في إضافة مكان:', e);
-    throw e;
-  }
-}
-
+// === دوال الأماكن ===
 export async function getPlaces(cityName = null) {
   try {
     let q;
     if (cityName) {
       q = query(
-        collection(db, 'places'),
-        where('city', '==', cityName),
-        orderBy('createdAt', 'desc')
+        collection(db, "places"), 
+        where("city", "==", cityName),
+        orderBy("createdAt", "desc")
       );
     } else {
-      q = query(collection(db, 'places'), orderBy('createdAt', 'desc'));
+      q = query(collection(db, "places"), orderBy("createdAt", "desc"));
     }
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error('❌ خطأ في جلب الأماكن:', e);
-    throw e;
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("خطأ في جلب الأماكن:", error);
+    return [];
   }
 }
 
 export async function getPlaceById(placeId) {
   try {
-    const d = await getDoc(doc(db, 'places', placeId));
-    if (!d.exists()) return null;
-    return { id: d.id, ...d.data() };
-  } catch (e) {
-    console.error('❌ خطأ في جلب المكان:', e);
-    throw e;
+    const docSnap = await getDoc(doc(db, "places", placeId));
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
+  } catch (error) {
+    console.error("خطأ في جلب المكان:", error);
+    return null;
   }
 }
 
-export async function updatePlace(placeId, data) {
+export async function addPlace(placeData) {
   try {
-    return await updateDoc(doc(db, 'places', placeId), data);
-  } catch (e) {
-    console.error('❌ خطأ في تحديث المكان:', e);
-    throw e;
+    const docRef = await addDoc(collection(db, "places"), {
+      ...placeData,
+      createdAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("خطأ في إضافة مكان:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updatePlace(placeId, placeData) {
+  try {
+    await updateDoc(doc(db, "places", placeId), placeData);
+    return { success: true };
+  } catch (error) {
+    console.error("خطأ في تحديث المكان:", error);
+    return { success: false, error: error.message };
   }
 }
 
 export async function deletePlace(placeId) {
   try {
-    return await deleteDoc(doc(db, 'places', placeId));
-  } catch (e) {
-    console.error('❌ خطأ في حذف المكان:', e);
-    throw e;
+    await deleteDoc(doc(db, "places", placeId));
+    return { success: true };
+  } catch (error) {
+    console.error("خطأ في حذف المكان:", error);
+    return { success: false, error: error.message };
   }
 }
 
-// ===== المستخدمون =====
+// === دوال المستخدمين ===
+export async function getUserByPhone(phone) {
+  try {
+    const q = query(collection(db, "users"), where("phone", "==", phone));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      return { id: doc.id, ...doc.data() };
+    }
+    return null;
+  } catch (error) {
+    console.error("خطأ في جلب المستخدم:", error);
+    return null;
+  }
+}
+
 export async function addUser(userData) {
   try {
-    return await setDoc(doc(db, 'users', userData.uid), {
-      ...userData,
-      createdAt: serverTimestamp()
-    });
-  } catch (e) {
-    console.error('❌ خطأ في إضافة مستخدم:', e);
-    throw e;
-  }
-}
-
-export async function getUser(uid) {
-  try {
-    const d = await getDoc(doc(db, 'users', uid));
-    if (!d.exists()) return null;
-    return { id: d.id, ...d.data() };
-  } catch (e) {
-    console.error('❌ خطأ في جلب المستخدم:', e);
-    throw e;
+    const docRef = await addDoc(collection(db, "users"), userData);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("خطأ في إضافة مستخدم:", error);
+    return { success: false, error: error.message };
   }
 }
 
 export async function getAllUsers() {
   try {
-    const snapshot = await getDocs(collection(db, 'users'));
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error('❌ خطأ في جلب المستخدمين:', e);
-    throw e;
-  }
-}
-
-export async function deleteUser(uid) {
-  try {
-    return await deleteDoc(doc(db, 'users', uid));
-  } catch (e) {
-    console.error('❌ خطأ في حذف المستخدم:', e);
-    throw e;
-  }
-}
-
-// ===== رفع الصور =====
-export async function uploadImage(file, path) {
-  try {
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-  } catch (e) {
-    console.error('❌ خطأ في رفع الصورة:', e);
-    throw e;
-  }
-}
-
-// ===== طلبات التسجيل =====
-export async function addRegistrationRequest(phone, name) {
-  try {
-    return await addDoc(collection(db, 'registrationRequests'), {
-      phone: phone,
-      name: name,
-      status: 'pending',
-      createdAt: serverTimestamp()
-    });
-  } catch (e) {
-    console.error('❌ خطأ في إضافة طلب:', e);
-    throw e;
-  }
-}
-
-export async function getRegistrationRequests() {
-  try {
-    const q = query(collection(db, 'registrationRequests'), where('status', '==', 'pending'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error('❌ خطأ في جلب الطلبات:', e);
-    throw e;
-  }
-}
-
-export async function approveRequest(requestId) {
-  try {
-    return await updateDoc(doc(db, 'registrationRequests', requestId), { status: 'approved' });
-  } catch (e) {
-    console.error('❌ خطأ في الموافقة:', e);
-    throw e;
+    const snapshot = await getDocs(collection(db, "users"));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("خطأ في جلب المستخدمين:", error);
+    return [];
   }
 }
