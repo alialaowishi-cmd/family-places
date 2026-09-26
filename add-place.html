@@ -7,63 +7,145 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1E40AF',
-                        secondary: '#3B82F6',
-                        dark: '#0F172A',
-                    },
-                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
-                }
-            }
-        }
+        tailwind.config = { theme: { extend: { colors: { primary: '#1E40AF', secondary: '#3B82F6', dark: '#0F172A' }, fontFamily: { sans: ['Tajawal', 'sans-serif'] } } } }
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 85px; }
-        .btn-primary { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); transition: all 0.2s ease; }
-        .btn-primary:active { transform: scale(0.97); }
-        .input-field { background: #1E293B; border: 1px solid #334155; transition: border 0.2s ease; }
+        .btn-primary { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); }
+        .input-field { background: #1E293B; border: 1px solid #334155; }
         .input-field:focus { border-color: #3B82F6; outline: none; }
-        .star { cursor: pointer; color: #475569; transition: color 0.15s ease; }
-        .star.active, .star:hover { color: #FBBF24; }
-        .preview-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .star { cursor: pointer; color: #475569; }
+        .star.active { color: #FBBF24; }
         button { cursor: pointer; font-family: inherit; }
     </style>
+    <script type="module">
+        import { getCities, addCity, addPlace, uploadImage } from './db.js';
+        import { getCurrentUser, requireAuth } from './auth.js';
+
+        const currentUser = requireAuth();
+        if (!currentUser) throw new Error('يجب تسجيل الدخول');
+
+        let selectedRating = 0;
+        let uploadedImageUrls = [];
+        let allCities = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCities();
+            
+            const params = new URLSearchParams(window.location.search);
+            const preCity = params.get('city');
+            if (preCity) document.getElementById('citySelect').value = preCity;
+
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.value);
+                    updateStars();
+                });
+            });
+
+            document.getElementById('add-place-form').addEventListener('submit', handleSubmit);
+            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+            document.getElementById('backBtn').onclick = () => history.back();
+            document.getElementById('cancelBtn').onclick = () => history.back();
+        });
+
+        async function loadCities() {
+            allCities = await getCities();
+            const select = document.getElementById('citySelect');
+            select.innerHTML = '<option value="">-- اختر المدينة --</option>';
+            allCities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateStars() {
+            document.querySelectorAll('.star').forEach((s, i) => {
+                s.classList.toggle('active', i < selectedRating);
+            });
+        }
+
+        async function handleImageUpload(e) {
+            const files = Array.from(e.target.files);
+            for (const file of files) {
+                const path = `places/${Date.now()}_${file.name}`;
+                const url = await uploadImage(file, path);
+                uploadedImageUrls.push(url);
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML += `<img src="${url}" class="w-20 h-20 object-cover rounded-lg">`;
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('placeName').value.trim();
+            let city = document.getElementById('citySelect').value.trim();
+            const newCity = document.getElementById('newCityInput').value.trim();
+            const category = document.getElementById('placeCategory').value;
+            const phone = document.getElementById('placePhone').value.trim();
+            const mapUrl = document.getElementById('placeMapUrl').value.trim();
+            const price = document.getElementById('placePrice').value.trim();
+            const notes = document.getElementById('placeNotes').value.trim();
+
+            if (!name) return alert('أدخل اسم المكان');
+            if (!city && !newCity) return alert('اختر المدينة أو اكتب جديدة');
+
+            if (newCity) {
+                city = newCity;
+                const exists = allCities.some(c => c.name === city);
+                if (!exists) await addCity(city, currentUser.uid, currentUser.name);
+            }
+
+            const placeData = {
+                name, city, category, phone, mapUrl, price, notes,
+                rating: selectedRating,
+                images: uploadedImageUrls,
+                ownerId: currentUser.uid,
+                ownerName: currentUser.name || 'مستخدم',
+                ownerPhone: currentUser.phone,
+                ownerAvatar: localStorage.getItem('userAvatar_' + (currentUser.uid || currentUser.phone)) || ''
+            };
+
+            document.getElementById('saveText').classList.add('hidden');
+            document.getElementById('loadingIcon').classList.remove('hidden');
+
+            await addPlace(placeData);
+            
+            alert('✅ تم حفظ المكان بنجاح!');
+            window.location.href = 'city.html?name=' + encodeURIComponent(city);
+        }
+    </script>
 </head>
 <body class="text-white">
     <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
         <div class="flex items-center justify-between">
-            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2">
-                <i class="fa fa-arrow-right fa-lg"></i>
-            </button>
+            <button id="backBtn" class="text-slate-400 p-2"><i class="fa fa-arrow-right fa-lg"></i></button>
             <h1 class="text-lg font-bold">إضافة مكان جديد</h1>
             <div class="w-8"></div>
         </div>
     </header>
 
     <main class="px-4 py-6">
-        <form id="placeForm" class="space-y-4">
+        <form id="add-place-form" class="space-y-4">
             <div>
                 <label class="block text-sm text-slate-400 mb-1">اسم المكان *</label>
-                <input type="text" id="placeName" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="أدخل اسم المكان" required>
+                <input type="text" id="placeName" class="w-full px-4 py-3 rounded-lg input-field text-white" required>
             </div>
-
             <div>
                 <label class="block text-sm text-slate-400 mb-1">المدينة *</label>
                 <div class="flex gap-2">
                     <select id="citySelect" class="flex-1 px-4 py-3 rounded-lg input-field text-white">
                         <option value="">-- اختر المدينة --</option>
                     </select>
-                    <button type="button" id="addNewCityBtn" class="px-4 py-3 rounded-lg bg-secondary/20 text-secondary hover:bg-secondary/30 transition">
+                    <button type="button" onclick="document.getElementById('newCityInput').classList.toggle('hidden')" class="px-4 py-3 bg-secondary/20 text-secondary rounded-lg">
                         <i class="fa fa-plus"></i>
                     </button>
                 </div>
-                <input type="text" id="newCityInput" class="w-full px-4 py-3 rounded-lg input-field text-white mt-2 hidden" placeholder="أو اكتب اسم مدينة جديدة">
+                <input type="text" id="newCityInput" class="w-full px-4 py-3 rounded-lg input-field text-white mt-2 hidden" placeholder="أو اكتب مدينة جديدة">
             </div>
-
             <div>
                 <label class="block text-sm text-slate-400 mb-1">التصنيف</label>
                 <select id="placeCategory" class="w-full px-4 py-3 rounded-lg input-field text-white">
@@ -74,22 +156,18 @@
                     <option value="أخرى">أخرى</option>
                 </select>
             </div>
-
             <div>
                 <label class="block text-sm text-slate-400 mb-1">رقم الجوال</label>
                 <input type="tel" id="placePhone" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="05XXXXXXXX">
             </div>
-
             <div>
-                <label class="block text-sm text-slate-400 mb-1">رابط الموقع في قوقل ماب</label>
+                <label class="block text-sm text-slate-400 mb-1">رابط قوقل ماب</label>
                 <input type="url" id="placeMapUrl" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="https://goo.gl/maps/...">
             </div>
-
             <div>
                 <label class="block text-sm text-slate-400 mb-1">السعر</label>
-                <input type="text" id="placePrice" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="مثال: متوسط / مرتفع / 50 ريال">
+                <input type="text" id="placePrice" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="متوسط">
             </div>
-
             <div>
                 <label class="block text-sm text-slate-400 mb-2">التقييم</label>
                 <div id="starRating" class="flex gap-1">
@@ -99,218 +177,24 @@
                     <span class="star text-2xl" data-value="4">★</span>
                     <span class="star text-2xl" data-value="5">★</span>
                 </div>
-                <input type="hidden" id="placeRating" value="0">
             </div>
-
             <div>
-                <label class="block text-sm text-slate-400 mb-1">وصف أو ملاحظات</label>
-                <textarea id="placeNotes" rows="3" class="w-full px-4 py-3 rounded-lg input-field text-white" placeholder="أدخل وصفاً أو ملاحظات إضافية"></textarea>
+                <label class="block text-sm text-slate-400 mb-2">الصور</label>
+                <input type="file" id="imageUpload" accept="image/*" multiple class="w-full text-sm">
+                <div id="imagePreview" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
-
             <div>
-                <label class="block text-sm text-slate-400 mb-2">صور المكان</label>
-                <div class="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-secondary/50 transition cursor-pointer" id="uploadArea">
-                    <i class="fa fa-cloud-upload text-3xl text-slate-500 mb-2"></i>
-                    <p class="text-sm text-slate-400">اضغط لاختيار الصور أو اسحبها هنا</p>
-                    <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
-                </div>
-                <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-3"></div>
+                <label class="block text-sm text-slate-400 mb-1">ملاحظات</label>
+                <textarea id="placeNotes" rows="3" class="w-full px-4 py-3 rounded-lg input-field text-white"></textarea>
             </div>
-
             <div class="flex gap-3 pt-4">
-                <button type="button" id="cancelBtn" class="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
-                <button type="submit" id="saveBtn" class="flex-1 btn-primary py-3 rounded-lg font-medium">
+                <button type="button" id="cancelBtn" class="flex-1 py-3 rounded-lg bg-slate-700">إلغاء</button>
+                <button type="submit" class="flex-1 btn-primary py-3 rounded-lg font-medium">
                     <span id="saveText">حفظ المكان</span>
                     <i id="loadingIcon" class="fa fa-spinner fa-spin ml-2 hidden"></i>
                 </button>
             </div>
         </form>
     </main>
-
-    <nav class="fixed bottom-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-t border-slate-700 px-2 py-2">
-        <div class="flex justify-around items-center max-w-lg mx-auto">
-            <button onclick="window.location.href='home.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-home text-lg mb-1"></i>الرئيسية
-            </button>
-            <button onclick="window.location.href='home.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-building text-lg mb-1"></i>مدينة
-            </button>
-            <button class="flex flex-col items-center text-xs py-1 text-secondary">
-                <div class="w-11 h-11 bg-secondary/20 rounded-full flex items-center justify-center -mt-5 border border-secondary/50">
-                    <i class="fa fa-plus text-lg text-secondary"></i>
-                </div>
-            </button>
-            <button onclick="window.location.href='profile.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-user text-lg mb-1"></i>حسابي
-            </button>
-            <button onclick="window.location.href='profile.html'" class="flex flex-col items-center text-xs text-slate-400 py-1">
-                <i class="fa fa-cog text-lg mb-1"></i>المشرف
-            </button>
-        </div>
-    </nav>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser || !currentUser.phone) {
-                alert('يرجى تسجيل الدخول أولاً');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            const placeForm = document.getElementById('placeForm');
-            const backBtn = document.getElementById('backBtn');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const citySelect = document.getElementById('citySelect');
-            const addNewCityBtn = document.getElementById('addNewCityBtn');
-            const newCityInput = document.getElementById('newCityInput');
-            const stars = document.querySelectorAll('.star');
-            const placeRating = document.getElementById('placeRating');
-            const uploadArea = document.getElementById('uploadArea');
-            const imageUpload = document.getElementById('imageUpload');
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-            const saveText = document.getElementById('saveText');
-            const loadingIcon = document.getElementById('loadingIcon');
-
-            let selectedRating = 0;
-            let uploadedImages = [];
-            let cities = JSON.parse(localStorage.getItem('cities') || '["الطائف"]');
-
-            // تحميل المدن
-            function loadCities() {
-                citySelect.innerHTML = '<option value="">-- اختر المدينة --</option>';
-                cities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city;
-                    option.textContent = city;
-                    citySelect.appendChild(option);
-                });
-            }
-            loadCities();
-
-            // تعبئة المدينة من الرابط
-            const params = new URLSearchParams(window.location.search);
-            const preCity = params.get('city');
-            if (preCity) {
-                citySelect.value = preCity;
-            }
-
-            // إضافة مدينة جديدة
-            addNewCityBtn.addEventListener('click', function() {
-                newCityInput.classList.toggle('hidden');
-                if (!newCityInput.classList.contains('hidden')) {
-                    newCityInput.focus();
-                }
-            });
-
-            // التقييم بالنجوم
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    selectedRating = parseInt(this.dataset.value);
-                    placeRating.value = selectedRating;
-                    updateStars();
-                });
-                star.addEventListener('mouseover', function() {
-                    const value = parseInt(this.dataset.value);
-                    stars.forEach((s, i) => {
-                        s.classList.toggle('active', i < value);
-                    });
-                });
-            });
-            document.getElementById('starRating').addEventListener('mouseleave', updateStars);
-            function updateStars() {
-                stars.forEach((s, i) => {
-                    s.classList.toggle('active', i < selectedRating);
-                });
-            }
-
-            // رفع الصور
-            uploadArea.addEventListener('click', () => imageUpload.click());
-            imageUpload.addEventListener('change', function(e) {
-                const files = Array.from(e.target.files);
-                files.forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        uploadedImages.push(ev.target.result);
-                        const div = document.createElement('div');
-                        div.className = 'relative';
-                        div.innerHTML = `
-                            <img src="${ev.target.result}" class="preview-img">
-                            <button type="button" class="absolute top-0 left-0 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs remove-img">×</button>
-                        `;
-                        div.querySelector('.remove-img').addEventListener('click', function() {
-                            const idx = uploadedImages.indexOf(ev.target.result);
-                            if (idx > -1) uploadedImages.splice(idx, 1);
-                            div.remove();
-                        });
-                        imagePreviewContainer.appendChild(div);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
-
-            // زر الرجوع والإلغاء
-            backBtn.addEventListener('click', () => history.back());
-            cancelBtn.addEventListener('click', () => history.back());
-
-            // حفظ المكان
-            placeForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('placeName').value.trim();
-                let city = citySelect.value.trim();
-                const newCity = newCityInput.value.trim();
-                const category = document.getElementById('placeCategory').value;
-                const phone = document.getElementById('placePhone').value.trim();
-                const mapUrl = document.getElementById('placeMapUrl').value.trim();
-                const price = document.getElementById('placePrice').value.trim();
-                const notes = document.getElementById('placeNotes').value.trim();
-
-                if (!name) { alert('أدخل اسم المكان'); return; }
-                if (!city && !newCity) { alert('اختر المدينة أو اكتب مدينة جديدة'); return; }
-
-                if (newCity) {
-                    city = newCity;
-                    if (!cities.includes(city)) {
-                        cities.push(city);
-                        localStorage.setItem('cities', JSON.stringify(cities));
-                    }
-                }
-
-                saveText.classList.add('hidden');
-                loadingIcon.classList.remove('hidden');
-
-                const places = JSON.parse(localStorage.getItem('places') || '[]');
-                const newPlace = {
-                    id: Date.now().toString(),
-                    name: name,
-                    city: city,
-                    category: category,
-                    phone: phone,
-                    mapUrl: mapUrl,
-                    price: price,
-                    rating: selectedRating,
-                    notes: notes,
-                    images: uploadedImages,
-                    // بيانات صاحب المكان جديدة ✅
-                    ownerId: currentUser.uid || currentUser.phone,
-                    ownerName: currentUser.name || 'مستخدم',
-                    ownerPhone: currentUser.phone,
-                    ownerAvatar: localStorage.getItem('userAvatar_' + (currentUser.uid || currentUser.phone)) || '',
-                    createdAt: new Date().toISOString()
-                };
-
-                places.unshift(newPlace);
-                localStorage.setItem('places', JSON.stringify(places));
-
-                setTimeout(() => {
-                    saveText.classList.remove('hidden');
-                    loadingIcon.classList.add('hidden');
-                    alert('✅ تم حفظ المكان بنجاح!');
-                    window.location.href = 'city.html?name=' + encodeURIComponent(city);
-                }, 600);
-            });
-        });
-    </script>
 </body>
 </html>
