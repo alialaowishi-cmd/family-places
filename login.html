@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول — كشتات عائلة حسين العويشي</title>
+    <title>تسجيل الدخول</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
@@ -12,15 +12,9 @@
                 extend: {
                     colors: {
                         primary: '#007AFF',
-                        primaryLight: 'rgba(0, 122, 255, 0.1)',
-                        secondary: '#5E5CE6',
-                        secondaryLight: 'rgba(94, 92, 230, 0.1)',
-                        glassBg: 'rgba(255, 255, 255, 0.72)',
+                        primaryLight: 'rgba(0, 122, 255, 0.08)',
                     },
-                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
-                    backdropBlur: {
-                        xs: '2px',
-                    }
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
                 }
             }
         }
@@ -28,22 +22,22 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body {
-            background: linear-gradient(180deg, rgba(0, 122, 255, 0.06) 0%, rgba(94, 92, 230, 0.04) 100%);
+            background: linear-gradient(135deg, #007AFF 0%, #5E5CE6 100%);
             min-height: 100vh;
+            font-family: 'Tajawal', sans-serif;
         }
         .glass-ios {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: saturate(180%) blur(25px);
+            -webkit-backdrop-filter: saturate(180%) blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .input-ios {
-            background: rgba(118, 118, 128, 0.12);
+            background: rgba(118, 118, 128, 0.08);
             border: none;
-            transition: all 0.2s ease;
         }
         .input-ios:focus {
-            background: rgba(118, 118, 128, 0.08);
+            background: rgba(118, 118, 128, 0.04);
             box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
             outline: none;
         }
@@ -52,142 +46,202 @@
             transition: all 0.2s ease;
         }
         .btn-primary-ios:hover {
-            transform: translateY(-0.5px);
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.25);
         }
-        .btn-secondary-ios {
-            background: linear-gradient(135deg, #5E5CE6 0%, #4A48D4 100%);
-            transition: all 0.2s ease;
-        }
-        .btn-secondary-ios:hover {
-            transform: translateY(-0.5px);
-            box-shadow: 0 4px 12px rgba(94, 92, 230, 0.25);
+        .tab-active {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+            font-weight: 600;
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4 font-sans">
-    <div class="w-full max-w-md">
-        <!-- الشعار والعنوان -->
-        <div class="text-center mb-10">
-            <div class="w-24 h-24 bg-primaryLight rounded-full flex items-center justify-center mx-auto mb-5">
-                <i class="fa fa-map text-primary text-4xl"></i>
+<body>
+    <div class="min-h-screen flex items-center justify-center px-4 py-8">
+        <div class="glass-ios rounded-3xl p-6 w-full max-w-md shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-map-marker text-white text-2xl"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800">كشتات عائلة حسين العويشي</h1>
+                <p class="text-sm text-gray-400 mt-1">الرجاء تسجيل الدخول للمتابعة</p>
             </div>
-            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">كشتات عائلة حسين العويشي</h1>
-            <p class="text-gray-500 mt-2 text-sm">منصة عائلية لمشاركة الأماكن المفضلة</p>
-        </div>
 
-        <!-- بطاقة الدخول -->
-        <div class="glass-ios rounded-3xl shadow-xl p-7">
-            <!-- دخول برقم الجوال -->
-            <div>
-                <h2 class="text-base font-semibold text-gray-700 mb-4 text-center">دخول أفراد العائلة</h2>
+            <!-- التبويبات -->
+            <div class="flex bg-gray-100/60 rounded-xl p-1 mb-6">
+                <button class="login-tab tab-active flex-1 py-2 rounded-lg text-sm" data-tab="phone">رقم الجوال</button>
+                <button class="login-tab flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="email">البريد</button>
+                <button class="login-tab flex-1 py-2 rounded-lg text-sm text-gray-500" data-tab="admin">المشرف</button>
+            </div>
+
+            <!-- رسالة الخطأ/النجاح -->
+            <div id="messageBox" class="hidden mb-4 p-3 rounded-xl text-sm text-center"></div>
+
+            <!-- تسجيل الدخول برقم الجوال -->
+            <div id="phoneTab" class="tab-content">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-2">رقم الجوال</label>
-                        <input 
-                            type="tel" 
-                            id="phoneInput" 
-                            placeholder="05XXXXXXXX" 
-                            maxlength="10"
-                            class="w-full px-4 py-3.5 rounded-xl input-ios text-gray-800"
-                        >
+                        <input type="tel" id="phoneInput" placeholder="05XXXXXXXX"
+                            class="w-full px-4 py-3.5 rounded-xl input-ios text-center" maxlength="10">
                     </div>
-                    <button 
-                        id="phoneLoginBtn"
-                        class="w-full btn-primary-ios text-white font-medium py-3.5 rounded-xl"
-                    >
-                        <span>تسجيل الدخول</span>
+                    <button id="phoneLoginBtn" class="w-full btn-primary-ios text-white py-3.5 rounded-xl font-medium">
+                        تسجيل الدخول
                     </button>
                 </div>
             </div>
 
-            <div class="relative my-7">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-200/60"></div>
-                </div>
-                <div class="relative flex justify-center">
-                    <span class="px-4 bg-transparent text-gray-400 text-sm">أو</span>
+            <!-- تسجيل الدخول بالبريد -->
+            <div id="emailTab" class="tab-content hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">البريد الإلكتروني</label>
+                        <input type="email" id="emailInput" placeholder="example@email.com"
+                            class="w-full px-4 py-3.5 rounded-xl input-ios">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">كلمة المرور</label>
+                        <input type="password" id="passwordInput" placeholder="••••••••"
+                            class="w-full px-4 py-3.5 rounded-xl input-ios">
+                    </div>
+                    <button id="emailLoginBtn" class="w-full btn-primary-ios text-white py-3.5 rounded-xl font-medium">
+                        تسجيل الدخول
+                    </button>
                 </div>
             </div>
 
             <!-- دخول المشرف -->
-            <div>
-                <h2 class="text-base font-semibold text-gray-700 mb-4 text-center">لوحة المشرف</h2>
+            <div id="adminTab" class="tab-content hidden">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-2">كلمة المرور</label>
-                        <input 
-                            type="password" 
-                            id="adminPasswordInput" 
-                            placeholder="••••••••"
-                            class="w-full px-4 py-3.5 rounded-xl input-ios text-gray-800"
-                        >
+                        <label class="block text-sm font-medium text-gray-500 mb-2">كلمة مرور المشرف</label>
+                        <input type="password" id="adminPasswordInput" placeholder="أدخل كلمة المرور"
+                            class="w-full px-4 py-3.5 rounded-xl input-ios text-center">
                     </div>
-                    <button 
-                        id="adminLoginBtn"
-                        class="w-full btn-secondary-ios text-white font-medium py-3.5 rounded-xl"
-                    >
-                        <span>دخول المشرف</span>
+                    <button id="adminLoginBtn" class="w-full btn-primary-ios text-white py-3.5 rounded-xl font-medium">
+                        دخول لوحة المشرف
                     </button>
                 </div>
             </div>
-
-            <!-- رسالة الخطأ/النجاح -->
-            <div id="message" class="mt-5 text-center hidden text-sm"></div>
         </div>
-
-        <p class="text-center text-xs text-gray-400 mt-6 leading-relaxed">
-            ⚠️ إذا لم تتمكن من الدخول، يرجى طلب إضافة رقم جوالك من المشرف
-        </p>
     </div>
 
     <script type="module">
-        import { loginWithPhone, loginAsAdmin } from './auth.js';
+        import { loginWithPhone, loginWithEmail, loginAsAdmin, isUserLoggedIn } from './auth.js';
 
-        const phoneInput = document.getElementById('phoneInput');
-        const phoneLoginBtn = document.getElementById('phoneLoginBtn');
-        const adminPasswordInput = document.getElementById('adminPasswordInput');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        const messageDiv = document.getElementById('message');
-
-        function showMessage(text, isError = true) {
-            messageDiv.textContent = text;
-            messageDiv.className = `mt-5 text-center p-3 rounded-xl text-sm ${isError ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-primary'}`;
-            messageDiv.classList.remove('hidden');
-            setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+        // إذا كان مسجلاً الدخول مسبقاً
+        if (isUserLoggedIn()) {
+            window.location.href = 'home.html';
         }
 
-        phoneLoginBtn.addEventListener('click', async () => {
-            const phone = phoneInput.value.trim();
-            if (!phone) return showMessage('يرجى إدخال رقم الجوال');
+        const tabs = document.querySelectorAll('.login-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const messageBox = document.getElementById('messageBox');
+
+        function showTab(tabName) {
+            tabs.forEach(t => {
+                t.classList.remove('tab-active');
+                t.classList.add('text-gray-500');
+            });
+            tabContents.forEach(c => c.classList.add('hidden'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.remove('text-gray-500');
+            document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+            hideMessage();
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => showTab(tab.dataset.tab));
+        });
+
+        function showMessage(text, isError = true) {
+            messageBox.textContent = text;
+            messageBox.className = `mb-4 p-3 rounded-xl text-sm text-center ${isError ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`;
+            messageBox.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+
+        // تسجيل الدخول برقم الجوال
+        document.getElementById('phoneLoginBtn').addEventListener('click', async () => {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone || phone.length < 9) {
+                showMessage('أدخل رقم جوال صحيح');
+                return;
+            }
+            const btn = document.getElementById('phoneLoginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>جاري التحقق...';
             
             const result = await loginWithPhone(phone);
+            
+            btn.disabled = false;
+            btn.textContent = 'تسجيل الدخول';
+            
             if (result.success) {
                 showMessage('✅ تم الدخول بنجاح', false);
-                setTimeout(() => window.location.href = 'home.html', 800);
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 800);
             } else {
                 showMessage(result.message);
             }
         });
 
-        adminLoginBtn.addEventListener('click', () => {
-            const password = adminPasswordInput.value;
-            if (!password) return showMessage('يرجى إدخال كلمة المرور');
+        // تسجيل الدخول بالبريد
+        document.getElementById('emailLoginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            if (!email || !password) {
+                showMessage('أدخل البريد وكلمة المرور');
+                return;
+            }
+            const btn = document.getElementById('emailLoginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>جاري التحقق...';
             
-            const result = loginAsAdmin(password);
+            const result = await loginWithEmail(email, password);
+            
+            btn.disabled = false;
+            btn.textContent = 'تسجيل الدخول';
+            
             if (result.success) {
-                showMessage('✅ مرحباً يا المشرف', false);
-                setTimeout(() => window.location.href = 'admin-dashboard.html', 800);
+                showMessage('✅ تم الدخول بنجاح', false);
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 800);
             } else {
                 showMessage(result.message);
             }
         });
 
-        phoneInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') phoneLoginBtn.click();
-        });
-        adminPasswordInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') adminLoginBtn.click();
+        // دخول المشرف
+        document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+            const password = document.getElementById('adminPasswordInput').value.trim();
+            if (!password) {
+                showMessage('أدخل كلمة المرور');
+                return;
+            }
+            const btn = document.getElementById('adminLoginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>جاري التحقق...';
+            
+            const result = await loginAsAdmin(password);
+            
+            btn.disabled = false;
+            btn.textContent = 'دخول لوحة المشرف';
+            
+            if (result.success) {
+                showMessage('✅ مرحباً بك يا المشرف', false);
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 800);
+            } else {
+                showMessage(result.message);
+            }
         });
     </script>
 </body>
