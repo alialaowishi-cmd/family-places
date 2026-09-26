@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حسابي</title>
+    <title>حسابي — كشتات عائلة حسين العويشي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script type="module" src="./auth.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#007AFF',
-                        primaryLight: 'rgba(0, 122, 255, 0.08)',
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#F59E0B',
+                        dark: '#0F172A',
                     },
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] }
                 }
@@ -23,213 +24,326 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body {
-            background: linear-gradient(180deg, rgba(0, 122, 255, 0.04) 0%, rgba(94, 92, 230, 0.03) 100%);
-            min-height: 100vh;
-            padding-bottom: 85px;
+            background: #0F172A;
             font-family: 'Tajawal', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
         }
-        .glass-ios {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: saturate(180%) blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .btn-primary {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            transition: all 0.2s ease;
         }
-        .input-ios {
-            background: rgba(118, 118, 128, 0.08);
-            border: none;
-        }
-        .input-ios:focus {
-            background: rgba(118, 118, 128, 0.04);
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
-            outline: none;
-        }
-        .btn-primary-ios {
-            background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%);
+        .btn-primary:active { transform: scale(0.97); }
+        .nav-btn { transition: all 0.2s ease; cursor: pointer; }
+        .nav-btn:active { transform: scale(0.95); }
+        .sticky-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+            border-top: 1px solid #1E293B;
         }
         .avatar-ring {
-            background: linear-gradient(135deg, #007AFF, #5856D6);
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
             padding: 3px;
         }
-        .bottom-nav {
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: saturate(180%) blur(25px);
-            border-top: 1px solid rgba(0, 122, 255, 0.08);
-        }
-        .nav-item { transition: all 0.2s ease; }
-        .nav-item.active { color: #007AFF; }
-        .nav-item:not(.active) { color: #8E8E93; }
     </style>
 </head>
-<body>
-    <header class="glass-ios sticky top-0 z-40 shadow-sm">
-        <div class="max-w-2xl mx-auto px-4 py-3.5 flex items-center justify-between">
-            <button onclick="window.location.href='home.html'" class="flex items-center gap-2 text-gray-500 hover:text-primary text-sm">
-                <i class="fa fa-arrow-right"></i> رجوع
+<body class="text-white">
+    <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
+        <div class="flex items-center">
+            <button id="backBtn" class="text-slate-400 hover:text-white transition p-2 -ml-2">
+                <i class="fa fa-arrow-right"></i>
             </button>
-            <h1 class="text-lg font-bold text-gray-800">حسابي</h1>
-            <div class="w-16"></div>
+            <h1 class="text-lg font-bold mr-2">حسابي</h1>
         </div>
     </header>
 
-    <main class="max-w-2xl mx-auto px-4 py-5">
-        <!-- صورة الملف الشخصي -->
-        <div class="flex flex-col items-center mb-8">
-            <div class="avatar-ring rounded-full mb-3">
-                <div class="w-24 h-24 rounded-full bg-gray-100 overflow-hidden" id="avatarContainer">
-                    <img id="avatarPreview" src="" alt="صورة شخصية" class="w-full h-full object-cover hidden">
-                    <i id="avatarIcon" class="fa fa-user text-4xl text-gray-400 flex items-center justify-center w-full h-full"></i>
+    <main class="px-4 py-6">
+        <!-- بطاقة بيانات المستخدم -->
+        <section class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6 mb-6">
+            <div class="flex flex-col items-center text-center">
+                <div class="avatar-ring rounded-full mb-4">
+                    <div class="w-24 h-24 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                        <img id="userAvatar" src="" alt="صورة المستخدم" class="w-full h-full object-cover hidden">
+                        <i id="defaultAvatar" class="fa fa-user text-4xl text-slate-400"></i>
+                    </div>
+                </div>
+                <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
+                <p id="userPhone" class="text-sm text-slate-400 mb-4">05XX XXX XXXX</p>
+                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4">
+                    <i class="fa fa-camera ml-1"></i> تغيير الصورة
+                </button>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+            </div>
+
+            <div class="space-y-3 mt-4">
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-envelope ml-2 text-secondary"></i> البريد الإلكتروني</span>
+                    <span id="userEmail" class="text-sm text-slate-400">—</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-calendar ml-2 text-secondary"></i> تاريخ الانضمام</span>
+                    <span id="joinDate" class="text-sm text-slate-400">—</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-slate-700/40 rounded-xl">
+                    <span class="text-slate-300"><i class="fa fa-map-pin ml-2 text-secondary"></i> عدد أماكني</span>
+                    <span id="placesCount" class="text-sm font-medium text-secondary">0 مكان</span>
                 </div>
             </div>
-            <label for="avatarInput" class="text-primary text-sm font-medium cursor-pointer hover:underline">
-                <i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية
-            </label>
-            <input type="file" id="avatarInput" accept="image/*" class="hidden">
-        </div>
+        </section>
 
-        <!-- بيانات المستخدم -->
-        <form id="profileForm" class="glass-ios rounded-3xl p-6 space-y-5">
-            <div>
-                <label class="block text-sm font-medium text-gray-500 mb-2">الاسم الكامل</label>
-                <input type="text" id="userName" placeholder="أدخل اسمك الكامل"
-                    class="w-full px-4 py-3 rounded-xl input-ios">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-500 mb-2">رقم الجوال</label>
-                <input type="tel" id="userPhone" placeholder="05XXXXXXXX" readonly
-                    class="w-full px-4 py-3 rounded-xl input-ios bg-gray-50">
-                <p class="text-xs text-gray-400 mt-1">لا يمكن تغيير رقم الجوال</p>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-500 mb-2">البريد الإلكتروني (اختياري)</label>
-                <input type="email" id="userEmail" placeholder="بريدك الإلكتروني"
-                    class="w-full px-4 py-3 rounded-xl input-ios">
-            </div>
-            <button type="submit" class="w-full btn-primary-ios text-white font-medium py-3.5 rounded-xl mt-2">
-                حفظ التغييرات
+        <!-- أزرار الإجراءات -->
+        <section class="space-y-3 mb-6">
+            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-edit ml-3 text-secondary"></i>
+                    تعديل بياناتي
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
-        </form>
+            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-map ml-3 text-secondary"></i>
+                    أماكني المضافة
+                </span>
+                <span id="myPlacesBadge" class="bg-secondary/20 text-secondary text-xs px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-bell ml-3 text-secondary"></i>
+                    إعدادات الإشعارات
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
+            </button>
+            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
+                <span class="flex items-center">
+                    <i class="fa fa-question-circle ml-3 text-secondary"></i>
+                    مساعدة
+                </span>
+                <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
+            </button>
+        </section>
 
-        <!-- إحصائيات سريعة -->
-        <div class="glass-ios rounded-3xl p-5 mt-6">
-            <h3 class="font-bold text-gray-800 mb-4">نشاطي</h3>
-            <div class="grid grid-cols-2 gap-4 text-center">
-                <div>
-                    <p class="text-2xl font-bold text-primary" id="myPlacesCount">0</p>
-                    <p class="text-xs text-gray-500">مكان أضفته</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-primary" id="joinDate">-</p>
-                    <p class="text-xs text-gray-500">عضو منذ</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- زر تسجيل الخروج -->
-        <button id="logoutBtn" class="w-full mt-6 py-3 rounded-xl bg-red-50 text-red-500 font-medium hover:bg-red-100 transition">
-            <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
-        </button>
+        <section class="mb-8">
+            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition">
+                <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
+            </button>
+        </section>
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
-        <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
-            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="window.location.href='home.html'">
-                <i class="fa fa-home text-lg"></i>
-                <span class="text-xs">الرئيسية</span>
+    <!-- نافذة تعديل البيانات -->
+    <div id="editModal" class="hidden fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-center">تعديل بياناتي</h3>
+            <div class="space-y-3 mb-4">
+                <label class="block text-sm text-slate-400">الاسم الكامل</label>
+                <input type="text" id="editName" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white">
+                <label class="block text-sm text-slate-400">رقم الجوال</label>
+                <input type="tel" id="editPhone" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white" dir="ltr">
+            </div>
+            <div class="flex gap-3">
+                <button id="cancelEditBtn" class="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
+                <button id="saveEditBtn" class="flex-1 btn-primary py-3 rounded-lg font-medium">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الشريط السفلي -->
+    <nav class="sticky-nav px-2 py-3">
+        <div class="flex justify-around items-center max-w-lg mx-auto">
+            <button id="navHome" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-home text-lg mb-1"></i>
+                الرئيسية
             </button>
-            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500" onclick="alert('قيد التطوير')">
-                <i class="fa fa-building-o text-lg"></i>
-                <span class="text-xs">مدينة</span>
+            <button id="navCity" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-building text-lg mb-1"></i>
+                مدينة
             </button>
-            <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-lg">
-                <i class="fa fa-plus"></i>
+            <button id="navAdd" class="nav-btn flex flex-col items-center text-xs">
+                <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center -mt-6 border border-slate-600">
+                    <i class="fa fa-plus text-lg text-slate-300"></i>
+                </div>
             </button>
-            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 active" onclick="window.location.href='profile.html'">
-                <i class="fa fa-user text-lg"></i>
-                <span class="text-xs">حسابي</span>
+            <button id="navAccount" class="nav-btn flex flex-col items-center text-xs text-secondary">
+                <i class="fa fa-user text-lg mb-1"></i>
+                حسابي
             </button>
-            <button id="navAdmin" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500 hidden" onclick="window.location.href='admin-dashboard.html'">
-                <i class="fa fa-cog text-lg"></i>
-                <span class="text-xs">المشرف</span>
+            <button id="navAdmin" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-cog text-lg mb-1"></i>
+                المشرف
             </button>
         </div>
     </nav>
 
     <script type="module">
-        import { getCurrentUser, isUserLoggedIn, isAdmin, updateUserProfile, uploadImage, getAllPlaces, logout } from './auth.js';
+        import { getCurrentUser, logout, getPlaces } from './db.js';
 
-        if (!isUserLoggedIn()) window.location.href = 'login.html';
-        if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
+        if (!getCurrentUser()) {
+            window.location.href = 'login.html';
+        }
 
         const user = getCurrentUser();
+        
+        const userName = document.getElementById('userName');
+        const userPhone = document.getElementById('userPhone');
+        const userEmail = document.getElementById('userEmail');
+        const joinDate = document.getElementById('joinDate');
+        const placesCount = document.getElementById('placesCount');
+        const myPlacesBadge = document.getElementById('myPlacesBadge');
         const avatarInput = document.getElementById('avatarInput');
-        const avatarPreview = document.getElementById('avatarPreview');
-        const avatarIcon = document.getElementById('avatarIcon');
-        let avatarUrl = user?.avatar || '';
+        const userAvatar = document.getElementById('userAvatar');
+        const defaultAvatar = document.getElementById('defaultAvatar');
+        
+        const editModal = document.getElementById('editModal');
+        const editName = document.getElementById('editName');
+        const editPhone = document.getElementById('editPhone');
+        const editInfoBtn = document.getElementById('editInfoBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        
+        const backBtn = document.getElementById('backBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+        const myPlacesBtn = document.getElementById('myPlacesBtn');
+        const notifSettingsBtn = document.getElementById('notifSettingsBtn');
+        const helpBtn = document.getElementById('helpBtn');
+        
+        const navHome = document.getElementById('navHome');
+        const navCity = document.getElementById('navCity');
+        const navAdd = document.getElementById('navAdd');
+        const navAccount = document.getElementById('navAccount');
+        const navAdmin = document.getElementById('navAdmin');
 
         // تحميل بيانات المستخدم
-        document.getElementById('userName').value = user?.name || '';
-        document.getElementById('userPhone').value = user?.phone || '';
-        document.getElementById('userEmail').value = user?.email || '';
-
-        // عرض الصورة الشخصية
-        if (avatarUrl) {
-            avatarPreview.src = avatarUrl;
-            avatarPreview.classList.remove('hidden');
-            avatarIcon.classList.add('hidden');
+        function loadUserData() {
+            if (user) {
+                userName.textContent = user.name || 'مستخدم';
+                userPhone.textContent = user.phone || '05XX XXX XXXX';
+                userEmail.textContent = user.email || '—';
+                joinDate.textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-SA') : '—';
+                
+                // تحميل الصورة الشخصية
+                const savedAvatar = localStorage.getItem('userAvatar');
+                if (savedAvatar) {
+                    userAvatar.src = savedAvatar;
+                    userAvatar.classList.remove('hidden');
+                    defaultAvatar.classList.add('hidden');
+                }
+            }
+            loadUserPlaces();
         }
 
-        // إحصائيات
-        async function loadStats() {
-            const allPlaces = await getAllPlaces();
-            const myPlaces = allPlaces.filter(p => p.createdBy === (user?.phone || user?.email));
-            document.getElementById('myPlacesCount').textContent = myPlaces.length;
-            document.getElementById('joinDate').textContent = user?.createdAt 
-                ? new Date(user.createdAt.toDate ? user.createdAt.toDate() : user.createdAt).toLocaleDateString('ar-SA')
-                : '-';
+        // تحميل أماكن المستخدم
+        async function loadUserPlaces() {
+            try {
+                const allPlaces = await getPlaces();
+                const myPlaces = allPlaces.filter(p => p.createdBy === user?.uid);
+                placesCount.textContent = `${myPlaces.length} مكان`;
+                myPlacesBadge.textContent = myPlaces.length;
+            } catch (error) {
+                console.error('❌ خطأ:', error);
+            }
         }
-        loadStats();
 
         // تغيير الصورة الشخصية
-        avatarInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const result = await uploadImage(file);
-            avatarUrl = result.url;
-            
-            avatarPreview.src = avatarUrl;
-            avatarPreview.classList.remove('hidden');
-            avatarIcon.classList.add('hidden');
+        changeAvatarBtn.addEventListener('click', () => {
+            avatarInput.click();
         });
 
-        // حفظ التغييرات
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('userName').value.trim();
-            const email = document.getElementById('userEmail').value.trim();
-            
-            if (!name) return alert('الاسم مطلوب ❌');
-            
-            try {
-                await updateUserProfile({
-                    name,
-                    email: email || null,
-                    avatar: avatarUrl || null
-                });
-                alert('✅ تم حفظ بياناتك بنجاح!');
-            } catch (err) {
-                console.error(err);
-                alert('❌ حدث خطأ أثناء الحفظ');
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imageData = event.target.result;
+                    localStorage.setItem('userAvatar', imageData);
+                    userAvatar.src = imageData;
+                    userAvatar.classList.remove('hidden');
+                    defaultAvatar.classList.add('hidden');
+                    alert('✅ تم تحديث الصورة الشخصية');
+                };
+                reader.readAsDataURL(file);
             }
         });
 
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        // فتح نافذة تعديل البيانات
+        editInfoBtn.addEventListener('click', () => {
+            editName.value = user.name || '';
+            editPhone.value = user.phone || '';
+            editModal.classList.remove('hidden');
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
+
+        saveEditBtn.addEventListener('click', () => {
+            const newName = editName.value.trim();
+            const newPhone = editPhone.value.trim();
+            if (!newName) { alert('أدخل الاسم'); return; }
+            
+            // حفظ في localStorage
+            const updatedUser = { ...user, name: newName, phone: newPhone };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            
+            userName.textContent = newName;
+            userPhone.textContent = newPhone || '05XX XXX XXXX';
+            editModal.classList.add('hidden');
+            alert('✅ تم حفظ التغييرات');
+        });
+
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                editModal.classList.add('hidden');
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+
+        logoutBtn.addEventListener('click', () => {
             if (confirm('هل تريد تسجيل الخروج؟')) {
                 logout();
                 window.location.href = 'login.html';
             }
         });
+
+        myPlacesBtn.addEventListener('click', () => {
+            alert('قيد التطوير 🚧 ستصلك قائمة بأماكنك قريباً!');
+        });
+
+        notifSettingsBtn.addEventListener('click', () => {
+            alert('قيد التطوير 🚧');
+        });
+
+        helpBtn.addEventListener('click', () => {
+            alert('📧 للمساعدة: تواصل مع المشرف');
+        });
+
+        // شريط التنقل السفلي
+        navHome.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+        navCity.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+        navAdd.addEventListener('click', () => {
+            window.location.href = 'add-place.html';
+        });
+        navAccount.addEventListener('click', () => {
+            // الصفحة الحالية
+        });
+        navAdmin.addEventListener('click', () => {
+            const password = prompt('أدخل كلمة مرور المشرف:');
+            if (password === 'admin123') {
+                localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
+                window.location.href = 'admin-dashboard.html';
+            } else if (password) {
+                alert('كلمة المرور غير صحيحة ❌');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', loadUserData);
     </script>
 </body>
 </html>
