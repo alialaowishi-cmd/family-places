@@ -22,24 +22,24 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-        body { 
-            background: #0F172A; 
-            font-family: 'Tajawal', sans-serif; 
-            min-height: 100vh; 
+        body {
+            background: #0F172A;
+            font-family: 'Tajawal', sans-serif;
+            min-height: 100vh;
             padding-bottom: 85px;
         }
-        .city-card { 
-            transition: all 0.2s ease; 
-            cursor: pointer; 
+        .city-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         }
-        .city-card:hover { 
-            transform: translateY(-3px); 
-            border-color: #3B82F6; 
+        .city-card:hover {
+            transform: translateY(-3px);
+            border-color: #3B82F6;
             box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
         }
-        .btn-primary { 
-            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+        .btn-primary {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
             transition: all 0.2s ease;
         }
         .btn-primary:active { transform: scale(0.97); }
@@ -72,27 +72,26 @@
         <!-- شريط البحث -->
         <div class="mb-6">
             <div class="relative">
-                <input type="text" id="searchInput" placeholder="ابحث عن مدينة أو مكان..." 
+                <input type="text" id="searchInput" placeholder="ابحث عن مدينة أو مكان..."
                     class="w-full px-4 py-3 pl-10 rounded-xl bg-slate-800/60 border border-slate-700 text-white focus:border-secondary focus:outline-none">
                 <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
             </div>
         </div>
 
-        <!-- آخر الأماكن المضافة -->
+        <!-- أحدث الأماكن -->
         <section class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold">✨ أحدث الأماكن المضافة</h2>
                 <a href="#all-places" class="text-sm text-secondary hover:text-secondary/80">عرض الكل</a>
             </div>
-            <div id="recentPlacesContainer" class="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
-                <!-- جاري التحميل -->
+            <div id="recentPlacesContainer" class="flex overflow-x-auto gap-3 pb-2">
                 <div class="w-48 h-36 rounded-xl skeleton"></div>
                 <div class="w-48 h-36 rounded-xl skeleton"></div>
                 <div class="w-48 h-36 rounded-xl skeleton"></div>
             </div>
         </section>
 
-        <!-- زر إضافة مدينة ومكان -->
+        <!-- أزرار الإضافة -->
         <section class="mb-8">
             <div class="grid grid-cols-2 gap-4">
                 <button id="addCityBtn" class="btn-primary py-4 rounded-xl font-medium flex items-center justify-center gap-2">
@@ -104,22 +103,18 @@
             </div>
         </section>
 
-        <!-- مجلدات المدن -->
+        <!-- المدن -->
         <section id="all-places">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold">📁 المدن</h2>
-                <span id="cityCount" class="text-sm text-slate-400">0 مدينة</span>
+                <span id="cityCount" class="text-sm text-slate-400">جاري التحميل...</span>
             </div>
-            
+
             <div id="citiesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- جاري التحميل -->
-                <div class="h-32 rounded-xl skeleton"></div>
-                <div class="h-32 rounded-xl skeleton"></div>
                 <div class="h-32 rounded-xl skeleton"></div>
                 <div class="h-32 rounded-xl skeleton"></div>
             </div>
 
-            <!-- حالة عدم وجود مدن -->
             <div id="noCitiesState" class="text-center py-12 hidden">
                 <i class="fa fa-map-o text-5xl text-slate-600 mb-4"></i>
                 <h3 class="text-lg font-medium text-slate-400 mb-2">لا توجد مدن مضافة بعد</h3>
@@ -145,9 +140,8 @@
                     <i class="fa fa-plus text-xl text-white"></i>
                 </div>
             </button>
-            <button id="navNotificationsBtn" class="flex flex-col items-center text-xs text-slate-400 py-1 relative">
+            <button id="navNotificationsBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-bell text-lg mb-1"></i>الإشعارات
-                <span id="notifBadge" class="absolute -top-1 -right-2 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center hidden">0</span>
             </button>
             <button id="navProfileBtn" class="flex flex-col items-center text-xs text-slate-400 py-1">
                 <i class="fa fa-user text-lg mb-1"></i>حسابي
@@ -158,8 +152,8 @@
     <!-- نافذة إضافة مدينة -->
     <div id="addCityModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm mx-4">
-           h3 class="text-lg font-bold mb-4 text-center">إضافة مدينة جديدة</h3>
-            <input type="text" id="newCityName" placeholder="اسم المدينة" 
+            <h3 class="text-lg font-bold mb-4 text-center">إضافة مدينة جديدة</h3>
+            <input type="text" id="newCityName" placeholder="اسم المدينة"
                 class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white mb-4 focus:border-secondary focus:outline-none">
             <div class="flex gap-3">
                 <button id="cancelCityBtn" class="flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">إلغاء</button>
@@ -169,81 +163,60 @@
     </div>
 
     <script type="module">
-        // استيراد الدوال من Firebase
         import { getCities, addCity, getPlaces } from './db.js';
         import { getCurrentUser, logout } from './auth.js';
 
-        // التحقق من تسجيل الدخول
         const currentUser = getCurrentUser();
         if (!currentUser) {
-            console.log('⚠️ المستخدم غير مسجل، جاري التوجيه لصفحة الدخول...');
+            console.log('⚠️ غير مسجل → توجيه لصفحة الدخول');
             window.location.href = 'login.html';
         }
 
-        // المتغيرات العامة
         let allCities = [];
         let allPlaces = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('✅ الصفحة الرئيسية محملة');
-            console.log('👤 المستخدم الحالي:', currentUser);
-            
-            // ربط الأحداث
+            console.log('👤 المستخدم:', currentUser);
             bindEvents();
-            
-            // تحميل البيانات
             await loadAllData();
         });
 
         function bindEvents() {
-            // أزرار إضافة مدينة
-            document.getElementById('addCityBtn').addEventListener('click', () => openCityModal());
-            document.getElementById('addFirstCityBtn').addEventListener('click', () => openCityModal());
-            document.getElementById('cancelCityBtn').addEventListener('click', () => closeCityModal());
-            document.getElementById('saveCityBtn').addEventListener('click', handleAddCity);
+            document.getElementById('addCityBtn').onclick = () => openCityModal();
+            document.getElementById('addFirstCityBtn').onclick = () => openCityModal();
+            document.getElementById('cancelCityBtn').onclick = () => closeCityModal();
+            document.getElementById('saveCityBtn').onclick = handleAddCity;
 
-            // أزرار التنقل
-            document.getElementById('addPlaceMainBtn').addEventListener('click', () => {
-                window.location.href = 'add-place.html';
-            });
-            document.getElementById('navAddBtn').addEventListener('click', () => {
-                window.location.href = 'add-place.html';
-            });
-            document.getElementById('userBtn').addEventListener('click', () => {
-                window.location.href = 'profile.html';
-            });
-            document.getElementById('navProfileBtn').addEventListener('click', () => {
-                window.location.href = 'profile.html';
-            });
-            document.getElementById('adminQuickBtn').addEventListener('click', () => {
+            document.getElementById('addPlaceMainBtn').onclick = () => window.location.href = 'add-place.html';
+            document.getElementById('navAddBtn').onclick = () => window.location.href = 'add-place.html';
+            document.getElementById('userBtn').onclick = () => window.location.href = 'profile.html';
+            document.getElementById('navProfileBtn').onclick = () => window.location.href = 'profile.html';
+
+            document.getElementById('adminQuickBtn').onclick = () => {
                 const pass = prompt('أدخل كلمة مرور المشرف:');
                 if (pass === 'admin123') {
                     window.location.href = 'admin-dashboard.html';
                 } else if (pass !== null) {
                     alert('كلمة المرور غير صحيحة ❌');
                 }
-            });
+            };
 
-            // البحث
             document.getElementById('searchInput').addEventListener('input', filterContent);
         }
 
         async function loadAllData() {
             try {
-                console.log('⏳ جاري تحميل البيانات من Firebase...');
-                
-                // تحميل المدن
+                console.log('⏳ جاري تحميل البيانات...');
                 allCities = await getCities();
-                console.log('📁 المدن المحملة:', allCities);
+                console.log('📁 المدن:', allCities);
                 renderCities();
 
-                // تحميل الأماكن
                 allPlaces = await getPlaces();
-                console.log('📍 الأماكن المحملة:', allPlaces);
+                console.log('📍 الأماكن:', allPlaces);
                 renderRecentPlaces();
-
             } catch (error) {
-                console.error('❌ خطأ في تحميل البيانات:', error);
+                console.error('❌ خطأ تحميل البيانات:', error);
                 alert('حدث خطأ في تحميل البيانات، يرجى تحديث الصفحة');
             }
         }
@@ -253,7 +226,6 @@
             const noCities = document.getElementById('noCitiesState');
             const countEl = document.getElementById('cityCount');
 
-            // إخفاء جميع العناصر أولاً
             container.innerHTML = '';
             countEl.textContent = `${allCities.length} مدينة`;
 
@@ -268,7 +240,6 @@
 
             allCities.forEach(city => {
                 const placeCount = allPlaces.filter(p => p.city === city.name).length;
-                
                 const card = document.createElement('div');
                 card.className = 'city-card border border-slate-700 rounded-xl p-4';
                 card.innerHTML = `
@@ -276,8 +247,7 @@
                         <div>
                             <h3 class="text-lg font-bold mb-1">${city.name}</h3>
                             <p class="text-sm text-slate-400">
-                                <i class="fa fa-map-marker ml-1"></i>
-                                ${placeCount} مكان مضاف
+                                <i class="fa fa-map-marker ml-1"></i>${placeCount} مكان مضاف
                             </p>
                         </div>
                         <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
@@ -285,36 +255,27 @@
                         </div>
                     </div>
                 `;
-                card.addEventListener('click', () => {
-                    window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
-                });
+                card.onclick = () => window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
                 container.appendChild(card);
             });
         }
 
         function renderRecentPlaces() {
             const container = document.getElementById('recentPlacesContainer');
-            
+            container.innerHTML = '';
+
             if (allPlaces.length === 0) {
-                container.innerHTML = `
-                    <p class="text-slate-400 text-sm py-4">لا توجد أماكن مضافة بعد، كن أول من يضيف! 🎉</p>
-                `;
+                container.innerHTML = `<p class="text-slate-400 text-sm py-4">لا توجد أماكن مضافة بعد، كن أول من يضيف! 🎉</p>`;
                 return;
             }
 
-            // أحدث 3 أماكن فقط
             const recent = allPlaces.slice(0, 3);
-            container.innerHTML = '';
-
             recent.forEach(place => {
-                const imageUrl = place.images && place.images.length > 0 
-                    ? place.images[0] 
-                    : null;
-                
+                const imageUrl = place.images && place.images.length > 0 ? place.images[0] : null;
                 const card = document.createElement('div');
                 card.className = 'flex-shrink-0 w-48 bg-slate-800/60 border border-slate-700 rounded-xl overflow-hidden cursor-pointer';
                 card.innerHTML = `
-                    ${imageUrl 
+                    ${imageUrl
                         ? `<img src="${imageUrl}" class="w-full h-24 object-cover">`
                         : `<div class="w-full h-24 bg-slate-700 flex items-center justify-center"><i class="fa fa-map-marker text-2xl text-slate-500"></i></div>`
                     }
@@ -326,74 +287,56 @@
                         </div>
                     </div>
                 `;
-                card.addEventListener('click', () => {
-                    window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
-                });
+                card.onclick = () => window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
                 container.appendChild(card);
             });
         }
 
         function filterContent(e) {
             const query = e.target.value.toLowerCase().trim();
-            if (!query) {
-                renderCities();
-                renderRecentPlaces();
-                return;
-            }
+            if (!query) { renderCities(); renderRecentPlaces(); return; }
 
-            // تصفية المدن
-            const filteredCities = allCities.filter(c => 
-                c.name.toLowerCase().includes(query)
-            );
-            
-            // تصفية الأماكن
-            const filteredPlaces = allPlaces.filter(p => 
+            const filteredCities = allCities.filter(c => c.name.toLowerCase().includes(query));
+            const filteredPlaces = allPlaces.filter(p =>
                 p.name.toLowerCase().includes(query) ||
                 p.city.toLowerCase().includes(query) ||
-                p.category?.toLowerCase().includes(query)
+                (p.category && p.category.toLowerCase().includes(query))
             );
 
-            // عرض النتائج
-            if (filteredCities.length > 0 || filteredPlaces.length > 0) {
-                const container = document.getElementById('citiesContainer');
-                container.innerHTML = '<h3 class="col-span-2 text-sm font-medium text-slate-400 mb-2">النتائج</h3>';
-                document.getElementById('noCitiesState').classList.add('hidden');
-                container.classList.remove('hidden');
+            const container = document.getElementById('citiesContainer');
+            container.innerHTML = '<h3 class="col-span-2 text-sm font-medium text-slate-400 mb-2">النتائج</h3>';
+            document.getElementById('noCitiesState').classList.add('hidden');
+            container.classList.remove('hidden');
 
-                filteredCities.forEach(city => {
-                    const placeCount = allPlaces.filter(p => p.city === city.name).length;
-                    const card = document.createElement('div');
-                    card.className = 'city-card border border-slate-700 rounded-xl p-4';
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-bold mb-1">${city.name}</h3>
-                                <p class="text-sm text-slate-400">${placeCount} مكان</p>
-                            </div>
-                            <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
-                                <i class="fa fa-folder-open text-secondary text-xl"></i>
-                            </div>
+            filteredCities.forEach(city => {
+                const placeCount = allPlaces.filter(p => p.city === city.name).length;
+                const card = document.createElement('div');
+                card.className = 'city-card border border-slate-700 rounded-xl p-4';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">${city.name}</h3>
+                            <p class="text-sm text-slate-400">${placeCount} مكان</p>
                         </div>
-                    `;
-                    card.addEventListener('click', () => {
-                        window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
-                    });
-                    container.appendChild(card);
-                });
+                        <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center">
+                            <i class="fa fa-folder-open text-secondary text-xl"></i>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
+                container.appendChild(card);
+            });
 
-                filteredPlaces.forEach(place => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-slate-800/60 border border-slate-700 rounded-xl p-4';
-                    card.innerHTML = `
-                        <h4 class="font-bold">${place.name}</h4>
-                        <p class="text-sm text-slate-400">${place.city} · ${place.category}</p>
-                    `;
-                    card.addEventListener('click', () => {
-                        window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
-                    });
-                    container.appendChild(card);
-                });
-            }
+            filteredPlaces.forEach(place => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800/60 border border-slate-700 rounded-xl p-4';
+                card.innerHTML = `
+                    <h4 class="font-bold">${place.name}</h4>
+                    <p class="text-sm text-slate-400">${place.city} · ${place.category}</p>
+                `;
+                card.onclick = () => window.location.href = `place-detail.html?id=${encodeURIComponent(place.id)}`;
+                container.appendChild(card);
+            });
         }
 
         function openCityModal() {
@@ -408,23 +351,16 @@
 
         async function handleAddCity() {
             const name = document.getElementById('newCityName').value.trim();
-            if (!name) {
-                alert('أدخل اسم المدينة');
-                return;
-            }
+            if (!name) { alert('أدخل اسم المدينة'); return; }
 
             const exists = allCities.some(c => c.name.trim() === name);
-            if (exists) {
-                alert('المدينة موجودة مسبقاً ✅');
-                closeCityModal();
-                return;
-            }
+            if (exists) { alert('المدينة موجودة مسبقاً ✅'); closeCityModal(); return; }
 
             try {
                 await addCity(name, currentUser.uid, currentUser.name || 'مستخدم');
                 alert('✅ تمت إضافة المدينة بنجاح!');
                 closeCityModal();
-                await loadAllData(); // إعادة تحميل البيانات
+                await loadAllData();
             } catch (error) {
                 console.error(error);
                 alert('❌ حدث خطأ أثناء الإضافة');
