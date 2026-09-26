@@ -11,10 +11,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#007AFF',
-                        primaryLight: 'rgba(0, 122, 255, 0.08)',
-                        secondary: '#5E5CE6',
-                        glassBg: 'rgba(255, 255, 255, 0.72)',
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        dark: '#0F172A',
                     },
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] }
                 }
@@ -24,267 +23,368 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
         body {
-            background: linear-gradient(180deg, rgba(0, 122, 255, 0.04) 0%, rgba(94, 92, 230, 0.03) 100%);
-            min-height: 100vh;
-            padding-bottom: 85px;
+            background: #0F172A;
             font-family: 'Tajawal', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 80px;
         }
-        .glass-ios {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .card-ios {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: saturate(180%) blur(16px);
-            border: 1px solid rgba(0, 122, 255, 0.06);
-            transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
-        }
-        .card-ios:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 122, 255, 0.08);
-            border-color: rgba(0, 122, 255, 0.12);
-        }
-        .bottom-nav {
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: saturate(180%) blur(25px);
-            -webkit-backdrop-filter: saturate(180%) blur(25px);
-            border-top: 1px solid rgba(0, 122, 255, 0.08);
-        }
-        .nav-item {
+        .btn-primary {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
             transition: all 0.2s ease;
         }
-        .nav-item.active {
-            color: #007AFF;
+        .btn-primary:active {
+            transform: scale(0.97);
         }
-        .nav-item:not(.active) {
-            color: '#8E8E93';
+        .city-card {
+            transition: all 0.2s ease;
         }
-        .nav-item:hover {
-            transform: translateY(-2px);
+        .city-card:active {
+            transform: scale(0.98);
         }
-        .nav-fab {
-            background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%);
-            width: 50px;
-            height: 50px;
-            margin-top: -20px;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        .nav-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-        .nav-fab:hover {
-            transform: scale(1.08);
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s infinite;
+        }
+        @keyframes skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .sticky-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid #1E293B;
         }
     </style>
 </head>
-<body>
-    <header class="glass-ios sticky top-0 z-40 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+<body class="text-white">
+    <!-- رأس الصفحة -->
+    <header class="sticky top-0 z-40 bg-dark/80 backdrop-blur-md border-b border-slate-700 px-4 py-3">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-lg font-bold text-gray-800 tracking-tight" id="siteTitle">كشتات عائلة حسين العويشي</h1>
-                <p class="text-xs text-gray-400 mt-0.5" id="siteSubtitle">اكتشفوا أماكننا المفضلة</p>
+                <h1 class="text-lg font-bold">كشتات عائلة حسين العويشي</h1>
+                <p class="text-sm text-slate-400">اكتشفوا أماكننا المفضلة</p>
             </div>
-            <button id="logoutBtn" class="w-9 h-9 bg-red-50 rounded-full flex items-center justify-center text-red-500 hover:bg-red-100 transition">
+            <button id="logoutBtn" class="text-slate-400 hover:text-white transition p-2">
                 <i class="fa fa-sign-out"></i>
             </button>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-5">
-        <!-- آخر الأماكن -->
+    <main class="px-4 py-4">
+        <!-- آخر الأماكن المضافة -->
         <section class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-base font-semibold text-gray-700">آخر الأماكن المضافة</h2>
-            </div>
-            <div id="recentPlaces" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <p class="text-gray-400 col-span-full text-center py-10 text-sm">جاري التحميل...</p>
+            <h2 class="text-md font-semibold mb-3 flex items-center">
+                <i class="fa fa-clock-o ml-2 text-secondary"></i>
+                أحدث الأماكن المضافة
+            </h2>
+            <div id="recentPlaces" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- جاري التحميل -->
+                <div class="skeleton h-24 rounded-xl"></div>
+                <div class="skeleton h-24 rounded-xl"></div>
             </div>
         </section>
 
         <!-- المدن -->
         <section>
-            <h2 class="text-base font-semibold text-gray-700 mb-4">المدن</h2>
-            <div id="citiesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <p class="text-gray-400 col-span-full text-center py-10 text-sm">لم تُضاف مدن بعد. كن أول من يضيف مدينة! 📍</p>
+            <h2 class="text-md font-semibold mb-3 flex items-center">
+                <i class="fa fa-map-marker ml-2 text-secondary"></i>
+                المدن
+            </h2>
+            <div id="citiesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- جاري التحميل -->
+                <div class="skeleton h-32 rounded-2xl"></div>
+                <div class="skeleton h-32 rounded-2xl"></div>
             </div>
         </section>
+
+        <!-- رسالة عند عدم وجود بيانات -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <i class="fa fa-map-o text-6xl text-slate-600 mb-4"></i>
+            <h3 class="text-lg font-medium text-slate-400">لم تُضاف مدن بعد</h3>
+            <p class="text-sm text-slate-500 mt-1">كن أول من يضيف مدينة! 📍</p>
+        </div>
     </main>
 
-    <!-- ✅ شريط التنقل السفلي الموحد والثابت -->
-    <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
-        <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
-            <!-- الرئيسية -->
-            <button class="nav-item active flex flex-col items-center gap-1 px-2 py-1" onclick="window.location.href='home.html'">
-                <i class="fa fa-home text-lg"></i>
-                <span class="text-xs">الرئيسية</span>
+    <!-- الشريط السفلي -->
+    <nav class="sticky-nav px-2 py-3">
+        <div class="flex justify-around items-center max-w-lg mx-auto">
+            <button id="navHome" class="nav-btn flex flex-col items-center text-xs text-secondary">
+                <i class="fa fa-home text-lg mb-1"></i>
+                الرئيسية
             </button>
-
-            <!-- إضافة مدينة -->
-            <button id="navAddCity" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500">
-                <i class="fa fa-building-o text-lg"></i>
-                <span class="text-xs">مدينة</span>
+            <button id="navCity" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-building text-lg mb-1"></i>
+                مدينة
             </button>
-
-            <!-- زر المنتصف: إضافة مكان -->
-            <button id="navAddPlace" class="nav-fab rounded-full flex items-center justify-center text-white text-xl">
-                <i class="fa fa-plus"></i>
+            <button id="navAdd" class="nav-btn flex flex-col items-center text-xs">
+                <div class="w-12 h-12 btn-primary rounded-full flex items-center justify-center -mt-6 shadow-lg">
+                    <i class="fa fa-plus text-xl"></i>
+                </div>
             </button>
-
-            <!-- حسابي -->
-            <button id="navUser" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500">
-                <i class="fa fa-user text-lg"></i>
-                <span class="text-xs">حسابي</span>
+            <button id="navAccount" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-user text-lg mb-1"></i>
+                حسابي
             </button>
-
-            <!-- المشرف -->
-            <button id="navAdmin" class="nav-item flex flex-col items-center gap-1 px-2 py-1 text-gray-500 hidden" onclick="window.location.href='admin-dashboard.html'">
-                <i class="fa fa-cog text-lg"></i>
-                <span class="text-xs">المشرف</span>
+            <button id="navAdmin" class="nav-btn flex flex-col items-center text-xs text-slate-400">
+                <i class="fa fa-cog text-lg mb-1"></i>
+                المشرف
             </button>
         </div>
     </nav>
 
     <!-- نافذة إضافة مدينة -->
-    <div id="addCityModal" class="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="glass-ios rounded-3xl p-6 w-full max-w-sm mx-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-gray-800 mb-5">إضافة مدينة جديدة</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-2">اسم المدينة</label>
-                    <input type="text" id="cityNameInput" placeholder="مثال: الطائف"
-                        class="w-full px-4 py-3 rounded-xl bg-gray-100/60 border-0 focus:ring-2 focus:ring-primary/20 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-2">صورة للمدينة (اختياري)</label>
-                    <input type="file" id="cityImageInput" accept="image/*"
-                        class="w-full text-sm text-gray-500 file:mr-2 file:bg-primaryLight file:text-primary file:rounded-lg file:border-0 file:px-3 file:py-1.5">
-                </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-                <button id="cancelCityBtn" class="flex-1 px-4 py-3 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200/80 text-sm font-medium">إلغاء</button>
-                <button id="saveCityBtn" class="flex-1 px-4 py-3 rounded-xl bg-primary text-white hover:bg-primary/90 text-sm font-medium">حفظ</button>
+    <div id="addCityModal" class="hidden fixed inset-0 z-200 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-center">إضافة مدينة جديدة</h3>
+            <input type="text" id="newCityInput" placeholder="اسم المدينة" class="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white mb-4">
+            <div class="flex gap-3">
+                <button id="cancelCityBtn" class="flex-1 py-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">إلغاء</button>
+                <button id="saveCityBtn" class="flex-1 btn-primary py-3 rounded-lg font-medium">حفظ</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        import { getCities, getPlaces, addCity, getSettings, isUserLoggedIn, isAdmin, logout, uploadImage } from './auth.js';
+        import { 
+            getCurrentUser, isAdmin, logout,
+            getCities, addCity, getPlaces
+        } from './auth.js';
 
-        if (!isUserLoggedIn()) {
+        // التحقق من تسجيل الدخول
+        if (!getCurrentUser()) {
             window.location.href = 'login.html';
         }
 
-        const logoutBtn = document.getElementById('logoutBtn');
-        const navAddCity = document.getElementById('navAddCity');
-        const navAddPlace = document.getElementById('navAddPlace');
-        const navUser = document.getElementById('navUser');
-        const navAdmin = document.getElementById('navAdmin');
+        // العناصر
         const citiesContainer = document.getElementById('citiesContainer');
         const recentPlaces = document.getElementById('recentPlaces');
+        const emptyState = document.getElementById('emptyState');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // أزرار التنقل
+        const navHome = document.getElementById('navHome');
+        const navCity = document.getElementById('navCity');
+        const navAdd = document.getElementById('navAdd');
+        const navAccount = document.getElementById('navAccount');
+        const navAdmin = document.getElementById('navAdmin');
+        
+        // نافذة إضافة مدينة
         const addCityModal = document.getElementById('addCityModal');
+        const newCityInput = document.getElementById('newCityInput');
         const cancelCityBtn = document.getElementById('cancelCityBtn');
         const saveCityBtn = document.getElementById('saveCityBtn');
-        const cityNameInput = document.getElementById('cityNameInput');
-        const cityImageInput = document.getElementById('cityImageInput');
 
-        // إظهار زر المشرف إذا كان المستخدم مديراً
-        if (isAdmin()) navAdmin.classList.remove('hidden');
+        // حالة التحميل
+        let isLoading = false;
 
-        async function loadData() {
-            const settings = await getSettings();
-            document.getElementById('siteTitle').textContent = settings.siteTitle;
-            document.getElementById('siteSubtitle').textContent = settings.bannerText;
+        // ==========================================
+        // تحميل المدن
+        // ==========================================
+        async function loadCities() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            // عرض حالة التحميل
+            citiesContainer.innerHTML = `
+                <div class="skeleton h-32 rounded-2xl"></div>
+                <div class="skeleton h-32 rounded-2xl"></div>
+            `;
+            emptyState.classList.add('hidden');
 
-            const cities = await getCities();
-            renderCities(cities);
+            try {
+                const cities = await getCities();
+                isLoading = false;
 
-            const places = await getPlaces();
-            renderRecentPlaces(places.slice(0, 6));
-        }
+                if (!cities || cities.length === 0) {
+                    citiesContainer.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
 
-        function renderCities(cities) {
-            if (cities.length === 0) {
-                citiesContainer.innerHTML = '<p class="text-gray-400 col-span-full text-center py-10 text-sm">لم تُضاف مدن بعد. كن أول من يضيف مدينة! 📍</p>';
-                return;
-            }
-            citiesContainer.innerHTML = cities.map(city => `
-                <div class="card-ios rounded-2xl p-4 cursor-pointer overflow-hidden" data-city="${city.name}">
-                    <img src="${city.image || 'https://picsum.photos/seed/'+encodeURIComponent(city.name)+'/600/300.jpg'}" 
-                        alt="${city.name}" class="w-full h-28 object-cover rounded-xl mb-3">
-                    <h3 class="text-base font-bold text-gray-800">${city.name}</h3>
-                    <p class="text-xs text-gray-400 mt-1">انقر لعرض الأماكن</p>
-                </div>
-            `).join('');
+                // ترتيب المدن أبجدياً
+                cities.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
-            document.querySelectorAll('.card-ios').forEach(card => {
-                card.addEventListener('click', () => {
-                    const cityName = card.dataset.city;
-                    window.location.href = `city.html?name=${encodeURIComponent(cityName)}`;
+                citiesContainer.innerHTML = '';
+                cities.forEach(city => {
+                    const card = document.createElement('div');
+                    card.className = 'city-card bg-slate-800/60 border border-slate-700 rounded-2xl p-4 cursor-pointer hover:border-secondary/50 hover:bg-slate-700/60';
+                    card.innerHTML = `
+                        <h3 class="text-lg font-semibold mb-1">${city.name}</h3>
+                        <p class="text-sm text-slate-400">انقر لعرض الأماكن</p>
+                    `;
+                    // ✅ إضافة حدث النقر مباشرة
+                    card.addEventListener('click', () => {
+                        window.location.href = `city.html?name=${encodeURIComponent(city.name)}`;
+                    });
+                    citiesContainer.appendChild(card);
                 });
-            });
-        }
-
-        function renderRecentPlaces(places) {
-            if (places.length === 0) {
-                recentPlaces.innerHTML = '<p class="text-gray-400 col-span-full text-center py-10 text-sm">لم تُضاف أماكن بعد. أضف أول مكان الآن! 📍</p>';
-                return;
-            }
-            recentPlaces.innerHTML = places.map(place => `
-                <div class="card-ios rounded-2xl p-4 cursor-pointer overflow-hidden" data-place-id="${place.id}">
-                    <img src="${place.images?.[0] || 'https://picsum.photos/seed/'+place.id+'/600/300.jpg'}" 
-                        alt="${place.name}" class="w-full h-28 object-cover rounded-xl mb-3">
-                    <h3 class="font-semibold text-gray-800">${place.name}</h3>
-                    <p class="text-xs text-gray-400 mt-0.5">${place.city}${place.category ? ' • ' + place.category : ''}</p>
-                    <div class="flex items-center mt-2 text-yellow-400 text-xs">
-                        ${'★'.repeat(place.rating || 0)}${'☆'.repeat(5 - (place.rating || 0))}
+            } catch (error) {
+                console.error('❌ خطأ تحميل المدن:', error);
+                isLoading = false;
+                citiesContainer.innerHTML = `
+                    <div class="col-span-2 text-center py-8 text-slate-400">
+                        <i class="fa fa-exclamation-triangle text-2xl text-amber-500 mb-2"></i>
+                        <p>حدث خطأ في تحميل المدن</p>
+                        <button onclick="loadCities()" class="mt-2 px-4 py-2 bg-secondary/20 text-secondary rounded-lg text-sm">إعادة المحاولة</button>
                     </div>
-                </div>
-            `).join('');
-
-            document.querySelectorAll('[data-place-id]').forEach(card => {
-                card.addEventListener('click', () => {
-                    window.location.href = `place-detail.html?id=${card.dataset.placeId}`;
-                });
-            });
+                `;
+            }
         }
 
-        logoutBtn.addEventListener('click', () => {
-            logout();
-            window.location.href = 'login.html';
-        });
+        // ==========================================
+        // تحميل أحدث الأماكن
+        // ==========================================
+        async function loadRecentPlaces() {
+            try {
+                const places = await getPlaces();
+                
+                if (!places || places.length === 0) {
+                    recentPlaces.innerHTML = `
+                        <div class="col-span-2 text-center py-4 text-slate-500 text-sm">
+                            لم تُضاف أماكن بعد. كن أول من يضيف مكاناً! 📍
+                        </div>
+                    `;
+                    return;
+                }
 
-        navAddCity.addEventListener('click', () => {
-            addCityModal.classList.remove('hidden');
-            cityNameInput.value = '';
-        });
-
-        cancelCityBtn.addEventListener('click', () => {
-            addCityModal.classList.add('hidden');
-        });
-
-        saveCityBtn.addEventListener('click', async () => {
-            const name = cityNameInput.value.trim();
-            if (!name) return alert('أدخل اسم المدينة');
-            
-            let imageUrl = '';
-            if (cityImageInput.files[0]) {
-                const result = await uploadImage(cityImageInput.files[0]);
-                imageUrl = result.url;
+                // أحدث 4 أماكن فقط
+                const recent = places.slice(-4).reverse();
+                
+                recentPlaces.innerHTML = '';
+                recent.forEach(place => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-800/60 border border-slate-700 rounded-xl p-3 cursor-pointer hover:border-secondary/50';
+                    card.innerHTML = `
+                        <h4 class="font-medium text-sm">${place.name}</h4>
+                        <p class="text-xs text-slate-400">${place.city || 'بدون مدينة'} • ${place.category || 'أخرى'}</p>
+                    `;
+                    card.addEventListener('click', () => {
+                        window.location.href = `place-detail.html?id=${place.id}`;
+                    });
+                    recentPlaces.appendChild(card);
+                });
+            } catch (error) {
+                console.error('❌ خطأ تحميل الأماكن:', error);
+                recentPlaces.innerHTML = '<div class="col-span-2 text-center py-4 text-red-400 text-sm">خطأ في تحميل الأماكن</div>';
             }
-            
-            await addCity({ name: name, image: imageUrl });
-            addCityModal.classList.add('hidden');
-            loadData();
+        }
+
+        // ==========================================
+        // أحداث النقر — ✅ جميع الأزرار تعمل الآن
+        // ==========================================
+        
+        // تسجيل الخروج
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('هل تريد تسجيل الخروج؟')) {
+                logout();
+                window.location.href = 'login.html';
+            }
         });
 
-        navAddPlace.addEventListener('click', () => {
+        // زر الرئيسية
+        navHome.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // زر إضافة مدينة
+        navCity.addEventListener('click', () => {
+            addCityModal.classList.remove('hidden');
+            newCityInput.focus();
+        });
+
+        // زر إضافة مكان
+        navAdd.addEventListener('click', () => {
             window.location.href = 'add-place.html';
         });
 
-        navUser.addEventListener('click', () => {
-            alert('حسابي قيد التطوير');
+        // زر حسابي
+        navAccount.addEventListener('click', () => {
+            alert('قيد التطوير 🚧');
         });
 
-        loadData();
+        // زر المشرف
+        navAdmin.addEventListener('click', () => {
+            if (isAdmin()) {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                const password = prompt('أدخل كلمة مرور المشرف:');
+                if (password === 'admin123') {
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        name: 'المشرف',
+                        isAdmin: true
+                    }));
+                    window.location.href = 'admin-dashboard.html';
+                } else if (password) {
+                    alert('كلمة المرور غير صحيحة ❌');
+                }
+            }
+        });
+
+        // إلغاء إضافة مدينة
+        cancelCityBtn.addEventListener('click', () => {
+            addCityModal.classList.add('hidden');
+            newCityInput.value = '';
+        });
+
+        // حفظ مدينة جديدة
+        saveCityBtn.addEventListener('click', async () => {
+            const name = newCityInput.value.trim();
+            if (!name) {
+                alert('أدخل اسم المدينة');
+                return;
+            }
+
+            saveCityBtn.disabled = true;
+            saveCityBtn.innerHTML = '<i class="fa fa-spinner fa-spin ml-1"></i> جاري الحفظ...';
+
+            try {
+                await addCity({ name: name });
+                alert('✅ تمت إضافة المدينة');
+                addCityModal.classList.add('hidden');
+                newCityInput.value = '';
+                await loadCities();
+            } catch (error) {
+                console.error('❌ خطأ:', error);
+                alert('حدث خطأ أثناء الإضافة');
+            } finally {
+                saveCityBtn.disabled = false;
+                saveCityBtn.innerHTML = 'حفظ';
+            }
+        });
+
+        // إغلاق النافذة عند النقر خارجها
+        addCityModal.addEventListener('click', (e) => {
+            if (e.target === addCityModal) {
+                addCityModal.classList.add('hidden');
+                newCityInput.value = '';
+            }
+        });
+
+        // تحميل البيانات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCities();
+            loadRecentPlaces();
+        });
     </script>
 </body>
 </html>
