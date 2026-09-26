@@ -22,14 +22,43 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
-        body { background: #0F172A; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 85px; }
-        .btn-primary { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); transition: all 0.2s ease; }
+        * { box-sizing: border-box; }
+        body { 
+            background: #0F172A; 
+            font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; 
+            padding-bottom: 85px; 
+            margin: 0;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            transition: all 0.2s ease; 
+        }
         .btn-primary:active { transform: scale(0.97); }
         .nav-btn { transition: all 0.2s ease; cursor: pointer; }
         .nav-btn:active { transform: scale(0.95); }
-        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #1E293B; }
-        .avatar-ring { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); padding: 3px; border-radius: 9999px; }
-        button { cursor: pointer; }
+        .sticky-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            z-index: 1000; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(12px); 
+            border-top: 1px solid #1E293B; 
+        }
+        .avatar-ring { 
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); 
+            padding: 3px; 
+            border-radius: 9999px; 
+        }
+        button { 
+            cursor: pointer; 
+            border: none;
+            outline: none;
+            font-family: inherit;
+        }
+        button:active { opacity: 0.8; }
     </style>
 </head>
 <body class="text-white">
@@ -54,7 +83,7 @@
                 </div>
                 <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
                 <p id="userPhone" class="text-sm text-slate-400 mb-4">05XX XXX XXXX</p>
-                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4">
+                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4 bg-transparent">
                     <i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية
                 </button>
                 <input type="file" id="avatarInput" accept="image/*" class="hidden">
@@ -159,8 +188,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ صفحة حسابي جاهزة');
+            console.log('✅ صفحة حسابي جاهزة - جميع الأزرار تعمل الآن');
 
+            // جلب جميع العناصر
             const backBtn = document.getElementById('backBtn');
             const changeAvatarBtn = document.getElementById('changeAvatarBtn');
             const avatarInput = document.getElementById('avatarInput');
@@ -179,17 +209,19 @@
             const navAdd = document.getElementById('navAdd');
             const navAdmin = document.getElementById('navAdmin');
 
-            let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            
             const userName = document.getElementById('userName');
             const userPhone = document.getElementById('userPhone');
             const userEmail = document.getElementById('userEmail');
             const joinDate = document.getElementById('joinDate');
             const placesCount = document.getElementById('placesCount');
-            const myPlacesBadge = document.getElementById('myPlacesBadge");
+            const myPlacesBadge = document.getElementById('myPlacesBadge');
             const userAvatar = document.getElementById('userAvatar');
             const defaultAvatar = document.getElementById('defaultAvatar');
 
+            // بيانات المستخدم
+            let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+            // تحميل البيانات
             function loadData() {
                 if (currentUser) {
                     userName.textContent = currentUser.name || 'مستخدم';
@@ -197,7 +229,8 @@
                     userEmail.textContent = currentUser.email || '—';
                     joinDate.textContent = currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString('ar-SA') : '—';
                     
-                    const avatar = localStorage.getItem('userAvatar_' + (currentUser.uid || currentUser.phone));
+                    const avatarKey = 'userAvatar_' + (currentUser.uid || currentUser.phone || 'default');
+                    const avatar = localStorage.getItem(avatarKey);
                     if (avatar) {
                         userAvatar.src = avatar;
                         userAvatar.classList.remove('hidden');
@@ -208,92 +241,144 @@
                 myPlacesBadge.textContent = '0';
             }
 
-            if (backBtn) backBtn.addEventListener('click', function() {
-                window.location.href = 'home.html';
-            });
+            // === أحداث الأزرار ===
+            
+            // زر الرجوع
+            if (backBtn) {
+                backBtn.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
 
-            if (changeAvatarBtn && avatarInput) changeAvatarBtn.addEventListener('click', function() {
-                avatarInput.click();
-            });
+            // تغيير الصورة الشخصية
+            if (changeAvatarBtn && avatarInput) {
+                changeAvatarBtn.addEventListener('click', function() {
+                    avatarInput.click();
+                });
+            }
 
-            if (avatarInput) avatarInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        const dataUrl = ev.target.result;
-                        localStorage.setItem('userAvatar_' + (currentUser.uid || currentUser.phone), dataUrl);
-                        userAvatar.src = dataUrl;
-                        userAvatar.classList.remove('hidden');
-                        defaultAvatar.classList.add('hidden');
-                        alert('✅ تم حفظ الصورة');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const dataUrl = ev.target.result;
+                            const avatarKey = 'userAvatar_' + (currentUser.uid || currentUser.phone || 'default');
+                            localStorage.setItem(avatarKey, dataUrl);
+                            userAvatar.src = dataUrl;
+                            userAvatar.classList.remove('hidden');
+                            defaultAvatar.classList.add('hidden');
+                            alert('✅ تم حفظ الصورة الشخصية');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
 
-            if (editInfoBtn) editInfoBtn.addEventListener('click', function() {
-                editName.value = currentUser.name || '';
-                editPhone.value = currentUser.phone || '';
-                editModal.classList.remove('hidden');
-            });
+            // تعديل بياناتي
+            if (editInfoBtn) {
+                editInfoBtn.addEventListener('click', function() {
+                    editName.value = currentUser.name || '';
+                    editPhone.value = currentUser.phone || '';
+                    editModal.classList.remove('hidden');
+                });
+            }
 
-            if (cancelEditBtn) cancelEditBtn.addEventListener('click', function() {
-                editModal.classList.add('hidden');
-            });
+            if (cancelEditBtn) {
+                cancelEditBtn.addEventListener('click', function() {
+                    editModal.classList.add('hidden');
+                });
+            }
 
-            if (saveEditBtn) saveEditBtn.addEventListener('click', function() {
-                const newName = editName.value.trim();
-                if (!newName) { alert('أدخل الاسم'); return; }
-                currentUser.name = newName;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                userName.textContent = newName;
-                editModal.classList.add('hidden');
-                alert('✅ تم حفظ التغييرات');
-            });
+            if (saveEditBtn) {
+                saveEditBtn.addEventListener('click', function() {
+                    const newName = editName.value.trim();
+                    if (!newName) { 
+                        alert('الرجاء إدخال الاسم الكامل'); 
+                        return; 
+                    }
+                    currentUser.name = newName;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    userName.textContent = newName;
+                    editModal.classList.add('hidden');
+                    alert('✅ تم حفظ التغييرات بنجاح');
+                });
+            }
 
-            if (editModal) editModal.addEventListener('click', function(e) {
-                if (e.target === editModal) editModal.classList.add('hidden');
-            });
+            // إغلاق النافذة عند النقر خارجها
+            if (editModal) {
+                editModal.addEventListener('click', function(e) {
+                    if (e.target === editModal) {
+                        editModal.classList.add('hidden');
+                    }
+                });
+            }
 
-            if (logoutBtn) logoutBtn.addEventListener('click', function() {
-                if (confirm('هل تريد تسجيل الخروج؟')) {
-                    localStorage.removeItem('currentUser');
-                    window.location.href = 'login.html';
-                }
-            });
+            // تسجيل الخروج
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    if (confirm('هل تريد تسجيل الخروج؟')) {
+                        localStorage.removeItem('currentUser');
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
 
-            if (myPlacesBtn) myPlacesBtn.addEventListener('click', function() {
-                alert('🚧 قيد التطوير');
-            });
+            // أماكني المضافة
+            if (myPlacesBtn) {
+                myPlacesBtn.addEventListener('click', function() {
+                    alert('🚧 قيد التطوير - سيتم إطلاقها قريباً!');
+                });
+            }
 
-            if (notifSettingsBtn) notifSettingsBtn.addEventListener('click', function() {
-                alert('🚧 قيد التطوير');
-            });
+            // إعدادات الإشعارات
+            if (notifSettingsBtn) {
+                notifSettingsBtn.addEventListener('click', function() {
+                    alert('🚧 قيد التطوير');
+                });
+            }
 
-            if (helpBtn) helpBtn.addEventListener('click', function() {
-                alert('📧 تواصل مع المشرف للمساعدة');
-            });
+            // مساعدة
+            if (helpBtn) {
+                helpBtn.addEventListener('click', function() {
+                    alert('📧 للمساعدة: تواصل مع المشرف');
+                });
+            }
 
-            if (navHome) navHome.addEventListener('click', function() {
-                window.location.href = 'home.html';
-            });
-            if (navCity) navCity.addEventListener('click', function() {
-                window.location.href = 'home.html';
-            });
-            if (navAdd) navAdd.addEventListener('click', function() {
-                window.location.href = 'add-place.html';
-            });
-            if (navAdmin) navAdmin.addEventListener('click', function() {
-                const pwd = prompt('كلمة مرور المشرف:');
-                if (pwd === 'admin123') {
-                    localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
-                    window.location.href = 'admin-dashboard.html';
-                } else if (pwd) {
-                    alert('❌ كلمة المرور خطأ');
-                }
-            });
+            // === شريط التنقل السفلي ===
+            if (navHome) {
+                navHome.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
+            if (navCity) {
+                navCity.addEventListener('click', function() {
+                    window.location.href = 'home.html';
+                });
+            }
+            if (navAdd) {
+                navAdd.addEventListener('click', function() {
+                    window.location.href = 'add-place.html';
+                });
+            }
+            if (navAdmin) {
+                navAdmin.addEventListener('click', function() {
+                    const pwd = prompt('أدخل كلمة مرور المشرف:');
+                    if (pwd === 'admin123') {
+                        localStorage.setItem('currentUser', JSON.stringify({ 
+                            name: 'المشرف', 
+                            isAdmin: true,
+                            phone: '0500509134'
+                        }));
+                        window.location.href = 'admin-dashboard.html';
+                    } else if (pwd !== null) {
+                        alert('❌ كلمة المرور غير صحيحة');
+                    }
+                });
+            }
 
+            // تحميل البيانات عند فتح الصفحة
             loadData();
         });
     </script>
