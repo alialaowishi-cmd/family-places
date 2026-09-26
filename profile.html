@@ -29,6 +29,7 @@
         .nav-btn:active { transform: scale(0.95); }
         .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #1E293B; }
         .avatar-ring { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); padding: 3px; border-radius: 9999px; }
+        button { cursor: pointer; }
     </style>
 </head>
 <body class="text-white">
@@ -76,25 +77,25 @@
         </section>
 
         <section class="space-y-3 mb-6">
-            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
+            <button id="editInfoBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
                 <span class="flex items-center">
                     <i class="fa fa-edit ml-3 text-secondary"></i> تعديل بياناتي
                 </span>
                 <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
-            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
+            <button id="myPlacesBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
                 <span class="flex items-center">
                     <i class="fa fa-map ml-3 text-secondary"></i> أماكني المضافة
                 </span>
                 <span id="myPlacesBadge" class="bg-secondary/20 text-secondary text-xs px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
+            <button id="notifSettingsBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
                 <span class="flex items-center">
                     <i class="fa fa-bell ml-3 text-secondary"></i> إعدادات الإشعارات
                 </span>
                 <i class="fa fa-chevron-left text-slate-500 text-sm"></i>
             </button>
-            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition active:scale-[0.98]">
+            <button id="helpBtn" class="w-full flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-xl hover:border-secondary/50 transition">
                 <span class="flex items-center">
                     <i class="fa fa-question-circle ml-3 text-secondary"></i> مساعدة
                 </span>
@@ -103,7 +104,7 @@
         </section>
 
         <section class="mb-8">
-            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition active:scale-[0.98]">
+            <button id="logoutBtn" class="w-full py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition">
                 <i class="fa fa-sign-out ml-2"></i> تسجيل الخروج
             </button>
         </section>
@@ -157,18 +158,16 @@
     </nav>
 
     <script>
-        // انتظر تحميل الصفحة بالكامل
         document.addEventListener('DOMContentLoaded', function() {
             console.log('✅ صفحة حسابي جاهزة');
 
-            // جلب العناصر
             const backBtn = document.getElementById('backBtn');
             const changeAvatarBtn = document.getElementById('changeAvatarBtn');
             const avatarInput = document.getElementById('avatarInput');
             const editInfoBtn = document.getElementById('editInfoBtn');
             const editModal = document.getElementById('editModal');
             const editName = document.getElementById('editName');
-            const editPhone = document.getElementById('editPhone");
+            const editPhone = document.getElementById('editPhone');
             const cancelEditBtn = document.getElementById('cancelEditBtn');
             const saveEditBtn = document.getElementById('saveEditBtn');
             const logoutBtn = document.getElementById('logoutBtn');
@@ -180,7 +179,6 @@
             const navAdd = document.getElementById('navAdd');
             const navAdmin = document.getElementById('navAdmin');
 
-            // بيانات المستخدم
             let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             
             const userName = document.getElementById('userName');
@@ -188,11 +186,10 @@
             const userEmail = document.getElementById('userEmail');
             const joinDate = document.getElementById('joinDate');
             const placesCount = document.getElementById('placesCount');
-            const myPlacesBadge = document.getElementById('myPlacesBadge');
+            const myPlacesBadge = document.getElementById('myPlacesBadge");
             const userAvatar = document.getElementById('userAvatar');
             const defaultAvatar = document.getElementById('defaultAvatar');
 
-            // تحميل البيانات
             function loadData() {
                 if (currentUser) {
                     userName.textContent = currentUser.name || 'مستخدم';
@@ -211,16 +208,15 @@
                 myPlacesBadge.textContent = '0';
             }
 
-            // أحداث الأزرار
-            if (backBtn) backBtn.addEventListener('click', () => {
+            if (backBtn) backBtn.addEventListener('click', function() {
                 window.location.href = 'home.html';
             });
 
-            if (changeAvatarBtn && avatarInput) changeAvatarBtn.addEventListener('click', () => {
+            if (changeAvatarBtn && avatarInput) changeAvatarBtn.addEventListener('click', function() {
                 avatarInput.click();
             });
 
-            if (avatarInput) avatarInput.addEventListener('change', (e) => {
+            if (avatarInput) avatarInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -236,17 +232,17 @@
                 }
             });
 
-            if (editInfoBtn) editInfoBtn.addEventListener('click', () => {
+            if (editInfoBtn) editInfoBtn.addEventListener('click', function() {
                 editName.value = currentUser.name || '';
                 editPhone.value = currentUser.phone || '';
                 editModal.classList.remove('hidden');
             });
 
-            if (cancelEditBtn) cancelEditBtn.addEventListener('click', () => {
+            if (cancelEditBtn) cancelEditBtn.addEventListener('click', function() {
                 editModal.classList.add('hidden');
             });
 
-            if (saveEditBtn) saveEditBtn.addEventListener('click', () => {
+            if (saveEditBtn) saveEditBtn.addEventListener('click', function() {
                 const newName = editName.value.trim();
                 if (!newName) { alert('أدخل الاسم'); return; }
                 currentUser.name = newName;
@@ -256,34 +252,39 @@
                 alert('✅ تم حفظ التغييرات');
             });
 
-            if (editModal) editModal.addEventListener('click', (e) => {
+            if (editModal) editModal.addEventListener('click', function(e) {
                 if (e.target === editModal) editModal.classList.add('hidden');
             });
 
-            if (logoutBtn) logoutBtn.addEventListener('click', () => {
+            if (logoutBtn) logoutBtn.addEventListener('click', function() {
                 if (confirm('هل تريد تسجيل الخروج؟')) {
                     localStorage.removeItem('currentUser');
                     window.location.href = 'login.html';
                 }
             });
 
-            if (myPlacesBtn) myPlacesBtn.addEventListener('click', () => {
+            if (myPlacesBtn) myPlacesBtn.addEventListener('click', function() {
                 alert('🚧 قيد التطوير');
             });
 
-            if (notifSettingsBtn) notifSettingsBtn.addEventListener('click', () => {
+            if (notifSettingsBtn) notifSettingsBtn.addEventListener('click', function() {
                 alert('🚧 قيد التطوير');
             });
 
-            if (helpBtn) helpBtn.addEventListener('click', () => {
+            if (helpBtn) helpBtn.addEventListener('click', function() {
                 alert('📧 تواصل مع المشرف للمساعدة');
             });
 
-            // شريط التنقل السفلي
-            if (navHome) navHome.addEventListener('click', () => window.location.href = 'home.html');
-            if (navCity) navCity.addEventListener('click', () => window.location.href = 'home.html');
-            if (navAdd) navAdd.addEventListener('click', () => window.location.href = 'add-place.html');
-            if (navAdmin) navAdmin.addEventListener('click', () => {
+            if (navHome) navHome.addEventListener('click', function() {
+                window.location.href = 'home.html';
+            });
+            if (navCity) navCity.addEventListener('click', function() {
+                window.location.href = 'home.html';
+            });
+            if (navAdd) navAdd.addEventListener('click', function() {
+                window.location.href = 'add-place.html';
+            });
+            if (navAdmin) navAdmin.addEventListener('click', function() {
                 const pwd = prompt('كلمة مرور المشرف:');
                 if (pwd === 'admin123') {
                     localStorage.setItem('currentUser', JSON.stringify({ name: 'المشرف', isAdmin: true }));
