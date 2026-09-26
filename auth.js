@@ -1,221 +1,247 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    getDoc,
+    doc, 
+    updateDoc, 
+    deleteDoc, 
+    setDoc,
+    query, 
+    orderBy,
+    where
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { 
+    getStorage, 
+    ref, 
+    uploadBytes, 
+    getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
 
+// ✅ إعداد Firebase — نفس بياناتك الأصلية
 const firebaseConfig = {
-  apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
-  authDomain: "ali-alaowishi.firebaseapp.com",
-  projectId: "ali-alaowishi",
-  storageBucket: "ali-alaowishi.firebasestorage.app",
-  messagingSenderId: "536583940962",
-  appId: "1:536583940962:web:abc123def456"
+    apiKey: "AIzaSyAppr7PHEnnsTYjL3LB0kkMQTnc4qgNR_4",
+    authDomain: "ali-alaowishi.firebaseapp.com",
+    projectId: "ali-alaowishi",
+    storageBucket: "ali-alaowishi.firebasestorage.app",
+    messagingSenderId: "536583940962",
+    appId: "1:536583940962:web:7a5b8c9d0e1f2a3b4c5d6e"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirebase(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const storage = getStorage(app);
 
-const ADMIN_EMAIL = "Alihossin28@gmail.com";
+const ADMIN_EMAIL = "alihossin28@gmail.com";
 const ADMIN_PASSWORD = "admin123";
 
-// === دوال المستخدم ===
-function getCurrentUser() {
-  try {
-    const data = localStorage.getItem('currentUser');
-    return data ? JSON.parse(data) : null;
-  } catch { return null; }
+// ==========================================
+// المصادقة
+// ==========================================
+export function getCurrentUser() {
+    const userData = localStorage.getItem('currentUser');
+    return userData ? JSON.parse(userData) : null;
 }
 
-function setCurrentUser(user) {
-  localStorage.setItem('currentUser', JSON.stringify(user));
+export function isAdmin() {
+    const user = getCurrentUser();
+    return user?.isAdmin === true;
 }
 
-function isUserLoggedIn() {
-  return getCurrentUser() !== null;
-}
-
-function isAdmin() {
-  const user = getCurrentUser();
-  return user?.isAdmin === true;
-}
-
-// === دوال المصادقة ===
-async function loginWithPhone(phone) {
-  const q = query(collection(db, 'users'), where('phone', '==', phone), where('approved', '==', true));
-  const snapshot = await getDocs(q);
-  if (!snapshot.empty) {
-    const userData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-    setCurrentUser(userData);
-    return { success: true };
-  }
-  return { success: false, error: 'رقم الجوال غير مسجل أو غير مُوافق عليه' };
-}
-
-async function loginWithEmail(email, password) {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    const q = query(collection(db, 'users'), where('email', '==', email));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const userData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-      setCurrentUser(userData);
-      return { success: true };
+export async function loginWithEmail(email, password) {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        if (email === ADMIN_EMAIL) {
+            const adminData = {
+                uid: user.uid,
+                email: user.email,
+                name: 'المشرف',
+                isAdmin: true
+            };
+            localStorage.setItem('currentUser', JSON.stringify(adminData));
+            return { success: true, user: adminData };
+        }
+        
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+            const userData = { uid: user.uid, ...userDoc.data(), isAdmin: false };
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            return { success: true, user: userData };
+        }
+        return { success: false, message: 'بيانات غير صحيحة' };
+    } catch (error) {
+        return { success: false, message: error.message };
     }
-    return { success: false, error: 'المستخدم غير موجود' };
-  } catch (e) {
-    return { success: false, error: 'بريد أو كلمة مرور غير صحيحة' };
-  }
 }
 
-async function adminLogin(password) {
-  if (password === 'admin123') {
-    const adminData = {
-      id: 'admin',
-      name: 'المشرف',
-      email: ADMIN_EMAIL,
-      phone: '0500509134',
-      isAdmin: true,
-      approved: true
-    };
-    setCurrentUser(adminData);
-    return { success: true };
-  }
-  return { success: false, error: 'كلمة المرور خاطئة' };
+export async function loginAsAdmin(password) {
+    if (password === 'admin123') {
+        const adminData = {
+            uid: 'admin',
+            email: ADMIN_EMAIL,
+            name: 'المشرف',
+            isAdmin: true
+        };
+        localStorage.setItem('currentUser', JSON.stringify(adminData));
+        return { success: true, user: adminData };
+    }
+    return { success: false, message: 'كلمة المرور غير صحيحة' };
 }
 
-function logout() {
-  localStorage.removeItem('currentUser');
-  signOut(auth);
+export async function loginWithPhone(phone) {
+    try {
+        const q = query(collection(db, 'users'), where('phone', '==', phone), where('approved', '==', true));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+            return { success: false, message: 'رقم الجوال غير مسجل أو بانتظار الموافقة' };
+        }
+        
+        const userData = { uid: snapshot.docs[0].id, ...snapshot.docs[0].data(), isAdmin: false };
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        return { success: true, user: userData };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-// === دوال الأماكن ===
-async function getAllPlaces() {
-  const snapshot = await getDocs(query(collection(db, 'places'), orderBy('createdAt', 'desc')));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+export async function requestRegistration(phone, name) {
+    try {
+        const q = query(collection(db, 'users'), where('phone', '==', phone));
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+            return { success: false, message: 'هذا الرقم مسجل مسبقاً' };
+        }
+        
+        await addDoc(collection(db, 'users'), {
+            phone,
+            name,
+            approved: false,
+            createdAt: new Date().toISOString()
+        });
+        return { success: true, message: 'تم إرسال الطلب بانتظار موافقة المشرف ✅' };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-async function addPlace(data) {
-  const user = getCurrentUser();
-  await addDoc(collection(db, 'places'), {
-    ...data,
-    createdAt: new Date(),
-    createdBy: user?.phone || user?.email || 'مجهول'
-  });
+export async function getAllUsers() {
+    try {
+        const snapshot = await getDocs(collection(db, 'users'));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
 }
 
-async function updatePlace(id, data) {
-  const docRef = doc(db, 'places', id);
-  await updateDoc(docRef, { ...data, updatedAt: new Date() });
+export async function approveUser(userId) {
+    try {
+        await updateDoc(doc(db, 'users', userId), { approved: true });
+        return { success: true };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-async function deletePlace(id) {
-  await deleteDoc(doc(db, 'places', id));
+export async function deleteUser(userId) {
+    try {
+        await deleteDoc(doc(db, 'users', userId));
+        return { success: true };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-async function getPlaceById(id) {
-  const docSnap = await getDocs(doc(db, 'places', id));
-  if (docSnap.exists()) return { id: docSnap.id, ...docSnap.data() };
-  return null;
+export function logout() {
+    localStorage.removeItem('currentUser');
+    signOut(auth);
 }
 
-// === دوال المدن ===
-async function getCities() {
-  const places = await getAllPlaces();
-  const cityNames = [...new Set(places.map(p => p.city).filter(c => c))];
-  return cityNames.map(name => ({ name }));
+// ==========================================
+// ✅ دوال الأماكن والمدن — الأساسية
+// ==========================================
+export async function getAllPlaces() {
+    try {
+        const q = query(collection(db, 'places'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error('❌ خطأ في جلب الأماكن:', error);
+        return [];
+    }
 }
 
-async function addCity(cityName) {
-  const places = await getAllPlaces();
-  const exists = places.some(p => p.city === cityName);
-  if (!exists) {
-    await addDoc(collection(db, 'places'), {
-      name: '',
-      city: cityName,
-      category: '',
-      createdAt: new Date(),
-      createdBy: getCurrentUser()?.phone || 'admin',
-      isCityOnly: true
-    });
-  }
+export async function getPlaces() {
+    return getAllPlaces();
 }
 
-async function getPlacesByCity(cityName) {
-  const snapshot = await getDocs(query(
-    collection(db, 'places'),
-    where('city', '==', cityName),
-    where('isCityOnly', '!=', true),
-    orderBy('createdAt', 'desc')
-  ));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+export async function getCities() {
+    try {
+        const places = await getAllPlaces();
+        const cityNames = [...new Set(places.map(p => p.city).filter(c => c))];
+        return cityNames.map(name => ({ name }));
+    } catch (error) {
+        console.error('❌ خطأ في جلب المدن:', error);
+        return [];
+    }
 }
 
-// === رفع الصور ===
-async function uploadImage(file) {
-  const storageRef = ref(storage, `places/${Date.now()}_${file.name}`);
-  const snapshot = await uploadBytes(storageRef, file);
-  const url = await getDownloadURL(snapshot.ref);
-  return { url };
+export async function addPlace(placeData) {
+    try {
+        const user = getCurrentUser();
+        const data = {
+            ...placeData,
+            createdBy: user?.uid || 'unknown',
+            createdByName: user?.name || 'مستخدم',
+            createdAt: new Date().toISOString()
+        };
+        const docRef = await addDoc(collection(db, 'places'), data);
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error('❌ خطأ في إضافة مكان:', error);
+        return { success: false, message: error.message };
+    }
 }
 
-// === دوال المستخدمين ===
-async function getAllUsers() {
-  const snapshot = await getDocs(collection(db, 'users'));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+export async function updatePlace(id, data) {
+    try {
+        await updateDoc(doc(db, 'places', id), data);
+        return { success: true };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-async function addUserByAdmin(name, phone, email = '') {
-  await addDoc(collection(db, 'users'), {
-    name,
-    phone,
-    email,
-    approved: true,
-    createdAt: new Date()
-  });
+export async function deletePlace(id) {
+    try {
+        await deleteDoc(doc(db, 'places', id));
+        return { success: true };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
 
-async function requestRegistration(name, phone, email = '') {
-  await addDoc(collection(db, 'users'), {
-    name,
-    phone,
-    email,
-    approved: false,
-    createdAt: new Date()
-  });
+export async function uploadImage(file) {
+    try {
+        const storageRef = ref(storage, `images/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+        return { success: true, url };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 }
-
-async function approveUser(id) {
-  await updateDoc(doc(db, 'users', id), { approved: true });
-}
-
-async function deleteUser(id) {
-  await deleteDoc(doc(db, 'users', id));
-}
-
-async function updateUserProfile(data) {
-  const user = getCurrentUser();
-  if (!user) return;
-  const docRef = doc(db, 'users', user.id);
-  await updateDoc(docRef, data);
-  setCurrentUser({ ...user, ...data });
-}
-
-window.auth = {
-  getCurrentUser, setCurrentUser, isUserLoggedIn, isAdmin,
-  loginWithPhone, loginWithEmail, adminLogin, logout,
-  getAllPlaces, addPlace, updatePlace, deletePlace, getPlaceById,
-  getCities, addCity, getPlacesByCity,
-  uploadImage, getAllUsers, addUserByAdmin, requestRegistration,
-  approveUser, deleteUser, updateUserProfile
-};
-
-export {
-  getCurrentUser, setCurrentUser, isUserLoggedIn, isAdmin,
-  loginWithPhone, loginWithEmail, adminLogin, logout,
-  getAllPlaces, addPlace, updatePlace, deletePlace, getPlaceById,
-  getCities, addCity, getPlacesByCity,
-  uploadImage, getAllUsers, addUserByAdmin, requestRegistration,
-  approveUser, deleteUser, updateUserProfile
-};
