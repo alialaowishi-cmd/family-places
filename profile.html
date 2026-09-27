@@ -54,9 +54,13 @@
                 </div>
                 <h2 id="userName" class="text-xl font-bold mb-1">مستخدم</h2>
                 <p id="userPhone" class="text-sm text-slate-400 mb-4">—</p>
-                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-4 bg-transparent">
-                    <i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية
+                <button id="changeAvatarBtn" class="text-sm text-secondary hover:text-secondary/80 mb-2 bg-transparent">
+                    <i class="fa fa-camera ml-1"></i> رفع صورة من جهازي
                 </button>
+                <div class="flex gap-2 mb-4 w-full max-w-xs">
+                    <input type="url" id="avatarUrlInput" placeholder="أو الصق رابط الصورة من أي موقع" class="flex-1 min-w-0 px-3 py-2 rounded-lg bg-slate-700 border border-slate-600 text-white text-xs outline-none">
+                    <button id="saveAvatarUrlBtn" class="px-3 py-2 rounded-lg bg-secondary/20 text-secondary text-xs flex-shrink-0">حفظ</button>
+                </div>
                 <input type="file" id="avatarInput" accept="image/*" class="hidden">
             </div>
             <div class="space-y-3 mt-2">
@@ -260,6 +264,32 @@
                 alert('❌ خطأ في رفع الصورة: ' + err.message);
             }
             btn.innerHTML = '<i class="fa fa-camera ml-1"></i> تغيير الصورة الشخصية';
+        });
+
+        // حفظ الصورة الشخصية برابط خارجي (بدون رفع)
+        document.getElementById('saveAvatarUrlBtn').addEventListener('click', async () => {
+            const url = document.getElementById('avatarUrlInput').value.trim();
+            if (!url || !url.startsWith('http')) { alert('الصق رابط صورة صحيح يبدأ بـ http'); return; }
+            const btn = document.getElementById('saveAvatarUrlBtn');
+            btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+            try {
+                await updateUserByPhone(currentUser.phone, { avatarUrl: url });
+                currentUser.avatarUrl = url;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                userAvatar.src = url;
+                userAvatar.classList.remove('hidden');
+                defaultAvatar.classList.add('hidden');
+                // تحديث صورة صاحب المكان في أماكنه السابقة
+                try {
+                    const myPlaces = await getPlacesByUser(currentUser.phone);
+                    for (const p of myPlaces) { await updatePlace(p.id, { createdByAvatar: url }); }
+                } catch (e) { console.warn(e); }
+                document.getElementById('avatarUrlInput').value = '';
+                alert('✅ تم حفظ الصورة الشخصية وتحديثها في أماكنك');
+            } catch (err) {
+                alert('❌ خطأ: ' + err.message);
+            }
+            btn.disabled = false; btn.textContent = 'حفظ';
         });
 
         // ===== تعديل الاسم =====

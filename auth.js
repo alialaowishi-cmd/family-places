@@ -108,13 +108,59 @@ export function isAdmin() {
   return user.isAdmin === true || user.phone === ADMIN_PHONE;
 }
 
+// إعدادات Cloudinary (السحابة الخارجية لرفع الصور)
+const CLOUDINARY_CLOUD = 'bitpubcu';
+const CLOUDINARY_PRESET = 'family_places';
+
+// ضغط الصورة تلقائياً قبل الرفع (تسريع كبير وتوفير المساحة)
+function compressImage(file, maxWidth = 1280, quality = 0.8) {
+  return new Promise((resolve) => {
+    if (!file.type || !file.type.startsWith('image/')) { resolve(file); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width, height = img.height;
+        if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (!blob) { resolve(file); return; }
+          const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+          resolve(compressed);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// رفع إلى Cloudinary (بدون أي مفاتيح سرية — إعداد مفتوح Unsigned)
+async function cloudinaryUpload(file, folder) {
+  file = await compressImage(file, 1280, 0.8);
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_PRESET);
+  if (folder) fd.append('folder', folder);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: fd
+  });
+  const data = await res.json();
+  if (!data.secure_url) {
+    throw new Error(data.error && data.error.message ? data.error.message : 'فشل رفع الصورة إلى Cloudinary');
+  }
+  return { url: data.secure_url };
+}
+
 export async function uploadImage(file) {
   try {
-    const fileName = `images/${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, fileName);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    return { url };
+    return await cloudinaryUpload(file, 'places');
   } catch (error) {
     console.error('❌ خطأ رفع الصورة:', error);
     throw error;
@@ -123,11 +169,7 @@ export async function uploadImage(file) {
 
 export async function uploadAvatar(file, phone) {
   try {
-    const fileName = `avatars/${phone}_${Date.now()}.jpg`;
-    const storageRef = ref(storage, fileName);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    return { url };
+    return await cloudinaryUpload(file, 'avatars');
   } catch (error) {
     console.error('❌ خطأ رفع الصورة الشخصية:', error);
     throw error;
