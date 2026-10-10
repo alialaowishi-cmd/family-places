@@ -49,7 +49,7 @@
     <main class="max-w-2xl mx-auto px-4 py-5">
         <div class="flex justify-between items-center mb-5">
             <h2 class="text-base font-semibold text-gray-700">سجل المشتريات</h2>
-            <button id="addPurchaseBtn" class="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/15 transition">
+            <button id="addPurchaseBtn" onclick="window.location.href='add-purchase.html'" class="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/15 transition">
                 + إضافة مشتريات
             </button>
         </div>
@@ -67,7 +67,7 @@
             <button class="nav-item flex flex-col items-center gap-1 px-2 py-1" onclick="window.location.href='city.html?name=الطائف'">
                 <i class="fa fa-building-o text-lg"></i><span class="text-xs">مدينة</span>
             </button>
-            <button class="nav-fab rounded-full flex items-center justify-center text-white text-xl" onclick="window.location.href='add-place.html'">
+            <button class="nav-fab rounded-full flex items-center justify-center text-white text-xl" onclick="window.location.href='add-purchase.html'">
                 <i class="fa fa-plus"></i>
             </button>
             <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 active" onclick="window.location.href='purchases.html'">
@@ -80,7 +80,8 @@
     </nav>
 
     <script type="module">
-        import { isUserLoggedIn, isAdmin, getPurchases, deletePurchase } from './auth.js';
+        import { getCurrentUser, isUserLoggedIn, isAdmin, getPurchases, deletePurchase } from './auth.js';
+        const currentUser = getCurrentUser();
         if (!isUserLoggedIn()) { alert('يرجى تسجيل الدخول أولاً'); window.location.href = 'login.html'; }
         if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
 
@@ -169,7 +170,7 @@
         }
 
         async function loadPurchases() {
-            const purchases = await getPurchases();
+            const purchases = await getPurchases(currentUser.phone);
             renderPurchases(purchases);
         }
         loadPurchases();
