@@ -311,3 +311,59 @@ export function onPlaces(cityName, callback) {
     return () => {};
   }
 }
+
+
+// ===== مشتريات الأعضاء (سجل الشراء + الضمان + الفواتير) =====
+export async function addPurchase(purchaseData) {
+  try {
+    const docRef = await addDoc(collection(db, 'purchases'), purchaseData);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('❌ خطأ إضافة مشتريات:', error);
+    throw error;
+  }
+}
+
+export async function getPurchases(userPhone) {
+  try {
+    const q = query(collection(db, 'purchases'), where('createdBy', '==', userPhone));
+    const snapshot = await getDocs(q);
+    const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    list.sort((a, b) => (b.purchaseDate || '').localeCompare(a.purchaseDate || ''));
+    return list;
+  } catch (error) {
+    console.error('❌ خطأ جلب المشتريات:', error);
+    return [];
+  }
+}
+
+export async function getPurchaseById(id) {
+  try {
+    const snap = await getDoc(doc(db, 'purchases', id));
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() };
+  } catch (error) {
+    console.error('❌ خطأ جلب المشتريات:', error);
+    throw error;
+  }
+}
+
+export async function updatePurchase(id, data) {
+  try {
+    await updateDoc(doc(db, 'purchases', id), { ...data, updatedAt: new Date().toISOString() });
+    return { success: true };
+  } catch (error) {
+    console.error('❌ خطأ تحديث المشتريات:', error);
+    throw error;
+  }
+}
+
+export async function deletePurchase(id) {
+  try {
+    await deleteDoc(doc(db, 'purchases', id));
+    return { success: true };
+  } catch (error) {
+    console.error('❌ خطأ حذف المشتريات:', error);
+    throw error;
+  }
+}

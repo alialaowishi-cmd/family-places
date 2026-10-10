@@ -10,7 +10,8 @@ import {
   getSettings, saveSettings,
   addNotification, onNotifications,
   getUserPrefs, setUserPrefs, markNotificationRead,
-  onCities, onPlaces
+  onCities, onPlaces,
+  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase
 } from './db.js';
 
 const ADMIN_PHONE = "0500509134";
@@ -176,6 +177,27 @@ export async function uploadAvatar(file, phone) {
   }
 }
 
+
+// رفع ملف الفاتورة (PDF أو صورة) إلى Cloudinary
+export async function uploadInvoiceFile(file) {
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('folder', 'invoices');
+    const endpoint = (file.type === 'application/pdf') ? 'raw' : 'image';
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${endpoint}/upload`, {
+      method: 'POST', body: fd
+    });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error(data.error && data.error.message ? data.error.message : 'فشل رفع الفاتورة');
+    return { url: data.secure_url };
+  } catch (error) {
+    console.error('❌ خطأ رفع الفاتورة:', error);
+    throw error;
+  }
+}
+
 export {
   getCities, addCity, deleteCityDoc,
   getPlaces, getPlaceById, getPlacesByUser, addPlace, updatePlace, deletePlace,
@@ -183,5 +205,6 @@ export {
   getSettings, saveSettings,
   addNotification, onNotifications,
   getUserPrefs, setUserPrefs, markNotificationRead,
-  onCities, onPlaces
+  onCities, onPlaces,
+  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase
 };

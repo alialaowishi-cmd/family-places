@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشترياتي — كشتات عائلة حسين العويشي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        secondary: '#3B82F6',
+                        dark: '#0F172A',
+                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
+        body { background: linear-gradient(180deg, rgba(0,122,255,0.04) 0%, rgba(94,92,230,0.03) 100%); min-height: 100vh; padding-bottom: 85px; font-family: 'Tajawal', sans-serif; }
+        .glass-ios { background: rgba(255,255,255,0.72); backdrop-filter: saturate(180%) blur(20px); border: 1px solid rgba(255,255,255,0.3); }
+        .card-ios { background: rgba(255,255,255,0.6); backdrop-filter: saturate(180%) blur(16px); border: 1px solid rgba(0,122,255,0.06); transition: all 0.25s ease; }
+        .card-ios:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,122,255,0.06); }
+        .bottom-nav { background: rgba(255,255,255,0.78); backdrop-filter: saturate(180%) blur(25px); border-top: 1px solid rgba(0,122,255,0.08); }
+        .nav-item { transition: all 0.2s ease; color: #8E8E93; }
+        .nav-item.active { color: #007AFF; }
+        .nav-fab { background: linear-gradient(135deg, #007AFF 0%, #0066DD 100%); width: 50px; height: 50px; margin-top: -20px; box-shadow: 0 4px 15px rgba(0,122,255,0.3); }
+        .warranty-active { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+        .warranty-expiring { background: rgba(234, 179, 8, 0.1); color: #ca8a04; }
+        .warranty-expired { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    </style>
+</head>
+<body>
+    <header class="glass-ios sticky top-0 z-40 shadow-sm">
+        <div class="max-w-2xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <button onclick="window.location.href='home.html'" class="flex items-center gap-2 text-gray-500 hover:text-primary text-sm">
+                <i class="fa fa-home"></i> الرئيسية
+            </button>
+            <h1 class="text-lg font-bold text-gray-800">📦 مشترياتي</h1>
+            <div class="w-16"></div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-5">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-base font-semibold text-gray-700">سجل المشتريات</h2>
+            <button id="addPurchaseBtn" class="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/15 transition">
+                + إضافة مشتريات
+            </button>
+        </div>
+
+        <div id="purchasesContainer" class="space-y-4">
+            <p class="text-gray-400 text-center py-12 text-sm">جاري التحميل...</p>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bottom-nav z-50">
+        <div class="max-w-lg mx-auto px-2 py-2.5 flex items-end justify-around">
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1" onclick="window.location.href='home.html'">
+                <i class="fa fa-home text-lg"></i><span class="text-xs">الرئيسية</span>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1" onclick="window.location.href='city.html?name=الطائف'">
+                <i class="fa fa-building-o text-lg"></i><span class="text-xs">مدينة</span>
+            </button>
+            <button class="nav-fab rounded-full flex items-center justify-center text-white text-xl" onclick="window.location.href='add-place.html'">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button class="nav-item flex flex-col items-center gap-1 px-2 py-1 active" onclick="window.location.href='purchases.html'">
+                <i class="fa fa-shopping-bag text-lg"></i><span class="text-xs">مشتريات</span>
+            </button>
+            <button id="navAdmin" class="nav-item flex flex-col items-center gap-1 px-2 py-1 hidden" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fa fa-cog text-lg"></i><span class="text-xs">المشرف</span>
+            </button>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { isUserLoggedIn, isAdmin, getPurchases, deletePurchase } from './auth.js';
+        if (!isUserLoggedIn()) { alert('يرجى تسجيل الدخول أولاً'); window.location.href = 'login.html'; }
+        if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
+
+        const purchasesContainer = document.getElementById('purchasesContainer');
+        document.getElementById('addPurchaseBtn').addEventListener('click', () => window.location.href = 'add-purchase.html');
+
+        function getWarrantyStatus(purchase) {
+            if (!purchase.hasWarranty) return null;
+            const purchaseDate = new Date(purchase.purchaseDate);
+            const durationMonths = parseInt(purchase.warrantyDuration);
+            const expiryDate = new Date(purchaseDate);
+            expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
+            const today = new Date();
+            const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            return {
+                expiryDate: expiryDate.toLocaleDateString('ar-SA'),
+                daysLeft,
+                isActive: daysLeft > 30,
+                isExpiring: daysLeft > 0 && daysLeft <= 30,
+                isExpired: daysLeft <= 0
+            };
+        }
+
+        function renderPurchases(purchases) {
+            if (purchases.length === 0) {
+                purchasesContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fa fa-shopping-bag text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-400 text-sm">لم تسجل أي مشتريات بعد</p>
+                        <button onclick="window.location.href='add-purchase.html'" class="mt-4 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-primary/90">
+                            تسجيل أول عملية شراء
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            purchasesContainer.innerHTML = purchases.map(p => {
+                const warranty = getWarrantyStatus(p);
+                let warrantyBadge = '';
+                if (warranty) {
+                    if (warranty.isActive) warrantyBadge = `<span class="warranty-active text-xs px-2 py-0.5 rounded-full">✅ ضمان ساري (${warranty.daysLeft} يوم متبقي)</span>`;
+                    else if (warranty.isExpiring) warrantyBadge = `<span class="warranty-expiring text-xs px-2 py-0.5 rounded-full">⚠️ ينتهي قريباً (${warranty.daysLeft} يوم)</span>`;
+                    else if (warranty.isExpired) warrantyBadge = `<span class="warranty-expired text-xs px-2 py-0.5 rounded-full">❌ منتهي منذ ${Math.abs(warranty.daysLeft)} يوم</span>`;
+                }
+
+                return `
+                    <div class="card-ios rounded-2xl p-4 cursor-pointer" data-id="${p.id}">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h3 class="font-semibold text-gray-800 truncate">${p.itemName}</h3>
+                                    ${p.price ? `<span class="text-sm font-bold text-primary whitespace-nowrap">${p.price} ر.س</span>` : ''}
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">
+                                    📍 ${p.placeName || 'بدون مكان'} • ${new Date(p.purchaseDate).toLocaleDateString('ar-SA')}
+                                </p>
+                                <div class="mt-2 flex flex-wrap gap-2 items-center">
+                                    ${warrantyBadge}
+                                    ${p.storePhone ? `<a href="tel:${p.storePhone}" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full hover:bg-gray-200" onclick="event.stopPropagation()"><i class="fa fa-phone mr-1"></i>${p.storePhone}</a>` : ''}
+                                    ${p.mapUrl ? `<a href="${p.mapUrl}" target="_blank" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full hover:bg-green-200" onclick="event.stopPropagation()"><i class="fa fa-map-marker mr-1"></i>الخريطة</a>` : ''}
+                                    ${p.invoiceUrl ? `<a href="${p.invoiceUrl}" target="_blank" class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full hover:bg-red-200" onclick="event.stopPropagation()"><i class="fa fa-file-pdf-o mr-1"></i>الفاتورة</a>` : ''}
+                                </div>
+                            </div>
+                            <button class="text-gray-400 hover:text-red-500 delete-purchase mr-2" data-id="${p.id}" onclick="event.stopPropagation()">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            document.querySelectorAll('.delete-purchase').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+                        await deletePurchase(id);
+                        loadPurchases();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.card-ios').forEach(card => {
+                card.addEventListener('click', () => {
+                    window.location.href = `add-purchase.html?edit=${card.dataset.id}`;
+                });
+            });
+        }
+
+        async function loadPurchases() {
+            const purchases = await getPurchases();
+            renderPurchases(purchases);
+        }
+        loadPurchases();
+    </script>
+</body>
+</html>

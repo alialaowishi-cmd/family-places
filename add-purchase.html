@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل مشتريات جديدة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        secondary: '#3B82F6',
+                        dark: '#0F172A',
+                    },
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap');
+        body { background: linear-gradient(180deg, rgba(0,122,255,0.04) 0%, rgba(94,92,230,0.03) 100%); min-height: 100vh; padding-bottom: 85px; font-family: 'Tajawal', sans-serif; }
+        .input-field { background: #fff; border: 1px solid #ddd; transition: border 0.2s ease; }
+        .input-field:focus { border-color: #007AFF; outline: none; }
+        .upload-area { border: 2px dashed #ccc; transition: all 0.2s ease; }
+        .upload-area:hover { border-color: #007AFF; background: rgba(0,122,255,0.02); }
+        button { font-family: inherit; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
+        <div class="flex items-center justify-between max-w-2xl mx-auto">
+            <button id="backBtn" class="text-gray-500 hover:text-primary">
+                <i class="fa fa-arrow-right fa-lg"></i>
+            </button>
+            <h1 class="text-lg font-bold text-gray-800" id="pageTitle">تسجيل عملية شراء</h1>
+            <div class="w-8"></div>
+        </div>
+    </header>
+
+    <main class="max-w-lg mx-auto px-4 py-6">
+        <form id="purchaseForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">اسم المنتج/الجهاز *</label>
+                <input type="text" id="itemName" class="w-full px-4 py-3 rounded-lg input-field" placeholder="مثال: هاتف / لابتوب / ثلاجة" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">المكان الذي تم الشراء منه</label>
+                <select id="placeSelect" class="w-full px-4 py-3 rounded-lg input-field">
+                    <option value="">-- اختر من الأماكن المضافة --</option>
+                </select>
+                <input type="text" id="customPlace" class="w-full px-4 py-3 rounded-lg input-field mt-2" placeholder="أو اكتب اسم المحل يدوياً">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">تاريخ الشراء *</label>
+                    <input type="date" id="purchaseDate" class="w-full px-4 py-3 rounded-lg input-field" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">السعر (ريال)</label>
+                    <input type="number" id="price" class="w-full px-4 py-3 rounded-lg input-field" placeholder="مثال: 1500" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">📞 رقم اتصال المحل</label>
+                    <input type="tel" id="storePhone" class="w-full px-4 py-3 rounded-lg input-field" placeholder="05xxxxxxxx">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">📍 رابط الموقع على الخريطة</label>
+                    <input type="url" id="mapUrl" class="w-full px-4 py-3 rounded-lg input-field" placeholder="انسخ الرابط من قوقل ماب">
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 -mt-2">💡 لنسخ رابط الموقع: افتح قوقل ماب → اضغط مطولاً على المكان → مشاركة → نسخ الرابط</p>
+
+            <!-- قسم الضمان -->
+            <div class="bg-blue-50 rounded-xl p-4">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="hasWarranty" class="w-5 h-5 text-primary rounded">
+                    <span class="font-medium text-gray-800">✅ يوجد ضمان لهذا المنتج</span>
+                </label>
+
+                <div id="warrantyOptions" class="mt-4 pl-8 hidden space-y-3">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">مدة الضمان</label>
+                        <select id="warrantyDuration" class="w-full px-4 py-3 rounded-lg input-field">
+                            <option value="6">6 أشهر</option>
+                            <option value="12" selected>1 سنة</option>
+                            <option value="24">سنتان</option>
+                            <option value="36">3 سنوات</option>
+                            <option value="48">4 سنوات</option>
+                            <option value="60">5 سنوات</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-gray-500">سيتم احتساب تاريخ انتهاء الضمان تلقائياً بناءً على تاريخ الشراء</p>
+                </div>
+            </div>
+
+            <!-- رفع الفاتورة -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">📄 صورة أو ملف الفاتورة</label>
+                <div id="invoiceUploadArea" class="upload-area rounded-xl p-6 text-center cursor-pointer">
+                    <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-500">اضغط لاختيار ملف PDF أو صورة الفاتورة</p>
+                    <input type="file" id="invoiceFile" accept=".pdf,image/*" class="hidden">
+                </div>
+                <div id="invoicePreview" class="mt-3 hidden">
+                    <div class="flex items-center justify-between bg-green-50 p-3 rounded-lg">
+                        <span class="text-sm text-green-700" id="invoiceFileName"></span>
+                        <button type="button" id="removeInvoice" class="text-red-500 hover:text-red-700">
+                            <i class="fa fa-times-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ملاحظات إضافية</label>
+                <textarea id="notes" rows="3" class="w-full px-4 py-3 rounded-lg input-field" placeholder="أي معلومات إضافية عن المنتج أو الشراء"></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="button" id="cancelBtn" class="flex-1 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 transition text-gray-700">إلغاء</button>
+                <button type="submit" id="saveBtn" class="flex-1 bg-primary py-3 rounded-lg text-white font-medium hover:bg-primary/90 transition">
+                    <span id="saveText">حفظ السجل</span>
+                    <i id="loadingIcon" class="fa fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module">
+        import { getCurrentUser, isUserLoggedIn, uploadInvoiceFile, addPurchase, getPlaces, getPurchaseById, updatePurchase } from './auth.js';
+        if (!isUserLoggedIn()) { alert('يرجى تسجيل الدخول أولاً'); window.location.href = 'login.html'; }
+        const currentUser = getCurrentUser();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('edit');
+        let editingData = null;
+        let uploadedInvoiceUrl = '';
+        let uploadedInvoiceName = '';
+
+        const pageTitle = document.getElementById('pageTitle');
+        const purchaseForm = document.getElementById('purchaseForm');
+        const backBtn = document.getElementById('backBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const hasWarranty = document.getElementById('hasWarranty');
+        const warrantyOptions = document.getElementById('warrantyOptions');
+        const invoiceUploadArea = document.getElementById('invoiceUploadArea');
+        const invoiceFile = document.getElementById('invoiceFile');
+        const invoicePreview = document.getElementById('invoicePreview');
+        const invoiceFileName = document.getElementById('invoiceFileName');
+        const removeInvoice = document.getElementById('removeInvoice');
+        const saveText = document.getElementById('saveText');
+        const loadingIcon = document.getElementById('loadingIcon');
+        const purchaseDate = document.getElementById('purchaseDate');
+
+        purchaseDate.valueAsDate = new Date();
+
+        async function loadPlacesOptions() {
+            const places = await getPlaces();
+            const select = document.getElementById('placeSelect');
+            places.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = `${p.name} — ${p.city}`;
+                select.appendChild(opt);
+            });
+        }
+
+        hasWarranty.addEventListener('change', () => {
+            warrantyOptions.classList.toggle('hidden', !hasWarranty.checked);
+        });
+
+        invoiceUploadArea.addEventListener('click', () => invoiceFile.click());
+        invoiceFile.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            invoiceFileName.textContent = file.name;
+            invoicePreview.classList.remove('hidden');
+            invoiceUploadArea.classList.add('hidden');
+            uploadedInvoiceName = file.name;
+            try {
+                saveText.textContent = 'جاري رفع الفاتورة...';
+                const result = await uploadInvoiceFile(file);
+                uploadedInvoiceUrl = result.url;
+                saveText.textContent = 'حفظ السجل';
+            } catch (err) {
+                alert('❌ فشل رفع الملف: ' + err.message);
+                resetInvoiceUpload();
+            }
+        });
+
+        removeInvoice.addEventListener('click', resetInvoiceUpload);
+        function resetInvoiceUpload() {
+            uploadedInvoiceUrl = '';
+            uploadedInvoiceName = '';
+            invoiceFile.value = '';
+            invoicePreview.classList.add('hidden');
+            invoiceUploadArea.classList.remove('hidden');
+        }
+
+        async function loadForEdit(id) {
+            pageTitle.textContent = 'تعديل بيانات الشراء';
+            editingData = await getPurchaseById(id);
+            if (!editingData) { alert('السجل غير موجود'); window.location.href = 'purchases.html'; return; }
+            document.getElementById('itemName').value = editingData.itemName || '';
+            document.getElementById('placeSelect').value = editingData.placeSource || '';
+            document.getElementById('customPlace').value = editingData.customPlace || '';
+            purchaseDate.value = editingData.purchaseDate || '';
+            document.getElementById('price').value = editingData.price || '';
+            document.getElementById('storePhone').value = editingData.storePhone || '';
+            document.getElementById('mapUrl').value = editingData.mapUrl || '';
+            document.getElementById('notes').value = editingData.notes || '';
+            if (editingData.hasWarranty) {
+                hasWarranty.checked = true;
+                warrantyOptions.classList.remove('hidden');
+                document.getElementById('warrantyDuration').value = editingData.warrantyDuration || '12';
+            }
+            if (editingData.invoiceUrl) {
+                uploadedInvoiceUrl = editingData.invoiceUrl;
+                uploadedInvoiceName = editingData.invoiceName || 'فاتورة محفوظة';
+                invoiceFileName.textContent = uploadedInvoiceName;
+                invoicePreview.classList.remove('hidden');
+                invoiceUploadArea.classList.add('hidden');
+            }
+        }
+
+        purchaseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const itemName = document.getElementById('itemName').value.trim();
+            const placeSource = document.getElementById('placeSelect').value;
+            const customPlace = document.getElementById('customPlace').value.trim();
+            const finalPlaceName = customPlace || placeSource;
+            const purchaseDateVal = purchaseDate.value;
+            const price = document.getElementById('price').value.trim();
+            const storePhone = document.getElementById('storePhone').value.trim();
+            const mapUrl = document.getElementById('mapUrl').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+            const warrantyChecked = hasWarranty.checked;
+            const warrantyDuration = document.getElementById('warrantyDuration').value;
+
+            if (!itemName) { alert('أدخل اسم المنتج'); return; }
+            if (!purchaseDateVal) { alert('أدخل تاريخ الشراء'); return; }
+
+            saveText.classList.add('hidden');
+            loadingIcon.classList.remove('hidden');
+
+            const purchaseData = {
+                itemName,
+                placeName: finalPlaceName,
+                placeSource,
+                customPlace,
+                purchaseDate: purchaseDateVal,
+                price,
+                storePhone,
+                mapUrl,
+                notes,
+                hasWarranty: warrantyChecked,
+                warrantyDuration: warrantyChecked ? parseInt(warrantyDuration) : null,
+                invoiceUrl: uploadedInvoiceUrl,
+                invoiceName: uploadedInvoiceName,
+                createdBy: currentUser.phone,
+                createdByName: currentUser.name || 'مستخدم',
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                if (editingData) {
+                    await updatePurchase(editId, purchaseData);
+                } else {
+                    await addPurchase(purchaseData);
+                }
+                alert('✅ تم حفظ السجل بنجاح!');
+                window.location.href = 'purchases.html';
+            } catch (err) {
+                alert('❌ حدث خطأ: ' + err.message);
+            } finally {
+                saveText.classList.remove('hidden');
+                loadingIcon.classList.add('hidden');
+            }
+        });
+
+        backBtn.addEventListener('click', () => history.back());
+        cancelBtn.addEventListener('click', () => history.back());
+
+        loadPlacesOptions();
+        if (editId) loadForEdit(editId);
+    </script>
+</body>
+</html>
