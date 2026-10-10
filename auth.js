@@ -11,7 +11,8 @@ import {
   addNotification, onNotifications,
   getUserPrefs, setUserPrefs, markNotificationRead,
   onCities, onPlaces,
-  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase
+  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase,
+  getAllPurchases
 } from './db.js';
 
 const ADMIN_PHONE = "0500509134";
@@ -206,5 +207,6 @@ export {
   addNotification, onNotifications,
   getUserPrefs, setUserPrefs, markNotificationRead,
   onCities, onPlaces,
-  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase
+  addPurchase, getPurchases, getPurchaseById, updatePurchase, deletePurchase,
+  getAllPurchases
 };

@@ -53,6 +53,10 @@
                 + إضافة مشتريات
             </button>
         </div>
+        <div id="adminToggle" class="hidden mb-4 flex gap-2">
+            <button id="viewMine" class="flex-1 py-2 rounded-xl text-sm font-medium bg-primary text-white">مشترياتي فقط</button>
+            <button id="viewAll" class="flex-1 py-2 rounded-xl text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300">كل مشتريات الأعضاء 👁️</button>
+        </div>
 
         <div id="purchasesContainer" class="space-y-4">
             <p class="text-gray-400 text-center py-12 text-sm">جاري التحميل...</p>
@@ -80,10 +84,27 @@
     </nav>
 
     <script type="module">
-        import { getCurrentUser, isUserLoggedIn, isAdmin, getPurchases, deletePurchase } from './auth.js';
+        import { getCurrentUser, isUserLoggedIn, isAdmin, getPurchases, getAllPurchases, deletePurchase } from './auth.js';
         const currentUser = getCurrentUser();
+        let viewMode = 'mine'; // 'mine' أو 'all' (للمشرف فقط)
         if (!isUserLoggedIn()) { alert('يرجى تسجيل الدخول أولاً'); window.location.href = 'login.html'; }
-        if (isAdmin()) document.getElementById('navAdmin').classList.remove('hidden');
+        if (isAdmin()) {
+            document.getElementById('navAdmin').classList.remove('hidden');
+            document.getElementById('adminToggle').classList.remove('hidden');
+            document.getElementById('adminToggle').classList.add('flex');
+        }
+        document.getElementById('viewMine').addEventListener('click', () => {
+            viewMode = 'mine';
+            document.getElementById('viewMine').className = 'flex-1 py-2 rounded-xl text-sm font-medium bg-primary text-white';
+            document.getElementById('viewAll').className = 'flex-1 py-2 rounded-xl text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300';
+            loadPurchases();
+        });
+        document.getElementById('viewAll').addEventListener('click', () => {
+            viewMode = 'all';
+            document.getElementById('viewAll').className = 'flex-1 py-2 rounded-xl text-sm font-medium bg-purple-600 text-white';
+            document.getElementById('viewMine').className = 'flex-1 py-2 rounded-xl text-sm font-medium bg-gray-200 text-gray-600 hover:bg-gray-300';
+            loadPurchases();
+        });
 
         const purchasesContainer = document.getElementById('purchasesContainer');
         document.getElementById('addPurchaseBtn').addEventListener('click', () => window.location.href = 'add-purchase.html');
@@ -138,6 +159,7 @@
                                 <p class="text-xs text-gray-400 mt-0.5">
                                     📍 ${p.placeName || 'بدون مكان'} • ${new Date(p.purchaseDate).toLocaleDateString('ar-SA')}
                                 </p>
+                                <p class="text-[11px] text-gray-400 mt-0.5">👤 ${p.createdByName || 'مستخدم'} (${p.createdBy || '-'})</p>
                                 <div class="mt-2 flex flex-wrap gap-2 items-center">
                                     ${warrantyBadge}
                                     ${p.storePhone ? `<a href="tel:${p.storePhone}" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full hover:bg-gray-200" onclick="event.stopPropagation()"><i class="fa fa-phone mr-1"></i>${p.storePhone}</a>` : ''}
@@ -170,7 +192,12 @@
         }
 
         async function loadPurchases() {
-            const purchases = await getPurchases(currentUser.phone);
+            let purchases;
+            if (viewMode === 'all' && isAdmin()) {
+                purchases = await getAllPurchases();
+            } else {
+                purchases = await getPurchases(currentUser.phone);
+            }
             renderPurchases(purchases);
         }
         loadPurchases();

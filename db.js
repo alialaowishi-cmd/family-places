@@ -367,3 +367,15 @@ export async function deletePurchase(id) {
     throw error;
   }
 }
+
+export async function getAllPurchases() {
+  try {
+    const snapshot = await getDocs(collection(db, 'purchases'));
+    const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    list.sort((a, b) => (b.purchaseDate || '').localeCompare(a.purchaseDate || ''));
+    return list;
+  } catch (error) {
+    console.error('❌ خطأ جلب كل المشتريات:', error);
+    return [];
+  }
+}
